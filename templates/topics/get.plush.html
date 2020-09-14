@@ -1,0 +1,71 @@
+<% let ctx = {cat_title:category.Title, forum_title:forum.Title, tid:topic.ID} %>
+<div class="row">
+    <h2 class="col-md-10"><%= topic.Title %> - <%= displayName(topic.Author) %>  </h2>
+</div>
+<div class="row">
+    <h4 class="col-md-2">
+        <a href="<%= catPath(ctx) %>" class="text-secondary"> <%= topic.Category.Title %>
+        </a>
+    </h4>
+</div>
+<hr class="col-md-10 ml-2">
+<div class="row">
+    <div class="col-md-8 mt-3 offset-md-1">
+        <%= markdown(topic.Content) %>
+    </div>
+    <div class="offset-7"><span style="font-size: 80%;"><%=t("topic-author-intro")+" "%> </span><%=avatar(topic.Author)%> <%=displayName(topic.Author)%></div>
+    <div class="col-md-2 mt-3 offset-md-8 text-right">
+        <%= if (current_user.IsAuthor(topic.AuthorID) || current_user.Role == "admin" ){ %>
+        <%= if (len(topic.Replies) == 0 || current_user.Role == "admin") { %>
+        <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#topic-modal-<%= topic.ID %>">
+                <%= icon("trash-fill",1,1) %> <%=t("topic-delete") %>
+        </button>
+        <% } %>
+        <a href="<%= topicEditPath(ctx) %>" class="btn btn-secondary btn-sm ">
+            <%= icon("input-cursor-text",1,1) %> <%=t("topic-edit") %>
+        </a>
+        <% } %>
+        <%= if (current_user) { %>
+        <a href="<%= replyPath(ctx) %>" class="btn btn-secondary btn-sm">
+            <%= icon("arrow-return-left",1,1) %>  <%=t("topic-reply") %>
+        </a>
+        <% } else { %>
+        <a href="<%= authPath({provider:"google"}) %>" class="btn btn-secondary btn-sm">
+        <%= icon("person-fill",1,1) %> <%=t("app-request-login") %>
+        </a>
+        <% } %>
+    </div>
+
+</div>
+
+<div class="modal fade" id="topic-modal-<%= topic.ID %>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><%= t("topic-delete-msg", {title: topic.Title}) %></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal  -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-left">
+                        <a href="< %= topicsDeletePath({tid: topic.ID}) %>" class="btn btn-danger">
+                           <%= icon("trash-fill",1,1) %>  <%= t("topic-delete") %>
+                        </a>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><%= t("topic-close") %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%= for (reply) in topic.Replies { %>
+<%= if (!reply.Deleted) { %>
+<%= partial("replies/show.html") %>
+<% } %>
+<% } %>
+<hr class="col-md-10 ml-2">

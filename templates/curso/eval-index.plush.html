@@ -1,0 +1,50 @@
+<%= if (current_user) { %>
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-6 col-sm-6">
+        <h2> <%=t("curso-python-evaluations-title") %></h2>
+    </div>
+    <%= if ( current_user.Role == "admin") { %>
+    <div class="col-md-2 col-sm-2 text-right">
+        <a href="<%= evaluationCreatePath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("pencil-fill",1,1) %> <%=  t("curso-python-new-evaluation") %></a>
+    </div>
+    <div class="col-md-1  col-sm-1 text-right">
+        <a href="<%= cursoCodeBackupPath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("server",1,1) %>  <%=  t("curso-python-code-backup") %></a>
+    </div>
+    <div class="col-md-1 col-sm-1  text-right">
+        <a href="<%= cursoCodeBackupReaderPath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("terminal-fill",1,1) %> <%=  ".exe" %></a>
+    </div>
+    <% } %>
+</div>
+<div class="row">
+    <div class="col-md-8"><%= t("curso-python-evaluations-title") %></div>
+     <div class="col-md-3 text-center"><%= t("description") %></div>
+    <!--   <div class="col-md-1 text-center"><%= t("category-replies") %></div>
+      <div class="col-md-1 text-center"><%= t("category-activity") %></div> -->
+</div>
+
+<%= if (len(evaluations) == 0)  {%>
+<h4><%= t("curso-python-no-evaluations-found") %></h4>
+<% } %>
+<%= for (eval) in evaluations {evaluations
+let ctxEval = {evalid: eval.ID}%>
+<div class="row">
+    <%= if (!eval.Deleted && ( !eval.Hidden || current_user.Role == "admin" ) ) { %>
+    <hr class="col-md-12 col-sm-12" id="<%= eval.ID %>">
+    <div class="col-md-8">
+        <a href="<%= evaluationGetPath( ctxEval ) %>" class="text-secondary">
+          <%= if (eval.Hidden) { %> <%= icon("eye-slash-fill",1,1) %> <% }%>  <%= eval.Title %>
+        </a>
+    </div>
+
+    <div class="col-md-3 text-center"><%= eval.Description  %></div>
+    <% } %>
+</div>
+<% } %>
+
+<hr class="col-md-12 col-sm-12">
+
+<% } else { %>
+
+    <%= t("curso-python-not-allowed") %>
+
+<% } %>

@@ -1,0 +1,21 @@
+<%= if (current_user.Role == "admin") { %>
+<form class="form-horizontal" action="<%= current_path %>" method="POST" enctype="multipart/form-data">
+    <%= csrf() %>
+    <fieldset>
+
+    <div class="form-group col-md-6">
+        <label class="col-md-8 control-label" for="safelist" >Safelist (allowed Emails)</label>
+        <div class="col-md-12">
+            <textarea class="col-md-12"  rows="20" style="overflow: auto;" name="safelist"><%= safe_users.String() %></textarea>
+        </div>
+        <span class="help-block">You can only add emails. Once an email is added it remains in the safelist. If one wishes to remove a user one should ban said user.</span>
+    </div>
+
+    <div class="col-md-4">
+        <button id="submit" class="btn btn-primary"><%= t("submit") %></button>
+    </div>
+    </fieldset>
+</form>
+
+
+<% } %>

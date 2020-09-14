@@ -1,0 +1,53 @@
+<!-- TOPIC POST FORM -->
+<%= if (current_user) {
+let content = ""
+let title  = ""
+let status = "new"
+        if (topic) {
+            content = topic.Content
+            title  = topic.Title
+            status = "edit"
+        }
+%>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-12 col-sm-10" >
+        <h2><%= t(status+"-topic-headline") %></h2>
+        <form class="form-horizontal" action="<%= current_path %>" method="POST" enctype="multipart/form-data">
+        <input name="authenticity_token" type="hidden" value="<%= authenticity_token %>">
+        <fieldset>
+            <!-- Form Name -->
+            <!-- Text input title-->
+            <div class="form-group" >
+                <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
+                <div class="col-md-4">
+                    <input id="title" name="title" type="text" placeholder="Pregunta, consulta"
+                           class="form-control input-md" required="" value="<%= title %>">
+                    <span class="help-block"><%=t("new-topic-title-help") %></span>
+                </div>
+            </div>
+                        <!-- Textarea -->
+            <div class="form-group">
+                <label class="col-md-8 control-label" for="content"><%= t("content") %></label>
+                <div class="col-md-8" >
+                    <textarea class="form-control" id="content" rows="9" name="content" placeholder="<%= t("new-topic-content-placeholder") %>"><%= content %></textarea>
+                    <span class="help-block"><%= t("new-topic-content-help") %></span>
+                </div>
+            </div>
+
+            <!-- SUBMIT Button -->
+            <div class="col-md-4">
+                <button id="submit" class="btn btn-primary"><%= t("submit") %></button>
+            </div>
+
+        </fieldset>
+        </form>
+
+        <!-- This is the preview (vista previa of markdown/mathjax/hljs content) -->
+        <%= partial("md.plush.html",{id_in: "content" ,id_out: "preview", title: t("new-topic-preview")}) %>
+
+
+    </div>
+</div>
+
+<% } %>

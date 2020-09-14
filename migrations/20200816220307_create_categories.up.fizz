@@ -1,0 +1,8 @@
+create_table("categories") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("title", "string", {})
+	t.Column("description", "string", {"null": true})
+	t.Column("subscribers", "varchar[]", {"null": true})
+	t.Column("parent_category", "uuid", {"null": true})
+	t.Timestamps()
+}

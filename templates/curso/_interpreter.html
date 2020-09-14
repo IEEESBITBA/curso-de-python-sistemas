@@ -1,0 +1,134 @@
+
+<%= if (current_user) { %>
+<%
+let evalid = ""
+if (evaluation) {
+    evalid = evaluation.ID
+}
+let tab = t("interpreter-tab")
+%>
+<form id="interpreter" action="<%= interpretPath() %>" method="POST" enctype="multipart/form-data">
+    <%= csrf() %>
+    <%= if ((evaluation)) { %>
+    <input name="evalid" value="<%= evalid %>" type="hidden">
+    <% }%>
+    <div class="container">
+        <%= if ((evaluation)) { %>
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="input">ID del equipo: </label>
+                <input type="text" id="input" name="input" <%= if (current_user.Role=="admin") {%>value="1000000009"<% } %> >
+            </div>
+
+        </div>
+        <% }%>
+        <div class="row" id="banner">
+            <div class="col-2 col-sm-2" id="head" itemprop="name"> <!-- Si es una evaluación mostramos un icono especial -->
+                <button id="run" class="btn btn-primary btn-lg"><%= if (evaluation) { %> <%= icon("code-slash",2,2) %> <% } else { %> <%= icon("code-slash",2,2) %><% } %> <%= t("curso-python-interpreter-run") %></button>
+            </div>
+            <div class="col-2 col-sm-2"><%= t("curso-python-interpreter-title") %></div>
+            <div class="col-6 col-sm-6" id="user"><%= t("user") +": "+ current_user.Name %></div>
+            <div class="col-2 col-sm-2" id="elapsed"></div>
+        </div>
+        <div id="wrap" class="row">
+        <textarea itemprop="description" rows="16" class="lined col-sm-12"  id="code" name="code"
+              autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false"><%= if (!(evaluation)) {%><%= t("curso-python-interpreter-placeholder") %><% }%></textarea>
+        </div>
+        <style>
+
+        </style>
+        <div class="row" id="wrap">
+            <textarea class="lined col-sm-12" rows="10" id="output" disabled></textarea>
+        </div>
+    </div>
+</form>
+
+<script src="<%= assetPath("js/jquery-linedtextarea.js") %>"></script>
+<script>
+$('#code').linedtextarea();
+runID = document.querySelector("#run");
+codeID = document.querySelector("#code");
+outputID = document.querySelector("#output");
+elapsedID = document.querySelector("#elapsed");
+codeID.setAttribute("wrap","off")
+outputID.setAttribute("wrap","off")
+$(`.linedwrap`).attr("class","linedtextarea")
+
+function extractLineNo(stringy) {
+    let cap = /line (\d+)/g.exec(stringy)
+    if (cap == null || cap.length < 2) {
+        return -1
+    }
+    let ln = parseInt(cap[1]);
+    if (!(ln > 0) || !(ln < 1000)) {
+        return -1
+    }
+    return ln
+}
+
+$("#interpreter").submit(function(e){
+    $(`.codelines > div.lineselect`).attr("class", "lineno")
+    elapsedID.innerHTML = ""
+    e.preventDefault();
+    let form = $(this).serialize();
+    $.ajax({
+        url: '<%= interpretPath() %>',
+        method: 'POST',
+        data: form,
+        dataType: 'xml',
+        success: function(data){
+            onResponse(data)
+        },
+        error: function(data){ //error function
+            onResponse(data)
+        }
+    });
+});
+function onResponse(data) {
+    var rjson = JSON.parse(data.responseText);
+    if (rjson.error !== "" && rjson.error !== undefined) {
+        outputID.setAttribute("style", "color:red;");
+        rjson.output = rjson.output === "" ? rjson.error :  rjson.error + "\n\nOutput:\n" + rjson.output ;
+        num = extractLineNo(rjson.output);
+        $(`.codelines > div:nth-of-type(${num})`).attr("class", "lineno lineselect")
+    } else {
+        outputID.setAttribute("style", "");
+        elapsedID.innerHTML = ( Math.ceil(parseInt(rjson.elapsed)/ 1e6) ).toString() + "ms"
+    }
+    outputID.innerHTML = rjson.output.replace("File ", "Error on");
+}
+
+$(document).delegate('#code', 'keydown', function (e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == 9) {
+        e.preventDefault();
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
+        var tab = `<%= tab %>`
+        // set textarea value to: text before caret + tab + text after caret
+        $(this).val($(this).val().substring(0, start)
+            + tab
+            + $(this).val().substring(end));
+        // put caret at right position again
+        this.selectionStart =
+            this.selectionEnd = start + tab.length;
+    }
+});
+</script>
+<% } else {%>
+<!-- USER NOT ALLOWED -->
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            <h3 class="panel-title"><%= t("curso-python-interpreter-only-members")  %></h3>
+        </div>
+        <div class="panel-body">
+            <p><%= t("app-login-choose") %></p>
+            <ul>
+                <a href="/auth/google"><svg  width="14" height="14" viewBox="0 0 48 48" aria-hidden="true" class="L5wZDc"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"></path><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"></path><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"></path><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"></path><path fill="none" d="M2 2h44v44H2z"></path></svg>
+                    Google
+                </a>
+            </ul>
+        </div>
+    </div>
+    <div class="alert-danger">.</div>
+<% } %>

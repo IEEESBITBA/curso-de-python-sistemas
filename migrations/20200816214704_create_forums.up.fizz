@@ -1,0 +1,9 @@
+create_table("forums") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("title", "string", {})
+	t.Column("description", "string", {})
+	t.Column("logo", "blob", {})
+	t.Column("defcon", "string", {})
+	t.Column("staff", "varchar[]", {"null": true})
+	t.Timestamps()
+}

@@ -1,0 +1,102 @@
+<%= if (current_user.Role == "admin") { %>
+<h1>USUARIOS</h1>
+<ul>
+    <li>
+        <a href="<%= safeListPath() %>">Safelist</a>
+    </li>
+    <li>
+        <a href="<%= controlPanelPath() %>">Panel de control</a>
+    </li>
+</ul>
+
+<div class="row text-center">
+    <div class="col-1">
+        Avatar
+    </div>
+    <div class="col-4">
+        <%= t("app-user") %>
+    </div>
+    <div class="col-1">
+        <%= t("app-user-role") %>
+    </div>
+    <div class="col-2">
+        <%= t("app-user-role-actions") %>
+    </div>
+    <div class="col-3">
+        <%= t("app-user-email") %>
+    </div>
+</div>
+<hr>
+<%= for (user) in users {
+let color = "white"
+if (user.Role == "admin") {
+    color = "paleturquoise"
+}
+if (user.Role == "banned") {
+    color = "salmon"
+}
+%>
+    <div class="row text-center border-top border-secondary py-1" style="background: <%= color %>;">
+        <div class="col-1">
+            <%= avatar(derefUser(user)) %>
+        </div>
+
+        <div class="col-4">
+            <%= user.Name %>
+            <%= if (user.Nick != "") { %> (<%= user.Nick %>) <% } %>
+        </div>
+        <div class="col-1">
+            <%= userIcon(derefUser(user),1) %>
+        </div>
+        <div class="col-2">
+            <%= if (user.Role != "banned") {%>
+            <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#user-modal-<%= user.ID %>">
+                <span> <%= icon("hammer",1,1) %> <%=t("topic-delete") %></span>
+            </button>
+            <% } %>
+            <%= if (user.Role != "admin") {%>
+            <a type="button" class="btn btn-primary btn-sm m-0" href="<%= adminUserPath({uid: user.ID}) %>">
+                <span> <%= icon("shield-fill",1,1) %> <%=t("topic-delete") %></span>
+            </a>
+            <% } %>
+            <%= if (user.Role != "") {%>
+            <a type="button" class="btn btn-secondary btn-sm m-0" href="<%= normalizeUserPath({uid: user.ID}) %>">
+               <%= if (user.Role!="banned") {%> <%= icon("shield-slash-fill",1,1) %> <% } else { %> <%=icon("emoji-expressionless",1,1) %>  <% } %>
+            </a>
+            <% } %>
+        </div>
+        <div class="col-3">
+            <%= user.Email %>
+        </div>
+    </div>
+
+<div class="modal fade" id="user-modal-<%= user.ID %>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">BAN USER <%= user.Name %></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal  -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-left">
+                        <a href="<%= banUserPath({uid: user.ID}) %>" class="btn btn-danger">
+                            <span> <%= icon("hammer",1,1) %> <%=t("topic-delete") %></span>
+                        </a>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><%= t("topic-close") %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% } %>
+<hr>
+<% } else { %>
+    <h1> No se encontró nada aquí ;)</h1>
+<% } %>

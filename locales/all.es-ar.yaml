@@ -1,0 +1,309 @@
+# For more information on using i18n see: https://github.com/nicksnyder/go-i18n
+- id: welcome_greeting
+  translation: "Bienvenidos"
+- id: app-back-to-top
+  translation: "Volver arriba"
+- id: app-footer-title
+  translation: "Foro - Curso de Python"
+- id: app-footer-link-name
+  translation: "Sitio web IEEE"
+- id: app-footer-link-url
+  translation: 'https://ieeeitba.web.app/cursospython'
+- id: app-not-found
+  translation: "404 Recurso no encontrado"
+- id: app-status-internal-error
+  translation: "500 Error interno"
+- id: app-user-required
+  translation: "Se requiere iniciar sesión para ver esa página"
+- id: app-user-auth-error
+  translation: "Hubo un error en la verificación del usuario. ¿Pruebe otra vez?"
+- id: app-users
+  translation: "Usuarios"
+- id: app-user
+  translation: "Usuario"
+- id: app-user-email
+  translation: "Email"
+- id: app-user-role
+  translation: "Rol"
+- id: app-user-role-actions
+  translation: "Cambiar rol"
+- id: app-categories
+  translation: "Categorias"
+- id: app-topics
+  translation: "Temas"
+- id: app-pagination-displaying
+  translation: "Mostrando"
+- id: app-pagination-perpage
+  translation: "por página"
+- id: app-login
+  translation: "Sesión iniciada"
+- id: app-logout
+  translation: "Sesión cerrada"
+- id: app-auth-error
+  translation: "No se pudo completar la verificación de usuario"
+- id: app-settings
+  translation: "Configuración"
+- id: app-request-logout
+  translation: "Cerrar sesión"
+- id: app-request-login
+  translation: "Iniciar sesión"
+- id: app-login-title
+  translation: "Foros ITBA - Inicio de sesión"
+- id: app-login-detail
+  translation: "Para participar del foro es necesario estar registrado con un proveedor"
+- id: app-login-choose
+  translation: "Eliga su proveedor de la lista"
+- id: app-markdown-example
+  translation: |
+    ### título
+    * Bullet point, `código`, **negrita**, *cursiva*
+    Ecuación: \\( E = mc^2 \\)
+    Ecuación centrada: $$ \frac{\pm b - \sqrt{b-2a}}{2a} $$
+    ```
+    bloque de código
+    ```
+    Imagenes: ![altNombre](https://imgur.com/imURL)
+# USERS
+- id: user-settings-headline
+  translation: "Ajustes de usuario"
+- id: user-settings-nick
+  translation: "Apodo"
+- id: user-settings-nick-help
+  translation: "Nombre que será mostrado en el foro"
+- id: user-settings-nick-placeholder
+  translation: "xXDarkKnightXx"
+- id: user-settings-nick-empty
+  translation: "El apodo no puede ser vacío"
+- id: user-settings-nick-invalid
+  translation: "El apodo no puede tener más de 10 caracteres (alfanuméricos)"
+- id: user-settings-edit-success
+  translation: "Se registraron los cambios correctamente"
+- id: user-settings-theme
+  translation: "Estilo del código"
+- id: user-settings-theme-sample-code
+  translation: |
+    def love(isAll):
+      return None
+
+    if x == True: # puede ser más simple?
+      for y in love("with that"):
+        x += y + 12345
+
+# Admin stuff
+- id: new-forum
+  translation: "Nuevo foro"
+- id: new-forum-logo-help
+  translation: "El logo es requerido"
+- id: new-forum-category
+  translation: "Nueva categoría"
+- id: new-forum-staff-help
+  translation: "Emails de encargados. Separar con commas."
+- id: new-forum-access-help
+  translation: "Nivel de acceso. 0 es público. 1 es solo moderadores."
+
+# FORUM
+- id: forum-name
+  translation: "Nombre del foro"
+- id: no-forums-found
+  translation: "No se encontraron foros"
+- id: forum-invalid-title
+  translation: "Título de foro debería consistir de caracteres alfanuméricos y '-', '_'"
+- id: topic-delete-popup
+  translation: "Eliminar tema {{.title}} ?"
+- id: topic-last-activity
+  translation: "Última actividad: "
+- id: topic-replies
+  translation: "Comentarios: "
+
+
+# CATEGORY
+- id: category-category
+  translation: "Categoría"
+- id: category-topic
+  translation: "Temas de categoría"
+- id: category-activity
+  translation: "Última actividad"
+- id: category-new-category
+  translation: "Nueva categoría"
+- id: category-new-topic
+  translation: "Nuevo tema"
+- id: category-users
+  translation: "Usuarios"
+- id: category-replies
+  translation: "Respuestas"
+- id: category-no-topics-found
+  translation: "Sé el primero en postear un tema!"
+- id: category-invalid-title
+  translation: "Título de categoría debería consistir de caracteres alfanuméricos y '-', '_'"
+
+# TOPIC
+- id: topic-author-intro
+  translation: "Publicado por"
+- id: new-topic-headline
+  translation: "Nuevo tema"
+- id: edit-topic-headline
+  translation: "Editar tema"
+- id: new-topic-content-help
+  translation: "Contenido a postear. Soporta markdown"
+- id: new-topic-title-help
+  translation: "Nombre descriptivo del tema."
+- id: new-topic-content-placeholder
+  translation: |
+    * Bullet point, `código`, **negrita**, *cursiva*
+    ```
+    bloque de código
+    ```
+- id: new-topic-preview
+  translation: "Vista previa"
+# TOPIC BUTTONS AND FLASH
+- id: topic-edit
+  translation: " "
+- id: topic-delete
+  translation: " "
+- id: topic-reply
+  translation: " "
+- id: topic-delete-msg
+  translation: "Eliminar {{.title}}"
+- id: topic-close
+  translation: "Cerrar"
+- id: topic-not-found
+  translation: "No se encontró ese tema"
+- id: topic-add-success
+  translation: "Se creó el tema correctamente"
+- id: topic-edit-success
+  translation: "Se editó el tema correctamente"
+
+# REPLY
+- id: reply-reply
+  translation: "Responder"
+- id: reply-send
+  translation: "Enviar"
+- id: reply-delete
+  translation: "Eliminar"
+- id: reply-cancel
+  translation: "Cancelar"
+- id: reply-delete-msg
+  translation: "¿Está seguro que quiere borrar la respuesta?"
+- id: reply-edit-success
+  translation: "Se editó la respuesta correctamente"
+- id: reply-create-success
+  translation: "Respuesta agregada"
+
+# direct translations
+- id: description
+  translation: "Descripción"
+- id: logo
+  translation: "Logo"
+- id: attach-image
+  translation: "Adjuntar imagen"
+- id: title
+  translation: "Título"
+- id: access
+  translation: "Acceso"
+- id: moderators
+  translation: "Moderadores"
+- id: submit
+  translation: "Enviar"
+- id: topic
+  translation: "Tema"
+- id: user
+  translation: "Usuario"
+- id: content
+  translation: "Contenido"
+- id: hidden
+  translation: "Oculto"
+- id: evaluations
+  translation: "Evaluaciones"
+- id: close
+  translation: "Cerrar"
+- id: edit-success
+  translation: "Se editó correctamente"
+- id: delete-success
+  translation: "Se eliminó correctamente"
+- id: of
+  translation: "de"
+- id: description
+  translation: "Descripción"
+# Mail server
+- id: description
+  translation: "Descripción"
+- id: description
+  translation: "Descripción"
+- id: description
+  translation: "Descripción"
+- id: description
+  translation: "Descripción"
+- id: description
+  translation: "Descripción"
+
+
+# CURSO PYTHON
+- id: curso-python-evaluator
+  translation: "Evaluación"
+- id: curso-python-interpretador
+  translation: "Interpretador"
+- id: curso-python-not-allowed
+  translation: "Tiene que estar registrado al curso para acceder a esta página"
+- id: curso-python-no-evaluations-found
+  translation: "No se encontraron evaluaciones"
+- id: curso-python-evaluations-title
+  translation: "Evaluaciones"
+- id: curso-python-new-evaluation
+  translation: "Crear evaluación"
+- id: curso-python-evaluation-stdin
+  translation: "Input estándar del corrector"
+- id: curso-python-evaluation-title-help
+  translation: "El título del trabajo a hacer"
+- id: curso-python-evaluation-hidden-help
+  translation: "Si está oculto no será visto por usuarios comunes"
+- id: curso-python-evaluation-content-help
+  translation: "El contenido a mostrarle al usuario para orientar que tiene que hacer"
+- id: curso-python-evaluation-solution-help
+  translation: "La solución escrita en python para obtener los resultados correctos. No se muestra a ningún usuario."
+- id: curso-python-evaluation-solution
+  translation: "Solución Python"
+- id: curso-python-evaluation-add-success
+  translation: "Se agregó la evaluación correctamente"
+- id: curso-python-evaluation-add-fail
+  translation: "Hubo un error agregando la evaluación"
+- id: curso-python-interpreter-only-members
+  translation: "Interpretador solo disponible para usuarios registrados"
+- id: curso-python-interpreter-title
+  translation: " "
+- id: curso-python-interpreter-run
+  translation: " "
+- id: curso-python-interpreter-output-too-long
+  translation: "Se recortó la salida por ser muy larga"
+- id: curso-python-interpreter-placeholder
+  translation: | # "print(\"Hola mundo\")"
+    print("Hola mundo")
+- id: curso-python-evaluation-not-found
+  translation: "No se encontró la evaluación"
+- id: curso-python-evaluation-success
+  translation: "Evaluación OK! aprobado!"
+- id: curso-python-evaluation-fail
+  translation: "Evaluación desaprobada."
+- id: curso-python-code-backup
+  translation: "DB"
+- id: curso-python-input-field-error
+  translation: "Hubo un error procesando su número de equipo ingresado. Asegurese de que sea un número entero sin decimales."
+- id: curso-python-interpreter-placeholder
+  translation: "print(\"hello-world\")"
+- id: interpreter-tab
+  translation: "   "
+# Safelist
+- id: safelist-user-not-found
+  translation: "Su email no está entre los permitidos. Si cree que es un error por favor comuníquese con los administradores"
+- id: placeholder
+  translation: "placeholder"
+
+
+
+
+
+
+
+
+
+
+

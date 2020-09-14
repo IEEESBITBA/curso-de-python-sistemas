@@ -1,0 +1,11 @@
+create_table("evaluations") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("title", "string", {})
+	t.Column("description", "string", {})
+	t.Column("content", "text", {})
+	t.Column("solution", "text", {})
+	t.Column("inputs", "text", {"null": true})
+	t.Column("hidden", "bool", {})
+	t.Column("deleted", "bool", {})
+	t.Timestamps()
+}

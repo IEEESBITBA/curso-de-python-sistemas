@@ -1,0 +1,27 @@
+<label class="mt-1"><%= icon("markdown-fill",2,2) %> <strong><%= title %></strong></label>
+<div  id="<%= id_out %>"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" ></script>
+<script >
+    // this is a partial template. see https://gobuffalo.io
+    RENDERERS.push(renderMD)
+    var inputTypeElem = document.getElementById('<%= id_in %>'); // these are plush templates
+    var outputTypeElem = document.getElementById('<%= id_out %>');
+    window.onload=function(){
+        inputTypeElem = document.getElementById('<%= id_in %>');
+        outputTypeElem = document.getElementById('<%= id_out %>');
+        $(document).delegate('#<%= id_in %>', 'keyup', function (e) { //inputTypeElem.addEventListener('keyup', handleInputChange);
+            var keyCode = e.keyCode || e.which;
+            if (keyCode == 13 || keyCode == 8) { // http://gcctech.org/csc/javascript/javascript_keycodes.htm
+                render(RENDERERS);
+            }
+        });
+        render(RENDERERS); // loading upon entry if needed
+    }
+    function renderMD() {
+        inputTypeElem = document.getElementById('<%= id_in %>');
+        outputTypeElem = document.getElementById('<%= id_out %>');
+        outputTypeElem.innerHTML = marked(inputTypeElem.value);
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+</script>

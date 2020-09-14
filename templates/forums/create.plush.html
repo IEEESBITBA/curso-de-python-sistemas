@@ -1,0 +1,82 @@
+<%= if (current_user.Role == "admin") { %>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-8 col-sm-10">
+        <h2><%= t("new-forum") %></h2>
+        <form class="form-horizontal" action="<%= joinPath(current_path,"post")  %>" method="POST" enctype="multipart/form-data">
+        <input name="authenticity_token" type="hidden" value="<%= authenticity_token %>">
+        <fieldset>
+            <!-- Form Name -->
+            <!-- Text input title-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
+                <div class="col-md-4">
+                    <input id="title" name="title" type="text" placeholder="apuntes-max-power"
+                           class="form-control input-md" required="">
+                    <span class="help-block"><%=t("forum-name") %></span>
+                </div>
+            </div>
+
+            <!-- Text input Description-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="description"><%= t("description")%></label>
+                <div class="col-md-5">
+                    <input id="description" name="description" type="text" placeholder="Apuntes de alta potencia"
+                           class="form-control input-md" required>
+                </div>
+            </div>
+
+            <!-- File Button -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="logo"><%=  t("logo")%></label>
+                <div class="col-md-4">
+                    <input id="logo" name="logo" class="input-file" type="file" accept="image/jpeg,image/png">
+                </div>
+                <span class="help-block"><%= t("new-forum-logo-help") %></span>
+            </div>
+
+            <!-- Multiple Radios (inline) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="access"><%= t("access") %></label>
+                <div class="col-md-4">
+                    <label class="radio-inline" for="radios-0">
+                        <input type="radio" name="access" id="radios-0" value="0" checked="checked">
+                        0
+                    </label>
+                    <label class="radio-inline" for="radios-1">
+                        <input type="radio" name="access" id="radios-1" value="1">
+                        1
+                    </label>
+                    <label class="radio-inline" for="radios-2">
+                        <input type="radio" name="access" id="radios-2" value="2">
+                        2
+                    </label>
+                    <label class="radio-inline" for="radios-3">
+                        <input type="radio" name="access" id="radios-3" value="3">
+                        3
+                    </label>
+                </div>
+                <span class="help-block"><%= t("new-forum-access-help") %></span>
+            </div>
+
+            <!-- Textarea -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="staffemail"><%= t("moderators") %></label>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="staffemail" name="staffemail"></textarea>
+                    <span class="help-block"><%= t("new-forum-staff-help") %></span>
+                </div>
+            </div>
+
+            <!-- SUBMIT Button -->
+            <div class="col-md-4">
+                <button id="submit" class="btn btn-primary"><%= t("submit") %></button>
+            </div>
+
+        </fieldset>
+        </form>
+
+    </div>
+</div>
+
+<%}%>

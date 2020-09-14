@@ -1,0 +1,159 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/etcd-io/bbolt"
+	"github.com/gofrs/uuid"
+	"html/template"
+	"io/ioutil"
+	"os"
+	"sort"
+	"strings"
+	"time"
+)
+
+func main() {
+	db, _ := bbolt.Open("uploads.db", 0600, nil)
+	var codes []pythonHandler
+	err := db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte("pyUploads"))
+		err := b.ForEach(func(k, v []byte) error {
+			p := pythonHandler{}
+			err := json.Unmarshal(v, &p)
+			p.Time = strings.Split(p.Time, " m=")[0] // gets rid of monotonic clock reading
+			p.timeCode, err = time.Parse(tform, p.Time)
+			codes = append(codes, p)
+			return err
+		})
+
+		return err
+	})
+	sort.Sort(ByTime(codes))
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	fj, _ := os.Create("out.json")
+	j, _ := json.MarshalIndent(codes," ","\t")
+	fj.Write(j)
+	fj.Close()
+	f, err := os.Open("tpl.html")
+	var tplstring string
+	if err != nil {
+		tplstring = tpl
+	} else {
+		b, _ := ioutil.ReadAll(f)
+		tplstring = string(b)
+	}
+	t, err := template.New("main").Parse(tplstring)
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	f, _ = os.Create("index.html")
+	err = t.Execute(f, &struct {
+		Codes []pythonHandler
+	}{Codes: codes})
+	fmt.Print(err)
+
+}
+
+var tform = "2006-01-02 15:04:05.999999999 -0700 MST"
+//var dateString = "2018-10-15 15:42:37.5989253 +1100 AEDT m=+3610.688917401" // as is recieved by go
+// sort interface
+type ByTime []pythonHandler
+
+func (t ByTime) Len() int           { return len(t) }
+func (t ByTime) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t ByTime) Less(i, j int) bool { return t[i].timeCode.Before(t[j].timeCode) }
+
+type pythonHandler struct {
+	code
+	result
+	Time     string `json:"time"`
+	timeCode time.Time
+	UserName string `json:"user"`
+	userID   string
+	filename string
+}
+type code struct {
+	Source string `json:"code" form:"code"`
+	Input string `json:"input" form:"input"`
+	Evaluation uuid.UUID `json:"evalid" form:"evalid"`
+}
+
+type result struct {
+	Output  string        `json:"output"`
+	Error   string        `json:"error"`
+	Elapsed time.Duration `json:"elapsed"`
+}
+
+const tpl = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        main {
+            font-family: sans-serif;
+        }
+        .code-block {
+            border-radius: 2rem;
+            background: #89c6d9;
+            border: 2px solid #044a5c;
+
+            font-size: 11pt;
+            padding: 1rem;
+            padding-top:1px;
+            margin-top:1px;
+            width: 80%;
+            right:2rem;
+            left:10%;
+        }
+        .errored {
+            background: #ffa2a2;
+        }
+        .time {
+            font-size: 9pt ;
+            margin-left:4rem;
+        }
+        .code , .error , .output , pre {
+            font-family: monospace;
+        }
+        .error {
+            color: #ff0000;
+        }
+        .container {
+            display: flex;
+            width: 70%;
+            left: 4rem;
+        }
+    </style>
+</head>
+<body>
+<main>
+{{range  .Codes }}
+    <div class="container">
+    <p class="username">{{.UserName}}</p>
+        <p class="time"> {{.Time}}</p>
+
+    <div class="code-block {{ if ne .Error ""}}errored{{end -}}" >
+        <div class="code">
+            <pre>{{ .Source }}</pre>
+        </div>
+        <hr>
+        <div class="output">
+            <pre>{{ .Output }}</pre>
+        </div>
+        {{if ne .Error ""}}
+        <div class="error">
+            <pre>{{.Error}}</pre>
+        </div>
+        {{end}}
+    </div>
+    </div>
+{{end}}
+</main>
+</body>
+</html>`

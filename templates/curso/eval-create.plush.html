@@ -1,0 +1,105 @@
+<%= if (current_user.Role == "admin") {
+    let content = ""
+    let title  = ""
+    let description = ""
+    let hidden = false
+    let status = "new"
+    let solution = ""
+    let input = ""
+    if (evaluation) {
+        content = evaluation.Content
+        title  = evaluation.Title
+        description  = evaluation.Description
+        hidden = evaluation.Hidden
+        solution = evaluation.Solution
+        input = evaluation.Inputs
+        status = "edit"
+    }
+%>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-8 col-sm-10">
+        <h2><%= t("curso-python-new-evaluation") %></h2>
+        <form class="form-horizontal" action="<%= current_path  %>" method="POST" enctype="multipart/form-data">
+        <%= csrf() %>
+        <fieldset>
+            <!-- Form Name -->
+            <!-- Text input title-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
+                <div class="col-md-4">
+                    <input id="title" name="title" type="text" placeholder="El misterio del amor"
+                           class="form-control input-md" required="" value="<%=  title %>">
+                    <span class="help-block"><%=t("curso-python-evaluation-title-help") %></span>
+                </div>
+            </div>
+
+            <!-- Text input Description-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="description"><%= t("description")%></label>
+                <div class="col-md-5">
+                    <input id="description" name="description" type="text" placeholder="Fecha límite: 24/10"
+                           class="form-control input-md" required value="<%=  description %>">
+                </div>
+            </div>
+            <!-- Single checkbox (inline) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="hidden"><%= t("hidden") %></label>
+                <input type="checkbox" name="hidden" id="hidden" value="true" <%= if (hidden) { %> checked<% } %>>
+                <div class="col-md-4">
+                    <span class="help-block"><%= t("curso-python-evaluation-hidden-help") %></span>
+                </div>
+            </div>
+
+            <!-- Textarea markdown CONTENT-->
+            <div class="form-group">
+                <label class="col-md-8 control-label" for="content"><%= t("content") %></label>
+                <div class="col-md-8">
+                    <textarea required rows="9" class="form-control" id="content" name="content" placeholder="<%= t("app-markdown-example") %>"><%= content %></textarea>
+                    <span class="help-block"><%= t("curso-python-evaluation-content-help") %></span>
+                </div>
+            </div>
+            <!-- Textarea Solution-->
+            <div class="form-group">
+                <label class="col-md-6 control-label" for="sol"><%= t("curso-python-evaluation-solution") %></label>
+                <div class="col-md-6">
+                    <textarea class="form-control" rows="7" id="sol" name="solution" placeholder="" required><%= solution %></textarea>
+                    <span class="help-block"><%= t("curso-python-evaluation-solution-help") %></span>
+                </div>
+            </div>
+            <!-- Textarea STDIN-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="stdin"><%= t("curso-python-evaluation-stdin") %></label>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="stdin" name="stdin"><%= input %></textarea>
+                    <span class="help-block">STDIN</span>
+                </div>
+            </div>
+            <!-- SUBMIT Button -->
+            <div class="col-md-4">
+                <button id="submit" class="btn btn-primary"><%= t("submit") %></button>
+            </div>
+
+        </fieldset>
+        </form>
+
+    </div>
+</div>
+
+<%= partial("md.plush.html",{id_in: "content" ,id_out: "preview", title: t("new-topic-preview")}) %>
+<!--<label><%= icon("markdown-fill",2,2) %><strong><%= t("new-topic-preview") %></strong></label>
+<div  id="preview">
+
+</div> -->
+
+<div style="margin:2rem;">
+    <%= let evaluation = false
+    partial("curso/interpreter.html") %>
+</div>
+
+
+<% } else {  %>
+
+    <%= t("curso-python-not-allowed") %>
+
+<% } %>

@@ -1,0 +1,41 @@
+<%= if (current_user.Role == "admin") { %>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-8 col-sm-10">
+        <h2><%= t("category-new-category") %></h2>
+        <form class="form-horizontal" action="<%= current_path %>" method="POST" enctype="multipart/form-data">
+        <input name="authenticity_token" type="hidden" value="<%= authenticity_token %>">
+        <fieldset>
+            <!-- Form Name -->
+            <legend>Creación de categoría</legend>
+            <!-- Text input Title-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="title">Titulo</label>
+                <div class="col-md-4">
+                    <input id="title" name="title" type="text" placeholder="Un tema general"
+                           class="form-control input-md" required="">
+                    <span class="help-block">Nombre de la categoria</span>
+                </div>
+            </div>
+
+            <!-- Text input Description -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="description">Descripción</label>
+                <div class="col-md-5">
+                    <input id="description" name="description" type="text" placeholder="Apuntes de todos para todos"
+                           class="form-control input-md">
+                </div>
+            </div>
+
+            <!-- SUBMIT Button -->
+            <div class="col-md-4">
+                <button id="submit" class="btn btn-primary">Submit</button>
+            </div>
+
+        </fieldset>
+        </form>
+
+    </div>
+</div>
+
+<%}%>

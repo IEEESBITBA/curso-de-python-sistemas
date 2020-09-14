@@ -1,0 +1,10 @@
+<div class="pagination-label">
+    <span class="opacity"><%= t("app-pagination-displaying") %> <%= pagination.Offset + 1 %> - <%= pagination.Offset + pagination.CurrentEntriesSize %> <%= t("of")%> <%= pagination.TotalEntriesSize %> <%= plural %></span>
+    <i class="per-page-separator">|</i>
+    <span class="per-page-<%= pagination.PerPage %>">
+        <%= for (val) in perPage { %>
+        <a href="<%= current_path %>?per_page=<%= val %>"><i class="opacity per-page-option"><%= val %></i></a>
+        <% } %>
+        <i class="opacity"><%= plural + " " + t("app-pagination-perpage") %></i>
+    </span>
+</div>

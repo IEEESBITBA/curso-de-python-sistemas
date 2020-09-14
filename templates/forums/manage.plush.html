@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="col-md-2 offset-md-10 text-right">
+        <%= if (current_user.Role == "admin") { %>
+        <a href="<%= create_forum_path %>" data-method="GET" class="btn btn-primary"><%= t("new-forum") %></a>
+        <% } %>
+    </div>
+</div>
+<h2>Foros activos</h2>
+
+<div class="container">
+    <%= if (len(forums) == 0) {%>
+        <div>
+            <%= t("no-forums-found") %>
+        </div>
+    <% } else { %>
+        <%= for (i, v) in forums { %>
+        <div>
+            <a href="<%= forumPath({forum_title:v.Title}) %>">
+            <%= v.Title %>
+            </a>
+            <span style="margin-left: 4rem"><%= v.Description %></span>
+        </div>
+        <% } %>
+    <% } %>
+</div>
+
+<div class="row justify-content-center">
+    <div class="pagination-sm">
+        <%= paginator(pagination) %>
+    </div>
+</div>

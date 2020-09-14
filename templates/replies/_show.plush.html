@@ -1,0 +1,46 @@
+<% let ctx = {forum_title:forum.Title, cat_title:category.Title,tid:topic.ID, rid: reply.ID} %>
+
+<div class="row col-md-9 col-sm-12">
+    <div class="card border-secondary mt-2 mt-lg-4" style="width:100%;">
+        <div class="card-header bg-dark text-white">
+            <%=avatar(reply.Author)%> <%= displayName(reply.Author) %>
+            <span class="float-right"> <%= timeSince(reply.UpdatedAt) %></span>
+        </div>
+        <div class="card-body">
+            <%= markdown(reply.Content) %>
+            <div class="col-md-2 offset-md-8 text-right">
+                <%= if  ( current_user.IsAuthor(reply.AuthorID) || current_user.Role == "admin" ) { %>
+                <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#reply-modal-<%= reply.ID %>">
+                    <%= icon("trash-fill",1,1) %>
+                </button>
+                <a href="<%= replyEditPath(ctx) %>" class="btn btn-secondary btn-sm m-0">
+                    <%= icon("input-cursor-text",1,1) %>
+                </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reply-modal-<%= reply.ID %>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><%= t("reply-delete-msg") %></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal  -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-left">
+                        <a href="<%= replyEditPath(ctx) %>" class="btn btn-danger" data-method="DELETE"><%= t("reply-delete") %></a>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><%= t("reply-cancel") %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
