@@ -47,6 +47,14 @@ $dark:          #111;
     height:28px;
 }
 
+footer {
+    padding-left:10%;
+    padding-right:10%;
+    padding-bottom:1rem;
+    bottom: 0;
+    width:100%;
+}
+
 // markdown images
 p > img {
     max-width: 60%;
@@ -66,7 +74,8 @@ div > pre.hljs , pre > code.hljs {
     max-height: 24rem;
     max-width: 80rem;
 }
-p > code.hljs { // Inline code
+// Inline code
+p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
     display:inline;
     border-style: solid ;
     border-width: thin;
@@ -75,13 +84,6 @@ p > code.hljs { // Inline code
     padding: 0.2em;
 }
 
-footer {
-    padding-left:10%;
-    padding-right:10%;
-    padding-bottom:1rem;
-    bottom: 0;
-    width:100%;
-}
 // form styles
 .help-block {
     color: grey;
