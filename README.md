@@ -44,19 +44,24 @@ the end of this document)
 
 6. Create your database according to [`database.yml`](./database.yml) config file. The following section explains how to do that, for now I'll assume you have a SQL database up and running according to `database.yml`.
 
-7. Setup the environment.
+7. Setup the environment. This server support containerization with
+[soypat/gontainer](https://github.com/soypat/gontainer) (requires
+a linux filesystem to get running. Alpine Linux is recommended.)
     ```bash
     # Required for OAuth2 (Default uses google as provider)
     GGL_SECRET_FORUM=xxxxxxxxx # This is google's secret API token (client secret)
     GGL_KEY_FORUM=1113333333-xXxXxXXX  # This is google's client ID
     
     # Optional
+    GONTAINER_FS=/home/myuser/alpinefs # Path to linux filesystem with python3 installation
     HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
     ADDR=127.0.0.1 # Default
     ```
-
-8. Run `buffalo dev` in the project directory. Wait a couple seconds for the following lines to show up
+    It is worth noting if `GONTAINER_FS` is not set the server will use the system
+    python installation. `gontainer` requires linux to run.
+    
+8. Run `buffalo dev` in the project directory (as `root` on linux if using `gontainer`). Wait a couple seconds for the following lines to show up
 
 	```log
 	INFO[2020-09-12T16:48:58-03:00] Starting application at http://127.0.0.1:3000

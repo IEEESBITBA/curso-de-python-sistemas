@@ -46,8 +46,13 @@ func InterpretPost(c buffalo.Context) error {
 	btx := c.Value("btx").(*bbolt.Tx)
 
 	defer p.PutTx(btx, c)
-	//err := p.runPy()
-	err := p.containerPy()
+	chrootPath := envy.Get("GONTAINER_FS", "")
+	var err error
+	if chrootPath == "" {
+		err = p.runPy()
+	} else {
+		err = p.containerPy()
+	}
 	if err != nil {
 		return p.codeResult(c, p.result.Output, err.Error())
 	}
@@ -85,7 +90,12 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	peval.userID = p.userID
 	peval.Source = eval.Solution
 	peval.Input = p.Input //eval.Inputs.String
-	err = peval.runPy()
+	chrootPath := envy.Get("GONTAINER_FS", "")
+	if chrootPath == "" {
+		err = peval.runPy()
+	} else {
+		err = peval.containerPy()
+	}
 	if err != nil {
 		return p.codeResult(c, peval.Output, "Evaluation errored! "+err.Error()) // TODO this is the debug line
 		//return  p.codeResult(c,"","Evaluation errored! "+err.Error()) // TODO this is the production line
@@ -154,7 +164,7 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 const (
 	pyCommand = "python3"
 
-	pyTimeout_ms = 300
+	pyTimeout_ms = 500
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
@@ -230,18 +240,14 @@ func (p *pythonHandler) containerPy() (err error) {
 	if _, err := os.Stat(filepath.Join(chrootPath, userDir)); os.IsNotExist(err) {
 		os.Mkdir(filepath.Join(chrootPath, userDir), os.ModeDir)
 	}
-	if err != nil && err.Error() != "file exists" && err != os.ErrExist {
-		fmt.Printf("FAIL MKDIR!\n'%s'\n", err)
-		return
-	}
 	chrootFilename := filepath.Join(userDir, "f.py")
 	filename := filepath.Join(chrootPath, chrootFilename)
-
 	f, err := os.Create(filename)
 	if err != nil {
 		return
 	}
 	defer f.Close()
+
 	_, err = f.Write([]byte(p.code.Source))
 	if err != nil {
 		return err
@@ -267,22 +273,21 @@ func (p *pythonHandler) containerPy() (err error) {
 			status <- pyOK
 		}
 	}()
-	for {
-		select {
-		case s := <-status:
-			switch s {
-			case pyTimeout:
-				cmd.Process.Kill()
-				return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
-			case pyError, pyOK:
-				p.Elapsed = time.Now().Sub(tstart)
-				p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
-				return
-			default:
-				time.Sleep(time.Millisecond)
-			}
+	select {
+	case s := <-status:
+		switch s {
+		case pyTimeout:
+			cmd.Process.Kill()
+			return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
+		case pyError, pyOK:
+			p.Elapsed = time.Now().Sub(tstart)
+			p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
+			return
 		}
 	}
+	cmd.Process.Kill()
+	return fmt.Errorf("server error.")
+
 }
 
 // this function runs python on the machine python
