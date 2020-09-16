@@ -10,7 +10,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/pop/v5/slices"
 	"github.com/pkg/errors"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 // SetCurrentForum attempts to find a forum definition in the db.

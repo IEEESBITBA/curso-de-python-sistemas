@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gobuffalo/buffalo"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"go.etcd.io/bbolt"
 	"strings"
 )

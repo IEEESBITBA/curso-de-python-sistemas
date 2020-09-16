@@ -19,7 +19,7 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"go.etcd.io/bbolt"
 )
 
@@ -208,6 +208,11 @@ var allowedImports = map[string]bool{
 	"os":         false,
 }
 
+
+// this function runs python on the machine python
+// installation. It creates a file in /tmp/{userID}
+// and runs it as stdin. The combined output (stderr+stdout)
+// is saved to the pythonHandler Output field.
 func (p *pythonHandler) runPy() (err error) {
 	err = p.code.sanitizePy()
 	output := make([]byte, 0)

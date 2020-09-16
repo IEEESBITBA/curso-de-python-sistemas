@@ -1,6 +1,11 @@
+# Curso container filesystem
+container/fs/*
+container/alp-fs-py/*
+container/alpine/*
 # Setup
 setup.bat
 # buffalo
+
 assets/logs/curso.log
 vendor/
 **/*.log

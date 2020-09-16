@@ -6,8 +6,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/soypat/curso/mailers"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 func ReplyGet(c buffalo.Context) error {

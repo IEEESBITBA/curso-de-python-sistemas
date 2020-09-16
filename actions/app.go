@@ -11,7 +11,7 @@ import (
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/markbates/goth/gothic"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/unrolled/secure"
 )
 

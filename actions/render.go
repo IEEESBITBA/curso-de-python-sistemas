@@ -11,7 +11,7 @@ import (
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush/v4"
-	"github.com/soypat/curso/models"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 var r *render.Engine

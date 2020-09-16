@@ -2,7 +2,7 @@ package grifts
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/soypat/curso/actions"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/actions"
 )
 
 func init() {
