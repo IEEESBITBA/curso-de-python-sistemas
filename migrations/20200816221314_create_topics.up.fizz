@@ -5,6 +5,7 @@ create_table("topics") {
 	t.Column("author_id", "uuid", {})
 	t.Column("category_id", "uuid", {})
 	t.Column("deleted", "bool", {})
+	t.Column("archived", "bool", {})
 	t.Column("subscribers", "varchar[]", {"null": true})
 	t.Timestamps()
 }

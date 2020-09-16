@@ -2,10 +2,12 @@
 <%= if (current_user) {
 let content = ""
 let title  = ""
+let archived = false
 let status = "new"
         if (topic) {
             content = topic.Content
             title  = topic.Title
+            archived = topic.Archived
             status = "edit"
         }
 %>
@@ -26,6 +28,16 @@ let status = "new"
                     <span class="help-block"><%=t("new-topic-title-help") %></span>
                 </div>
             </div>
+
+            <!-- Single checkbox (inline) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="archive"><%= t("archive") %></label>
+                <input type="checkbox" name="archive" id="archive" value="true" <%= if (archived) { %> checked<% } %>>
+                <div class="col-md-4">
+                    <span class="help-block"><%= t("new-topic-archive-help") %></span>
+                </div>
+            </div>
+
                         <!-- Textarea -->
             <div class="form-group">
                 <label class="col-md-8 control-label" for="content"><%= t("content") %></label>

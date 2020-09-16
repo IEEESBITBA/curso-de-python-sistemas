@@ -145,6 +145,8 @@
   translation: "Editar tema"
 - id: new-topic-content-help
   translation: "Contenido a postear. Soporta markdown"
+- id: new-topic-archive-help
+  translation: "Marcar el asunto como resuelto."
 - id: new-topic-title-help
   translation: "Nombre descriptivo del tema."
 - id: new-topic-content-placeholder
@@ -190,6 +192,8 @@
   translation: "Respuesta agregada"
 
 # direct translations
+- id: archive
+  translation: "Archivar"
 - id: description
   translation: "Descripción"
 - id: logo

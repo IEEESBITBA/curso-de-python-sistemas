@@ -28,7 +28,7 @@
 <div class="card mb-1 rounded-0" id="<%= topic.ID %>">
     <a href="<%= topicGetPath( ctxTopic ) %>">
     <div class="card-header bg-secondary text-white rounded-0">
-            <%= topic.Title %>
+          <%= if (topic.Archived) { %><%= icon("archive-fill",1,1) %><% } %> <%= topic.Title %>
         <%= for (author) in topic.Authors() { %>
         <span class="float-right">
 			<%= avatar(derefUser(author)) %>

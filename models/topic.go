@@ -18,6 +18,7 @@ type Topic struct {
 	Content     string      `json:"content" db:"content" form:"content"`
 	AuthorID    uuid.UUID   `json:"author_id" db:"author_id"`
 	CategoryID  uuid.UUID   `json:"category_id" db:"category_id" `
+	Archived    bool        `jsonL:"archived" db:"archived" form:"archive"`
 	Deleted     bool        `json:"deleted" db:"deleted"`
 	Subscribers slices.UUID `json:"subscribers" db:"subscribers"`
 	CreatedAt   time.Time   `json:"created_at" db:"created_at"`
@@ -108,9 +109,13 @@ func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 
 type Topics []Topic
 
-func (t Topics) Len() int           { return len(t) }
-func (t Topics) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
-func (t Topics) Less(i, j int) bool { return t[i].CreatedAt.After(t[j].CreatedAt) }
+func (t Topics) Len() int      { return len(t) }
+func (t Topics) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t Topics) Less(i, j int) bool {
+	// Un branchless algorithm para que ande mas rapido
+	return (( t[i].Archived ==  t[j].Archived  ) && t[i].CreatedAt.After(t[j].CreatedAt) ) ||
+		(( t[i].Archived !=  t[j].Archived  ) && ( t[j].Archived ) )
+}
 
 // String is not required by pop and may be deleted
 func (t Topics) String() string {
