@@ -2,7 +2,7 @@
 name = "lots of widgets"
 
   [[scenario.table]]
-    name = "widgets"
+    name = "forums"
 
     [[scenario.table.row]]
       id = "<%= uuidNamed("widget") %>"
@@ -23,10 +23,133 @@ name = "lots of widgets"
 
     [[scenario.table.row]]
       id = "<%= uuid() %>"
-      name = "Mark Bates"
+      name = "Pato"
+      title = "Guia de Markdown y \\(\\rm \\LaTeX \\)"
       admin = true
       age = 41
       widget_id = "<%= uuidNamed("widget") %>"
       created_at = "<%= now() %>"
       updated_at = "<%= now() %>"
+      content = '''
+      Abajo se tienen varios ejemplos de como usar markdown. Presione en la flecha para desplegar el ejemplo!
+
+<details><summary>Ejemplo texto</summary>
+
+```markdown
+El texto puede ser **negrita** o __cursiva__.
+También se puede escribir texto formateado: `print("hello world")`
+```
+
+**Resultado**
+El texto puede ser **negrita** o _cursiva_. También se puede escribir texto formateado: `print("hello world")`
+
+</details>
+
+<details><summary>Ejemplo  bloque de código formateado</summary>
+
+<div class="highlight highlight-markdown"><pre>
+```python
+x = 1337
+print("mi número es", x )
+```
+</pre></div>
+
+**Resultado:**
+```python
+x = 1337
+print("mi número es", x )
+```
+_En este foro particular si no se especifica el lenguaje el sitio supone que es python por defecto._
+</details>
+
+<details><summary>Ejemplo encabezado</summary>
+
+```markdown
+# Heading1
+## Heading2
+### Heading3
+```
+
+**Resultado:**
+# Heading1
+## Heading2
+### Heading3
+
+</details>
+
+<details><summary>Imágenes</summary>
+
+```markdown
+![JFK](https://pbs.twimg.com/profile_images/597793949252587520/B5nvxw-u_400x400.jpg)
+```
+**Resultado:**
+![JFK](https://pbs.twimg.com/profile_images/597793949252587520/B5nvxw-u_400x400.jpg)
+
+</details>
+
+<details><summary>Caja desplegable como esta!</summary>
+
+<pre class="hljs html">
+
+&lt;details>&lt;summary>El nombre de la caja&lt;/summary>
+
+Todo el contenido y los detalles.
+
+&lt;/details>
+
+</pre>
+
+**Resultado:**
+<details><summary>El nombre de la caja</summary>
+Todo el contenido y los detalles.
+</details>
+</details>
+
+[Una guía más extensa](https://www.markdownguide.org/basic-syntax/). Tenga en cuenta que puede haber algunas cosas que no andan en este foro.
+
+### MathJax y \\( \rm \LaTeX \\)
+También se puede escribir matemática estilo \\( \rm \LaTeX \\) en el foro.
+
+<details><summary>Matemática simple</summary>
+
+
+```markdown
+Einstein una vez escribió \\( E = mc^2 \\). **Qué genio**.
+```
+**Resultado:**
+Einstein una vez escribió \\( E = mc^2 \\). **Qué genio**.
+
+_Tengan cuidado al usar subindices que markdown le gusta reemplazar por cursiva._
+**Ejemplo de como escribir subindices:**
+
+| Bien | Mal |
+|---|---|
+|`a _{x+1} + a _{y+1} = b _n` | `a_{x+1} + a_{y+1} = b_n`|
+
+* Resultado deseado:  \\( a _{x+1} + a _{y+1} = b _n \\)
+* Resultado Indeseado:  \\( a_{x+1} + a_{y+1} = b_n \\)
+
+</details>
+
+<details><summary>Matemática grande</summary>
+
+```markdown
+Todos conocemos la ecuación de Schrödinger
+\\[
+-\frac{\hbar^{2}}{2 m} \nabla^{2} \psi+V \psi=E \psi
+\\]
+donde \\( \nabla \\) es el operador derivada
+Es poco recomendado pero también se pueden usar los simbolos peso ($)
+$$ \frac{(x-h)^{2}}{a^{2}}+\frac{(y-k)^{2}}{b^{2}}=1 $$
+```
+**Resultado:**
+Todos conocemos la ecuación de Schrödinger
+\\[
+-\frac{\hbar^{2}}{2 m} \nabla^{2} \psi+V \psi=E \psi
+\\]
+donde \\( \nabla \\) es el operador derivada.
+Es poco recomendado pero también se pueden usar los simbolos peso ($)
+$$ \frac{(x-h)^{2}}{a^{2}}+\frac{(y-k)^{2}}{b^{2}}=1 $$
+</details>
+      '''
 

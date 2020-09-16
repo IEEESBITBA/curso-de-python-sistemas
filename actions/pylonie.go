@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"encoding/json"
 	"fmt"
+	"github.com/gobuffalo/envy"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -16,10 +17,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"go.etcd.io/bbolt"
 )
 
@@ -45,7 +46,8 @@ func InterpretPost(c buffalo.Context) error {
 	btx := c.Value("btx").(*bbolt.Tx)
 
 	defer p.PutTx(btx, c)
-	err := p.runPy()
+	//err := p.runPy()
+	err := p.containerPy()
 	if err != nil {
 		return p.codeResult(c, p.result.Output, err.Error())
 	}
@@ -111,19 +113,19 @@ func DeletePythonUploads(c buffalo.Context) error {
 	var auth struct {
 		Key string `form:"authkey"`
 	}
-	if err:=c.Bind(&auth);err!=nil {
-		return c.Error(500,err)
+	if err := c.Bind(&auth); err != nil {
+		return c.Error(500, err)
 	}
 	if auth.Key != ".b3060ee10d6305243c7b" {
-		c.Flash().Add("warning","bad key")
+		c.Flash().Add("warning", "bad key")
 		return c.Redirect(302, "controlPanelPath()")
 	}
 	btx := c.Value("btx").(*bbolt.Tx)
-	if err := btx.DeleteBucket([]byte(pyDBUploadBucketName)); err!=nil {
-		return c.Error(500,err)
+	if err := btx.DeleteBucket([]byte(pyDBUploadBucketName)); err != nil {
+		return c.Error(500, err)
 	}
-	c.Flash().Add("success","Uploads deleted. Hope you know what you are doing")
-	return c.Redirect(302,"/")
+	c.Flash().Add("success", "Uploads deleted. Hope you know what you are doing")
+	return c.Redirect(302, "/")
 }
 
 // adds code result to context response.
@@ -150,13 +152,14 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 
 // configuration values
 const (
-	pyCommand          = "python3"
+	pyCommand = "python3"
+
+	pyTimeout_ms = 300
+	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
-	pyTimeout_ms         = 300
-	// DB:
-	pyMaxSourceLength = 5000 // DB storage trim length
-	pyMaxOutputLength = 2000 // in characters
+	pyMaxSourceLength    = 5000 // DB storage trim length
+	pyMaxOutputLength    = 2000 // in characters
 )
 
 type pyExitStatus int
@@ -191,7 +194,7 @@ type pythonHandler struct {
 
 // sanitization structures
 var reForbid = map[*regexp.Regexp]string{
-	regexp.MustCompile(`exec|open|write|eval|Write|globals|locals|breakpoint|getattr|memoryview|vars|super`): "forbidden function key '%s'",
+	regexp.MustCompile(`exec|eval|globals|locals|breakpoint|getattr|memoryview|vars|super`): "forbidden function key '%s'",
 	//regexp.MustCompile(`input\s*\(`):                           "no %s) to parse!",
 	regexp.MustCompile("tofile|savetxt|fromfile|fromtxt|load"): "forbidden numpy function key '%s'",
 	regexp.MustCompile(`__\w+__`):                              "forbidden dunder function key '%s'",
@@ -203,11 +206,84 @@ var reImport = regexp.MustCompile(`^from[\s]+[\w]+|import[\s]+[\w]+`)
 var allowedImports = map[string]bool{
 	"math":       true,
 	"numpy":      true,
-	"itertools":  true,
+	"pandas":     true,
+	"itertools":  false,
 	"processing": false,
 	"os":         false,
 }
 
+// This function runs python in a container (only works on linux)
+// thus it is safe from hackers. Can't touch this requires installing
+// github.com/soypat/gontainer in PATH. Also requires setting GONTAINER_FS
+// to the path of the filesystem that will be containerized.
+func (p *pythonHandler) containerPy() (err error) {
+	chrootPath := envy.Get("GONTAINER_FS", "")
+	if chrootPath == "" {
+		return fmt.Errorf("GONTAINER_FS environment variable not set. see https://alpinelinux.org/ for a minimal filesystem")
+	}
+	err = p.code.sanitizePy()
+	output := make([]byte, 0)
+	if err != nil {
+		return
+	}
+	userDir := fmt.Sprintf("/home/%s-%s", p.UserName, p.userID[0:5])
+	if _, err := os.Stat(filepath.Join(chrootPath, userDir)); os.IsNotExist(err) {
+		os.Mkdir(filepath.Join(chrootPath, userDir), os.ModeDir)
+	}
+	if err != nil && err.Error() != "file exists" && err != os.ErrExist {
+		fmt.Printf("FAIL MKDIR!\n'%s'\n", err)
+		return
+	}
+	chrootFilename := filepath.Join(userDir, "f.py")
+	filename := filepath.Join(chrootPath, chrootFilename)
+
+	f, err := os.Create(filename)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	_, err = f.Write([]byte(p.code.Source))
+	if err != nil {
+		return err
+	}
+	gontainerArgs := []string{"run", "--chdr", userDir, "--chrt", chrootPath, pyCommand, chrootFilename}
+	cmd := exec.Command("gontainer", gontainerArgs...)
+	stdin, _ := cmd.StdinPipe()
+	go func() {
+		stdin.Write([]byte(p.Input + "\n"))
+	}()
+	status := make(chan pyExitStatus, 1)
+	go func() {
+		time.Sleep(pyTimeout_ms * time.Millisecond)
+		status <- pyTimeout
+	}()
+	var tstart time.Time
+	go func() {
+		tstart = time.Now()
+		output, err = cmd.CombinedOutput()
+		if err != nil {
+			status <- pyError
+		} else {
+			status <- pyOK
+		}
+	}()
+	for {
+		select {
+		case s := <-status:
+			switch s {
+			case pyTimeout:
+				cmd.Process.Kill()
+				return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
+			case pyError, pyOK:
+				p.Elapsed = time.Now().Sub(tstart)
+				p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
+				return
+			default:
+				time.Sleep(time.Millisecond)
+			}
+		}
+	}
+}
 
 // this function runs python on the machine python
 // installation. It creates a file in /tmp/{userID}
@@ -313,48 +389,42 @@ func printSafeList() (s string) {
 	return
 }
 
-
-
 // Saves Python code and user to database
 func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 	// closure eases error management
-		err := func () error {
-			b, err := tx.CreateBucketIfNotExists([]byte(pyDBUploadBucketName))
-			if err != nil {
-				return err
-			}
-			p.Time = time.Now().String()
-			var pc pythonHandler
-			pc = *p // because we don't want to store 5000000 length outputs
-			if len(pc.Output) > pyMaxOutputLength {
-				pc.Output = pc.Output[:pyMaxOutputLength]
-			}
-			if len(pc.Source) > pyMaxSourceLength {
-				pc.Source = pc.Source[:pyMaxSourceLength]
-			}
-			buff, err := json.Marshal(pc)
-			if err != nil {
-				return err
-			}
-			h := crypto.MD5.New()
-			h.Write([]byte(pc.UserName + pc.code.Source))
-			sum := h.Sum(nil)
-			if b.Get(sum) == nil {
-				c.Logger().Infof("Code submitted user: %s", pc.UserName)
-				return b.Put(h.Sum(nil), buff)
-			}
-			c.Logger().Infof("Repeated code submitted user: %s", pc.UserName)
-			return nil
-		}()
+	err := func() error {
+		b, err := tx.CreateBucketIfNotExists([]byte(pyDBUploadBucketName))
+		if err != nil {
+			return err
+		}
+		p.Time = time.Now().String()
+		var pc pythonHandler
+		pc = *p // because we don't want to store 5000000 length outputs
+		if len(pc.Output) > pyMaxOutputLength {
+			pc.Output = pc.Output[:pyMaxOutputLength]
+		}
+		if len(pc.Source) > pyMaxSourceLength {
+			pc.Source = pc.Source[:pyMaxSourceLength]
+		}
+		buff, err := json.Marshal(pc)
+		if err != nil {
+			return err
+		}
+		h := crypto.MD5.New()
+		h.Write([]byte(pc.UserName + pc.code.Source))
+		sum := h.Sum(nil)
+		if b.Get(sum) == nil {
+			c.Logger().Infof("Code submitted user: %s", pc.UserName)
+			return b.Put(h.Sum(nil), buff)
+		}
+		c.Logger().Infof("Repeated code submitted user: %s", pc.UserName)
+		return nil
+	}()
 
 	if err != nil {
-		c.Logger().Errorf("could not save python code to database for user '%s': %s\n", p.UserName,err.Error())
+		c.Logger().Errorf("could not save python code to database for user '%s': %s\n", p.UserName, err.Error())
 	}
 }
-
-
-
-
 
 // download contents of a bbolt.DB
 // in raw database format. Programmed to be
@@ -429,7 +499,6 @@ func zipAssetFolder(path string) func(c buffalo.Context) error {
 		return nil
 	}
 }
-
 
 func addFileToZip(zipWriter *zip.Writer, filename string) error {
 
