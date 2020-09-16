@@ -4,8 +4,8 @@ let ctx = {evalid: evaluation.ID}
 
 <h5><%= t("curso-python-evaluations-title") %></h5>
 <div class="row" style="margin-bottom: 3rem;">
-    <h2><%= evaluation.Title %></h2>
-    <div class="col-md-8 mt-5 offset-md-1 text-muted">
+    <h2 class="text-muted"><%= evaluation.Title %></h2>
+    <div class="col-md-8 mt-5 offset-md-1">
         <%= markdown(evaluation.Content) %>
     </div>
 
