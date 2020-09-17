@@ -81,16 +81,23 @@ func CategoriesCreateOrEditPost(c buffalo.Context) error {
 		c.Flash().Add("danger", "Title should have something!")
 		return c.Redirect(302, "/")
 	}
+	if len(cat.Description.String) > 255 {
+		c.Flash().Add("danger", "Description too long, should be under 255 char (SQL varchar[255])!")
+		return c.Redirect(302, "/")
+	}
 	nilIfNewCat := c.Value("category") // if we are editing a category this will be set
 	if nilIfNewCat != nil { // this branch edits an already existing category
+
 		oldCat := nilIfNewCat.(*models.Category)
 		oldCat.Title, oldCat.Description = cat.Title, cat.Description
 		err = tx.Update(oldCat)
+
 	} else { // this branch creates a new category
 		err = tx.Save(cat)
 	}
 
 	if err != nil {
+		c.Logger().Errorf("Tr")
 		c.Flash().Add("danger", "Error creating category")
 		return errors.WithStack(err)
 	}
