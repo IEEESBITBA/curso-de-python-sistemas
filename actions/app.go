@@ -107,7 +107,7 @@ func App() *buffalo.App {
 		forum.Use(SetCurrentForum)
 		forum.GET("/", forumIndex).Name("forum")
 		forum.GET("/create", CategoriesCreateGet).Name("catCreate")
-		forum.POST("/create", CategoriesCreatePost)
+		forum.POST("/create", CategoriesCreateOrEditPost)
 		forum.Middleware.Skip(Authorize,forumIndex)
 		forum.Middleware.Skip(SafeList,forumIndex)
 
@@ -116,6 +116,8 @@ func App() *buffalo.App {
 		catGroup.GET("/", CategoriesIndex).Name("cat")
 		catGroup.GET("/createTopic", TopicCreateGet).Name("topicCreate")
 		catGroup.POST("/createTopic", TopicCreatePost)
+		catGroup.GET("/edit",CategoriesCreateGet).Name("catEdit")
+		catGroup.POST("/edit",CategoriesCreateOrEditPost)
 		catGroup.Middleware.Skip(Authorize,CategoriesIndex)
 		catGroup.Middleware.Skip(SafeList,CategoriesIndex)
 

@@ -121,10 +121,14 @@
   translation: "Categoría"
 - id: category-topic
   translation: "Temas de categoría"
+- id: category-description
+  translation: "Anuncios"
 - id: category-activity
   translation: "Última actividad"
 - id: category-new-category
   translation: "Nueva categoría"
+- id: category-edit-category
+  translation: "Editar categoría"
 - id: category-new-topic
   translation: "Nuevo tema"
 - id: category-users

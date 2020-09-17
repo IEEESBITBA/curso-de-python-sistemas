@@ -57,13 +57,12 @@ func CategoriesCreateGet(c buffalo.Context) error {
 }
 
 // CategoriesCreatePost default implementation.
-func CategoriesCreatePost(c buffalo.Context) error {
+func CategoriesCreateOrEditPost(c buffalo.Context) error {
 	cat := &models.Category{}
 	if err := c.Bind(cat); err != nil {
 		c.Flash().Add("danger", "could not create category")
 		return c.Error(500,err)
 	}
-
 	if !validURLDir(cat.Title) {
 		c.Flash().Add("danger", T.Translate(c, "category-invalid-title"))
 		return c.Redirect(302, "")
@@ -74,16 +73,23 @@ func CategoriesCreatePost(c buffalo.Context) error {
 	q := tx.Where("title = ?", cat.Title)
 	exist, err := q.Exists(&models.Forum{})
 	if exist {
-		c.Flash().Add("danger", "Category already exists")
-		//return c.Render(200,r.HTML("forums/create.plush.html"))
-		return c.Redirect(302, "")
+		c.Flash().Add("danger", "Category with same title already exists")
+		return c.Redirect(302, "/")
 	}
 	v, _ := cat.Validate(tx)
 	if v.HasAny() {
 		c.Flash().Add("danger", "Title should have something!")
-		return c.Redirect(302, "")
+		return c.Redirect(302, "/")
 	}
-	err = tx.Save(cat)
+	nilIfNewCat := c.Value("category") // if we are editing a category this will be set
+	if nilIfNewCat != nil { // this branch edits an already existing category
+		oldCat := nilIfNewCat.(*models.Category)
+		oldCat.Title, oldCat.Description = cat.Title, cat.Description
+		err = tx.Update(oldCat)
+	} else { // this branch creates a new category
+		err = tx.Save(cat)
+	}
+
 	if err != nil {
 		c.Flash().Add("danger", "Error creating category")
 		return errors.WithStack(err)
@@ -93,6 +99,8 @@ func CategoriesCreatePost(c buffalo.Context) error {
 	c.Flash().Add("success", fmt.Sprintf("Category %s created", cat.Title))
 	return c.Redirect(302, "forumPath()", render.Data{"forum_title": f.Title})
 }
+
+
 
 // SetCurrentCategory attempts to find a category and set context `category`
 func SetCurrentCategory(next buffalo.Handler) buffalo.Handler {

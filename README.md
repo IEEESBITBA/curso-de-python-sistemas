@@ -140,6 +140,19 @@ npm install -g node-gyp
 npm install --global --production windows-build-tools
 ```
 
+### Altering tables in production
+If one wanted to add functionality to, say, topics one should modify the `models/table.go` file
+and add column name. Then when implemented in the server back end code one should simply
+use the `ALTER TABLE` command in postgres console.
+
+```sql
+ALTER TABLE topics
+   ADD archived BOOL NOT NULL
+   CONSTRAINT archived_d DEFAULT FALSE;
+```
+where `BOOL` is the datatype. Remember to specify if the field can be null.
+You can check out commit [`6b6809a`](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/commit/6b6809a08e124a4d78fe56c0f6a08312278e183f)
+when this change was made for a real life example of what was changed.
 
 ## how i did this
 Don't bother reading this. These are notes for myself if I ever try building a new buffalo app in the future.
