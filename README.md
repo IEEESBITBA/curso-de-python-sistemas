@@ -54,7 +54,7 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     
     # Optional
     GONTAINER_FS=/home/myuser/alpinefs # Path to linux filesystem with python3 installation
-    HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
+    FORUM_HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
     ADDR=127.0.0.1 # Default
     ```

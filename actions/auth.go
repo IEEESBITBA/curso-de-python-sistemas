@@ -2,8 +2,7 @@ package actions
 
 import (
 	"fmt"
-	"os"
-
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -11,7 +10,7 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
+	"os"
 )
 
 const cookieUidName = "current_user_id"
@@ -31,6 +30,7 @@ func init() {
 // The user is also added to DB if they don't exist here
 func AuthCallback(c buffalo.Context) error {
 	c.Logger().Debug("AuthCallback called")
+
 	gu, err := gothic.CompleteUserAuth(c.Response(), c.Request())
 	if err != nil {
 		c.Flash().Add("danger", T.Translate(c, "app-auth-error"))
@@ -49,7 +49,7 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	} else { // if we don't find user, create new user!
-		c.Logger().Infof("Creating new user! Email: %s",gu.Email)
+		c.Logger().Infof("Creating new user! Email: %s", gu.Email)
 		u.Name = gu.Name
 		u.Email = gu.Email
 		u.Provider = gu.Provider
@@ -65,7 +65,7 @@ func AuthCallback(c buffalo.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	c.Flash().Add("success", T.Translate(c,"app-login"))
+	c.Flash().Add("success", T.Translate(c, "app-login"))
 	// Do something with the user, maybe register them/sign them in
 	c.Logger().Debug("AuthCallback finished successfully")
 	return c.Redirect(302, "/") // redirect to homepage
@@ -79,7 +79,7 @@ func AuthDestroy(c buffalo.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	c.Flash().Add("success", T.Translate(c,"app-logout"))
+	c.Flash().Add("success", T.Translate(c, "app-logout"))
 	return c.Redirect(302, "/")
 }
 
@@ -91,7 +91,7 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 		c.Logger().Debug("Authorize called")
 		unverifiedUid := c.Session().Get(cookieUidName)
 		if unverifiedUid == nil {
-			c.Flash().Add("danger", T.Translate(c,"app-user-required"))
+			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
 		}
 		uid := unverifiedUid.(uuid.UUID)
@@ -102,7 +102,7 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 			return c.Redirect(500, "/")
 		}
 		if !exists {
-			c.Flash().Add("danger", T.Translate(c,"app-user-auth-error"))
+			c.Flash().Add("danger", T.Translate(c, "app-user-auth-error"))
 			return AuthDestroy(c)
 		}
 		u := &models.User{}
@@ -157,7 +157,7 @@ func AdminAuth(next buffalo.Handler) buffalo.Handler {
 			q := tx.Where("id = ?  and role = ?", uid.(uuid.UUID).String(), "admin") // FIXME check provider too for increased security
 			exists, err := q.Exists(u)
 			if err != nil {
-				return c.Error(404,err)
+				return c.Error(404, err)
 			}
 			if exists {
 				c.Logger().Infof("AdminAuth success: %s", u.Email)

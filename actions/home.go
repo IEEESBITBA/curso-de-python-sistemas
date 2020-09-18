@@ -22,6 +22,7 @@ func SiteStruct(next buffalo.Handler) buffalo.Handler {
 		c.Set("search_path", "/s")
 		c.Set("inForum", false)
 		c.Set("create_forum_path", "/admin/newforum/")
+
 		return next(c)
 	}
 }

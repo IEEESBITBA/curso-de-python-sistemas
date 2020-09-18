@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo-pop/v2/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -11,7 +12,6 @@ import (
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/markbates/goth/gothic"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/unrolled/secure"
 )
 
@@ -40,6 +40,7 @@ const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. A
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
+			Host: envy.Get("FORUM_HOST","http://127.0.0.1"),
 			Env:         ENV,
 			SessionName: "_curso_session",
 			LogLvl: logger.InfoLevel,
@@ -82,7 +83,9 @@ func App() *buffalo.App {
 
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
-
+		app.GET("favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico
+			return c.Redirect(301, "assets/images/logo-curso32x32.png")
+		})
 		// home page setup
 		app.GET("/", manageForum) //TODO change homepage
 		app.Middleware.Skip(SafeList,manageForum)
