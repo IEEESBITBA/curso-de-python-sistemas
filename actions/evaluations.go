@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
+	"sort"
 )
 
 // CategoriesIndex default implementation.
@@ -15,6 +16,7 @@ func EvaluationIndex(c buffalo.Context) error {
 	if err := tx.All(evals); err != nil {
 		return c.Error(404, err)
 	}
+	sort.Sort(evals)
 	c.Set("evaluations", evals)
 	return c.Render(200, r.HTML("curso/eval-index.plush.html"))
 }

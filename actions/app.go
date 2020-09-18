@@ -40,7 +40,7 @@ const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. A
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
-			Host: envy.Get("FORUM_HOST","http://127.0.0.1"),
+			Host: envy.Get("FORUM_HOST",envy.Get("HOST","")),
 			Env:         ENV,
 			SessionName: "_curso_session",
 			LogLvl: logger.InfoLevel,
