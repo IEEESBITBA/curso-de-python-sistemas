@@ -11,6 +11,7 @@ import (
 	i18n "github.com/gobuffalo/mw-i18n"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/packr/v2"
+	"github.com/gorilla/sessions"
 	"github.com/markbates/goth/gothic"
 	"github.com/unrolled/secure"
 )
@@ -40,12 +41,12 @@ const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. A
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
-			Host: envy.Get("FORUM_HOST",envy.Get("HOST","")),
-			Env:         ENV,
-			SessionName: "_curso_session",
-			LogLvl: logger.InfoLevel,
+			Host:         envy.Get("FORUM_HOST", envy.Get("HOST", "")),
+			Env:          ENV,
+			SessionName:  "_curso_session",
+			LogLvl:       logger.InfoLevel,
+			SessionStore: defaultCookieStore(),
 		})
-
 		// Automatically redirect to SSL. Only works if you have a proxy up and running such as NGINX
 		// NGINX can be configured to do this for you so it's kind of useless. It also fucks up
 		// google chrome's default redirection if you don't have the proxy on... dont use it
@@ -217,4 +218,26 @@ func err500(status int, err error, c buffalo.Context) error {
 func err404(status int, err error, c buffalo.Context) error {
 	c.Flash().Add("warning", "Page not found (404)") // T.Translate(c,"app-not-found")
 	return c.Render(404, r.HTML("meta/404.plush.html"))//c.Redirect(302,"/")
+}
+
+func defaultCookieStore() sessions.Store {
+	secret := envy.Get("SESSION_SECRET", "")
+	if secret == "" && (ENV == "development" || ENV == "test") {
+		secret = "buffalo-secret"
+	}
+
+	// In production a SESSION_SECRET must be set!
+	if secret == "" {
+		print("\nSESSION_SECRET not set in production\n")
+	}
+
+	cookieStore := sessions.NewCookieStore([]byte(secret))
+	// SameSite field values: strict=3, Lax=2, None=4, Default=1. Need Lax for OAuth since we need external site cookie to authenticate!
+	cookieStore.Options.SameSite = 2
+	//Cookie secure attributes, see: https://www.owasp.org/index.php/Testing_for_cookies_attributes_(OTG-SESS-002)
+	cookieStore.Options.HttpOnly = true
+	if ENV == "production" {
+		cookieStore.Options.Secure = true
+	}
+	return cookieStore
 }
