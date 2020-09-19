@@ -84,7 +84,7 @@ func App() *buffalo.App {
 
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
-		app.GET("favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico
+		app.GET("/favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico
 			return c.Redirect(301, "assets/images/logo-curso32x32.png")
 		})
 		// home page setup
