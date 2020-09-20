@@ -59,6 +59,7 @@
                     <span class="help-block"><%= t("curso-python-evaluation-content-help") %></span>
                 </div>
             </div>
+            <%= partial("md.plush.html",{id_in: "content" ,id_out: "preview", title: t("new-topic-preview")}) %>
             <!-- Textarea Solution-->
             <div class="form-group" >
                 <label class="col-12 control-label" for="sol"><%= t("curso-python-evaluation-solution") %></label>
@@ -92,7 +93,7 @@
 </div>
 
 
-<%= partial("md.plush.html",{id_in: "content" ,id_out: "preview", title: t("new-topic-preview")}) %>
+
 <!--<label><%= icon("markdown-fill",2,2) %><strong><%= t("new-topic-preview") %></strong></label>
 <div  id="preview">
 
