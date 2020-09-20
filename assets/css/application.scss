@@ -97,7 +97,7 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
 }
 
 /* INTERPRETER + JQUERY LINED AREA */
-#code, #output, .lines{
+#code, #output, .lines , textarea.lined {
     /* The default monospace font on OS X is ugly, so specify Menlo
      * instead. On other systems the default monospace font will be used. */
     font-family: Menlo, monospace;
@@ -107,11 +107,9 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
 #wrap {
     padding: 5px;
     margin: 0;
-    top: 5rem;
     /*bottom: 25%;*/
     left: 0;
     right: 0;
-
     background: #FFD;
 }
 #banner {
@@ -124,17 +122,19 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
     top:2rem;
 }
 #output, #solution {
-                border: none;
-                outline: none;
-                resize: none;
-                overflow: auto;
+        border: none;
+        outline: none;
+        resize: none;
+        overflow: auto;
 }
 #output {
     /*background: #f2f2f2; */
     background: #0f0f0f;
     color: white;
 }
-#code {
+
+// div > textarea.lined is the jquery lined area signature
+#code ,div > textarea.lined  {
     color: black;
     background: inherit;
     width: 100%;
@@ -143,16 +143,18 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
     border: none;
     outline: none;
     resize: none;
-    wrap: off;
     float: right;
 }
-
+#wrap > span.help-block {
+    display: inline-block;
+}
 .lines {
     padding-top: 0;
     float: left;
     overflow: hidden;
     text-align: right;
 }
+
 .lines div {
     padding-right: 5px;
     color: lightgray;
