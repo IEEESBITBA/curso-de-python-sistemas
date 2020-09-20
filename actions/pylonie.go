@@ -65,11 +65,14 @@ func InterpretPost(c buffalo.Context) error {
 // or show line of error/exception
 // List of prime numbers generator https://play.golang.org/p/ya7SuOH2-Ai
 func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
+	// The value obtained from code submission as `input` is the team ID in the context of an
+	// evaluation. Reason being that there is no other input a user can have for the time being.
+	teamID := p.Input
 	var ID big.Int
-	ID.SetString(p.Input, 10)
+	ID.SetString(teamID, 10)
 	var lim big.Int
 	lim.SetString("1000", 10)
-	if p.Input == "" || len(p.Input) > 60 || ID.Cmp(&lim) == -1 || !ID.ProbablyPrime(6) {
+	if p.Input == "" || len(teamID) > 60 || ID.Cmp(&lim) == -1 || !ID.ProbablyPrime(6) {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-input-field-error"))
 	}
 
@@ -89,7 +92,8 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	peval := pythonHandler{}
 	peval.userID = p.userID
 	peval.Source = eval.Solution
-	peval.Input = p.Input //eval.Inputs.String
+	// Evaluator stdin comes in two parts: One line with teamID followed by the evaluator defined stdin
+	peval.Input = teamID + "\n" + eval.Inputs.String
 	chrootPath := envy.Get("GONTAINER_FS", "")
 	if chrootPath == "" {
 		err = peval.runPy()
@@ -108,7 +112,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		return p.codeResult(c, p.Output, err.Error())
 	}
 	if p.Output == peval.Output {
-		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+peval.Input)
+		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
 	} else {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))
 	}
