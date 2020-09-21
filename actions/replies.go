@@ -44,11 +44,14 @@ func ReplyPost(c buffalo.Context) error {
 		c.Set("errors", verrs.Errors)
 		return c.Render(422, r.HTML("replies/create"))
 	}
-	// mail not yet implemented https://myaccount.google.com/lesssecureapps
-	err = newReplyNotify(c, topic, reply)
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	// https://myaccount.google.com/lesssecureapps allow mailing
+	go func() { // run mailer asynchronously so process does not hang
+		if err:=newReplyNotify(c, topic, reply); err!=nil{
+			c.Logger().Errorf("Failed sending notification messages for reply %s: %s",reply.ID,err)
+		} else {
+			c.Logger().Infof("Success sending notification messages for reply %s",reply.ID)
+		}
+	}()
 
 	user.AddSubscription(topic.ID)
 	_ = tx.UpdateColumns(user,"subscriptions")
