@@ -6,10 +6,11 @@ package mailers
 
 import (
 	"fmt"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/mail"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
+	"path/filepath"
 )
 
 /*
@@ -60,16 +61,21 @@ func NewTopicNotify(c buffalo.Context, topic *models.Topic, recpts []models.User
 
 func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply, recpts []models.User) error {
 	m := mail.NewMessage()
-	m.SetHeader("Reply-To", notify.ReplyTo)
-	m.SetHeader("Message-ID", fmt.Sprintf("<topic/%s/%s@%s>", topic.ID, reply.ID, notify.MessageID))
-	m.SetHeader("In-Reply-To", fmt.Sprintf("<topic/%s@%s>", topic.ID, notify.InReplyTo))
+	forumTitle := c.Param("forum_title")
+	catTitle := c.Param("cat_title")
+	topicPath := fmt.Sprintf("f/%s/c/%s/%s",forumTitle, catTitle, topic.ID)
+	unsubscribePath := "u"
+	m.SetHeader("Reply-To", notify.ReplyTo) //http://site.com/f/Curselli/c/Clases-1/ad2f50ae-11bd-4fea-aed2-69d511225edc/
+	m.SetHeader("Message-ID", fmt.Sprintf("<f/%s/c/%s/%s@%s>",forumTitle, catTitle, reply.ID, notify.MessageID))
+	m.SetHeader("In-Reply-To", fmt.Sprintf("<%s@%s>",topicPath, notify.InReplyTo))
 	m.SetHeader("List-ID", notify.ListID)
 	m.SetHeader("List-Archive", notify.ListArchive)
 	m.SetHeader("List-Unsubscribe", notify.ListUnsubscribe)
 	m.SetHeader("X-Auto-Response-Suppress", "All")
 
-	m.Subject = notify.SubjectHdr + " " + topic.Title
-	m.From = fmt.Sprintf("%s <%s>", reply.Author.Name, notify.From)
+	m.Subject = notify.SubjectHdr + ": " + topic.Title
+
+	m.From = fmt.Sprintf("%s <%s>", displayName(reply.Author), notify.From)
 	m.To = nil
 	m.Bcc = nil
 	for _, usr := range recpts {
@@ -78,8 +84,8 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 
 	data := map[string]interface{}{
 		"content":     reply.Content,
-		"unsubscribe": notify.ListUnsubscribe,
-		"visit":       notify.ListArchive + "/topics/detail/" + topic.ID.String(),
+		"unsubscribe": filepath.Join(notify.ListArchive, unsubscribePath),
+		"visit":       filepath.Join(notify.ListArchive, topicPath),
 	}
 	//
 	err := m.AddBodies(
@@ -97,4 +103,17 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 	}
 
 	return nil
+}
+
+
+func displayName(u interface{}) string {
+	user, ok := u.(*models.User)
+	if !ok {
+		userCopy := u.(models.User)
+		user = &userCopy
+	}
+	if user.Nick != "" {
+		return user.Nick
+	}
+	return user.Name
 }

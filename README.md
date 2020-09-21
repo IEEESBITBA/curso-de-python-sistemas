@@ -47,7 +47,8 @@ the end of this document)
 7. Setup the environment. This server support containerization with
 [soypat/gontainer](https://github.com/soypat/gontainer) (requires
 a linux filesystem to get running. Alpine Linux is recommended.)
-    ```bash
+    
+    ```shell script
     # Required for OAuth2 (Default uses google as provider)
     GGL_SECRET_FORUM=xxxxxxxxx # This is google's secret API token (client secret)
     GGL_KEY_FORUM=1113333333-xXxXxXXX  # This is google's client ID
@@ -57,9 +58,27 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     FORUM_HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
     ADDR=127.0.0.1 # Default
+   
+   # SMTP server (as would be set in ~/.bashrc)
+   # Set this up if you want replies to trigger notification Email
+   export CURSO_SEND_MAIL=true
+   export SMTP_PORT=587 #for google
+   export SMTP_HOST=smtp.gmail.com
+   export SMTP_USER=cursos@ieeeitba.org
+   export SMTP_PASSWORD=abc123
+   export CURSO_MAIL_NOTIFY_REPLY_TO=donotreply@ieeeitba.org
+   export CURSO_MAIL_NOTIFY_MESSAGE_ID=ieeeitba.org
+   export CURSO_MAIL_NOTIFY_IN_REPLY_TO="Curso de Python 2020 - 2C"
+   export CURSO_MAIL_NOTIFY_LIST_ID="Notificaciones Foro <cursos.ieeeitba.org>"
+   export CURSO_MAIL_NOTIFY_LIST_ARCHIVE="https://curso.whittileaks.com"
+   export CURSO_MAIL_NOTIFY_SUBJECT_HDR="Te han respondido - Curso de Python"
+   export CURSO_MAIL_NOTIFY_FROM=$SMTP_USER
     ```
+    
     It is worth noting if `GONTAINER_FS` is not set the server will use the system
-    python installation. `gontainer` requires linux to run.
+    python installation. `gontainer` requires linux to run. 
+    
+    For more information on SMTP see [`mailers/mailers.go`](./mailers/mailers.go).
     
 8. Run `buffalo dev` in the project directory (as `root` on linux if using `gontainer`). Wait a couple seconds for the following lines to show up
 

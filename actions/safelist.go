@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"go.etcd.io/bbolt"
+	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -29,6 +31,16 @@ func (s safeUsers) String() (out string) {
 		out+= u.Email + "\n"
 	}
 	return
+}
+
+var words []string
+
+func init() {
+	f,err :=os.Open("assets/server/badwords.es.en.txt")
+	must(err)
+	b, err :=ioutil.ReadAll(f)
+	must(err)
+	words = strings.Split(string(b),"\n")
 }
 
 func SafeListGet(c buffalo.Context) error {
@@ -100,8 +112,10 @@ const safeDomain = "itba.edu.ar"
 
 
 // works kind of like authorize but does not verify user exists.
+//includes helper function "hasBadWord" for sanitizing dirty language
 func SafeList(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
+		c.Set("hasBadWord",hasBadWord)
 		u := c.Value("current_user")
 		if u == nil {
 			c.Flash().Add("danger", T.Translate(c,"app-user-required"))
@@ -174,4 +188,17 @@ func isEmail(s string) bool {
 	}
 	back := strings.Split(dub[1],".")
 	return len(back) >= 2
+}
+
+func hasBadWord(s string) string {
+	if words == nil {
+		return ""
+	}
+	for _, w := range words {
+		w = strings.Trim(w,"*. ")
+		if strings.Contains(s,w) {
+			return w
+		}
+	}
+	return ""
 }

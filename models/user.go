@@ -50,6 +50,43 @@ func (u User) Icon(label string) template.HTML {
 	return template.HTML(fmt.Sprintf("<i title=\"%s\" class=\"icon-%s\"> </i>%s",u.Role, icon, flect.Capitalize(label)))
 }
 
+func (u User) Subscribed(id uuid.UUID) bool {
+	for _, sub := range u.Subscriptions {
+		if sub == id {
+			return true
+		}
+	}
+	return false
+}
+
+func (u *User) AddSubscription(id uuid.UUID) {
+	set := make(map[uuid.UUID]struct{})
+	set[id] = struct{}{}
+	for _, sub := range u.Subscriptions {
+		set[sub] = struct{}{}
+	}
+	subs := make(slices.UUID, 0, len(set))
+	for sub := range set {
+		subs = append(subs, sub)
+	}
+	u.Subscriptions = subs
+}
+
+// safe way to update models.User Subscriptions.
+func (u *User) RemoveSubscription(id uuid.UUID) {
+	set := make(map[uuid.UUID]struct{})
+	for _, sub := range u.Subscriptions {
+		if sub != id {
+			set[sub] = struct{}{}
+		}
+	}
+	subs := make(slices.UUID, 0, len(set))
+	for sub := range set {
+		subs = append(subs, sub)
+	}
+	u.Subscriptions = subs
+}
+
 // for now just return u.AvatarURL
 func (u User) ImageSrc() string {
 	return u.AvatarURL

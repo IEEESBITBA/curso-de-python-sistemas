@@ -30,7 +30,7 @@
 - id: app-categories
   translation: "Categorias"
 - id: app-topics
-  translation: "Temas"
+  translation: "Publicaciones"
 - id: app-pagination-displaying
   translation: "Mostrando"
 - id: app-pagination-perpage
@@ -120,7 +120,7 @@
 - id: category-category
   translation: "Categoría"
 - id: category-topic
-  translation: "Temas de categoría"
+  translation: "Publicaciones de categoría"
 - id: category-description
   translation: "Anuncios"
 - id: category-activity
@@ -247,7 +247,7 @@
 
 # CURSO PYTHON
 - id: curso-python-evaluator
-  translation: "Evaluación"
+  translation: "Resolver Desafíos"
 - id: curso-python-interpretador
   translation: "Interpretador"
 - id: curso-python-not-allowed
@@ -307,7 +307,9 @@
 
 
 
-
+# NEW DO NOT ELIMINATE THIS
+- id: topic-unsubscribe
+  translation: "Desubscribirse"
 
 
 

@@ -57,10 +57,14 @@ func TopicCreatePost(c buffalo.Context) error {
 		c.Set("errors", verrs.Errors)
 		return c.Render(422, r.HTML("topics/create.plush.html"))
 	}
+	// Category topic add email notification
 	//err = newTopicNotify(c, topic)
 	//if err != nil {
 	//	return errors.WithStack(err)
 	//}
+	u := c.Value("current_user").(*models.User)
+	u.AddSubscription(topic.ID)
+	_ = tx.UpdateColumns(u,"subscriptions")
 	_ = tx.UpdateColumns(cat, "updated_at")
 	f := c.Value("forum").(*models.Forum)
 	c.Logger().Infof("TopicCreatePost finish: %s, by %s",topic.Title,topic.Author.Email)

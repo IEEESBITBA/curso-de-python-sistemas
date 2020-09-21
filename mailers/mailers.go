@@ -7,7 +7,8 @@ import (
 "io"
 "log"
 "net"
-"text/template"
+	"path/filepath"
+	"text/template"
 
 "github.com/gobuffalo/buffalo/mail"
 "github.com/gobuffalo/buffalo/render"
@@ -20,31 +21,45 @@ var smtp mail.Sender
 var r *render.Engine
 
 var notify struct {
+	// A Reply-To address is identified by inserting the Reply-To header in your email.
+	//It is the email address that the reply message is sent when you want the reply to go to an email address that is different than the From: address
 	ReplyTo         string
+	//Message-ID is a unique identifier for a digital message, most commonly a globally unique identifier used in email
+	// This particular field usually has the form 'example.com' (what comes after the '@')
 	MessageID       string
+	// The value of an In-Reply-To field is tokenizable, consisting of a series of words and message identifiers.
+	//According to 822, In-Reply-To lists parents, and References lists ``other correspondence.'' Some MUAs do in fact put parents into In-Reply-To. However, very few readers are able to parse the complicated syntax of In-Reply-To specified by 822, let alone the syntactically incorrect fields that show up in practice:
+	// tokenizable, see: https://cr.yp.to/immhf/token.html
 	InReplyTo       string
+	// https://tools.ietf.org/html/rfc2919 The syntax for a list identifier in ABNF [RFC2234] follows:
+	//   list-id = optional-label <list-label "." list-id-namespace>
+	// i.e: List-Id: List Header Mailing List <list-header.nisto.com>
 	ListID          string
 	ListArchive     string
+	// https://www.ietf.org/rfc/rfc2369.txt
+	// can have this form: <https://github.com/notifications/unsubscribe/ABBXSLhgVLtfNtdMGG1Y0aRw9bFiNJc_ks5teuIcgaJpZM4Ss4xE>
 	ListUnsubscribe string
+	// The name of the mail as shown to the user
 	SubjectHdr      string
+	// Who sent the mail?
 	From            string
 }
 
 func init() {
 
 	// Pulling config from the env.
-	send := envy.Get("CURSO_SEND_MAIL", "remote")
-	port := envy.Get("SMTP_PORT", "587")
-	host := envy.Get("SMTP_HOST", "smtp.gmail.com")
-	user := envy.Get("SMTP_USER", "pwhittingslow@itba.edu.ar")
+	send := envy.Get("CURSO_SEND_MAIL", "")
+	port := envy.Get("SMTP_PORT", "")
+	host := envy.Get("SMTP_HOST", "")
+	user := envy.Get("SMTP_USER", "")
 	password := envy.Get("SMTP_PASSWORD", "")
 
 	notify.ReplyTo = envy.Get("CURSO_MAIL_NOTIFY_REPLY_TO", "")
 	notify.MessageID = envy.Get("CURSO_MAIL_NOTIFY_MESSAGE_ID", "")
 	notify.InReplyTo = envy.Get("CURSO_MAIL_NOTIFY_IN_REPLY_TO", "")
 	notify.ListID = envy.Get("CURSO_MAIL_NOTIFY_LIST_ID", "")
-	notify.ListArchive = envy.Get("CURSO_MAIL_NOTIFY_LIST_ARCHIVE", "")
-	notify.ListUnsubscribe = notify.ListArchive + "/users/settings"
+	notify.ListArchive = envy.Get("CURSO_MAIL_NOTIFY_LIST_ARCHIVE", envy.Get("FORUM_HOST",""))
+	notify.ListUnsubscribe = filepath.Join(notify.ListArchive, "u")
 	notify.SubjectHdr = envy.Get("CURSO_MAIL_NOTIFY_SUBJECT_HDR", "")
 	notify.From = envy.Get("CURSO_MAIL_NOTIFY_FROM", "")
 

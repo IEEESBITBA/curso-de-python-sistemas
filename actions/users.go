@@ -68,6 +68,12 @@ func BanUserGet(c buffalo.Context) error {
 }
 
 func UserSettingsGet(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	topics := &models.Topics{}
+	if err := tx.All(topics); err != nil {
+		return errors.WithStack(err)
+	}
+	c.Set("topics",topics)
 	return c.Render(200, r.HTML("users/settings.plush.html"))
 }
 
@@ -79,6 +85,12 @@ func UserSettingsPost(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 	s, err := sanitizeNick(user.Nick)
+	emptyIfClean := hasBadWord(s)
+	if emptyIfClean != "" {
+		c.Logger().Infof("Bad word inserted by user %s: %s",user.Email,emptyIfClean)
+		c.Flash().Add("warning", "@#%$*!!")
+		return c.Redirect(302, "userSettingsPath()")
+	}
 	if err != nil {
 		c.Flash().Add("danger", T.Translate(c, "user-settings-nick-invalid"))
 		return c.Redirect(302, "userSettingsPath()")
@@ -103,4 +115,25 @@ func sanitizeNick(s string) (string, error) {
 		return s, errors.New("nick contains non alphanumeric char")
 	}
 	return s, nil
+}
+
+func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	topic := new(models.Topic)
+	if err := tx.Find(topic, c.Param("tid")); err != nil {
+		return errors.WithStack(err)
+	}
+	usr := new(models.User)
+	if err := tx.Find(usr, c.Param("uid")); err != nil {
+		return errors.WithStack(err)
+	}
+	usr.RemoveSubscription(topic.ID)
+	if err := tx.Update(usr); err != nil {
+		return errors.WithStack(err)
+	}
+	topic.RemoveSubscriber(usr.ID)
+	if err := tx.Update(topic); err != nil {
+		return errors.WithStack(err)
+	}
+	return c.Redirect(302, "/u")
 }

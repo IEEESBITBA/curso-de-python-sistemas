@@ -82,6 +82,7 @@ func App() *buffalo.App {
 		auth.Middleware.Skip(Authorize, bah, AuthCallback,AuthHome)      // don't ask for authorization on authorization page
 		auth.Middleware.Skip(SetCurrentUser, bah, AuthCallback,AuthHome) // set current user needs to seek user in db. if no users present in db setcurrentuser fails
 
+		app.GET("/u/{uid}/unsubscribe/{tid}",UsersSettingsRemoveTopicSubscription).Name("topicUnsubscribe")
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
 		app.GET("/favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico

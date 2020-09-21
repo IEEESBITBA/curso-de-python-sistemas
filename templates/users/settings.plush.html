@@ -6,11 +6,11 @@
     <fieldset>
         <!-- Form Name -->
         <!-- Text input title-->
-        <div class="form-group" >
+        <div class="form-group">
             <label class="col-md-4 control-label" for="nick"><%= t("user-settings-nick") %></label>
             <div class="col-md-4">
-                <input id="nick" name="nick" type="text" placeholder="<%= t("user-settings-nick-placeholder") %>"
-                       class="form-control input-md" value="<%= current_user.Nick %>">
+                <input id="nick" name="nick" type="text" placeholder="<%= t(" user-settings-nick-placeholder") %>"
+                class="form-control input-md" value="<%= current_user.Nick %>">
                 <span class="help-block"><%=t("user-settings-nick-help") %></span>
             </div>
         </div>
@@ -34,4 +34,30 @@
     </fieldset>
 </form>
 
+<div>
+    <%= current_user.Subscriptions %>
+</div>
+<div class="row">
+    <legend>Subscripciones:</legend>
+    <table>
+        <thead>
+        <%= for (topic) in topics { %>
+        <%= if (current_user.Subscribed(topic.ID)) { %>
+        <tr>
+            <td><%= topic.Title %></td>
+            <td>
+                <div class="text-justified">
+                    <a href="<%= topicUnsubscribePath({uid:current_user.ID, tid: topic.ID}) %>">
+                        <button class="btn btn-outline-danger">
+                            <%= icon("x-circle",1,1) %> <%= t("topic-unsubscribe") %>
+                        </button>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <% } %>
+        <% } %>
+        </thead>
+    </table>
+</div>
 <% } %>

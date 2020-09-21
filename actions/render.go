@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush/v4"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 var r *render.Engine
@@ -36,7 +36,7 @@ func init() {
 			"userIcon":    userIcon,
 			"timeSince":   timeSince,
 			"joinPath":    joinPath,
-			"displayName": displayName,
+			"displayName": DisplayName,
 			"derefUser":   derefUser,
 			"csrf": func() template.HTML {
 				return template.HTML("<input name=\"authenticity_token\" value=\"<%= authenticity_token %>\" type=\"hidden\">")
@@ -46,9 +46,9 @@ func init() {
 			"codeThemeFormOptions": codeThemeOptions,
 			"avatar": func(user *models.User) template.HTML { // style="height:28px;border-radius:50%;"
 				if user.Role == "admin" {
-					return template.HTML(fmt.Sprintf(`<img src="%s" img title="%s" alt="%s" class="avatar-img admin">`, user.ImageSrc(), displayName(user), displayName(user)))
+					return template.HTML(fmt.Sprintf(`<img src="%s" img title="%s" alt="%s" class="avatar-img admin">`, user.ImageSrc(), DisplayName(user), DisplayName(user)))
 				}
-				return template.HTML(fmt.Sprintf(`<img src="%s" img title="%s" alt="%s" class="avatar-img">`, user.ImageSrc(), displayName(user), displayName(user)))
+				return template.HTML(fmt.Sprintf(`<img src="%s" img title="%s" alt="%s" class="avatar-img">`, user.ImageSrc(), DisplayName(user), DisplayName(user)))
 			},
 		},
 	})
@@ -64,7 +64,7 @@ func joinPath(sli ...string) string {
 	return strings.Join(sli, "/") + "/"
 }
 
-func displayName(u interface{}) string {
+func DisplayName(u interface{}) string {
 	user, ok := u.(*models.User)
 	if !ok {
 		userCopy := u.(models.User)
@@ -214,6 +214,7 @@ var bootstrapHTMLSprites = map[string]string{ // https://icons.getbootstrap.com/
 	"markdown-fill":         `<svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-markdown-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm11.5 1a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L11 9.293V5.5a.5.5 0 0 1 .5-.5zM3.56 7.01V11H2.5V5.001h1.208l1.71 3.894h.04l1.709-3.894h1.2V11H7.294V7.01h-.057l-1.42 3.239h-.773l-1.428-3.24H3.56z"/></svg>`,
 	"markdown":              `<svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-markdown" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M14 3H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z"/><path fill-rule="evenodd" d="M9.146 8.146a.5.5 0 0 1 .708 0L11.5 9.793l1.646-1.647a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 0-.708z"/><path fill-rule="evenodd" d="M11.5 5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5z"/><path d="M3.56 11V7.01h.056l1.428 3.239h.774l1.42-3.24h.056V11h1.073V5.001h-1.2l-1.71 3.894h-.039l-1.71-3.894H2.5V11h1.06z"/></svg>`,
 	"pencil-square":         `<svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>`,
+	"x-circle":              `<svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-x-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>`,
 }
 
 // width and height in rem integers

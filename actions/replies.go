@@ -45,10 +45,13 @@ func ReplyPost(c buffalo.Context) error {
 		return c.Render(422, r.HTML("replies/create"))
 	}
 	// mail not yet implemented https://myaccount.google.com/lesssecureapps
-	//err = newReplyNotify(c, topic, reply)
-	//if err != nil {
-	//	return errors.WithStack(err)
-	//}
+	err = newReplyNotify(c, topic, reply)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	user.AddSubscription(topic.ID)
+	_ = tx.UpdateColumns(user,"subscriptions")
 	c.Flash().Add("success", T.Translate(c, "reply-create-success"))
 	f := c.Value("forum").(*models.Forum)
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
@@ -134,21 +137,17 @@ func loadReply(c buffalo.Context, id string) (*models.Reply, error) {
 	return reply, nil
 }
 
-// mailer functionality
+// mailer functionality. This is called when a reply is posted in a topic.
+// newReplyNotify expects a models.Topic with Subscribers, who will be the recipients, and
+//
 func newReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply) error {
+	replyingUser := c.Value("current_user").(*models.User)
+	tx := c.Value("tx").(*pop.Connection)
 	set := make(map[uuid.UUID]struct{})
 	for _, usr := range topic.Subscribers {
-		set[usr] = struct{}{}
-	}
-	set[reply.AuthorID] = struct{}{}
-
-	cat := new(models.Category)
-	tx := c.Value("tx").(*pop.Connection)
-	if err := tx.Find(cat, topic.CategoryID); err != nil {
-		return errors.WithStack(err)
-	}
-	for _, usr := range cat.Subscribers {
-		set[usr] = struct{}{}
+		if usr.String() != replyingUser.ID.String() { // we don't notify the replying user
+			set[usr] = struct{}{}
+		}
 	}
 
 	users := new(models.Users)
@@ -158,12 +157,15 @@ func newReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply)
 
 	var recpts []models.User
 	for _, usr := range *users {
-		if _, ok := set[usr.ID]; !ok {
+		// users has ALL users. we append users who are in `set` AND if they are subscribed to the reply
+		if _, ok := set[usr.ID]; !ok {// || !usr.Subscribed(topic.ID) {
 			continue
 		}
 		recpts = append(recpts, usr)
 	}
-
+	if recpts == nil || len(recpts) == 0 {
+		return nil
+	}
 	err := mailers.NewReplyNotify(c, topic, reply, recpts)
 	if err != nil {
 		return errors.WithStack(err)
