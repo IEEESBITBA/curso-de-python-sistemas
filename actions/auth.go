@@ -22,7 +22,7 @@ func init() {
 		google.New(os.Getenv("GGL_KEY_FORUM"), os.Getenv("GGL_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/google/callback"),
 			"profile", "email"),
 		facebook.New(os.Getenv("FB_KEY_FORUM"), os.Getenv("FB_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/facebook/callback"),
-			"user_likes", "email"),
+			"public_profile", "email"),
 	)
 }
 
@@ -77,12 +77,16 @@ func AuthCallback(c buffalo.Context) error {
 // logout process. kills cookies leaving user
 // unable to Authorize without logging in again
 func AuthDestroy(c buffalo.Context) error {
+	//c.Session().Set(app.SessionName,"")
+	c.Cookies().Delete(App().SessionName)
 	c.Session().Clear()
 	err := c.Session().Save()
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "app-logout"))
+	//c.Cookies().Set(app.SessionName,"",time.Second*3)
+
 	return c.Redirect(302, "/")
 }
 

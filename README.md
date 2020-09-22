@@ -52,7 +52,8 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     # Required for OAuth2 (Default uses google as provider)
     GGL_SECRET_FORUM=xxxxxxxxx # This is google's secret API token (client secret)
     GGL_KEY_FORUM=1113333333-xXxXxXXX  # This is google's client ID
-    
+    # See other provider env in actions/auth.go under init() function
+   
     # Optional
     # Nothing below this line is required to make the server work
     # --------------
