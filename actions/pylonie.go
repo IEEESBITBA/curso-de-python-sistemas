@@ -69,6 +69,8 @@ func InterpretPost(c buffalo.Context) error {
 func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	// The value obtained from code submission as `input` is the team ID in the context of an
 	// evaluation. Reason being that there is no other input a user can have for the time being.
+	user := c.Value("current_user").(*models.User)
+
 	teamID := p.Input
 	var ID big.Int
 	ID.SetString(teamID, 10)
@@ -90,6 +92,9 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	eval := &models.Evaluation{}
 	if err = q.First(eval); err != nil {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-not-found"))
+	}
+	if user.Subscribed(eval.ID) {
+		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-already-passed"))
 	}
 	peval := pythonHandler{}
 	peval.userID = p.userID
@@ -121,6 +126,8 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 				c.Logger().Infof("evaluation: success sending pass mail to %s",p.UserName)
 			}
 		}()
+		user.AddSubscription(eval.ID)
+		_=tx.UpdateColumns(user,"subscriptions")
 		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
 	} else {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))

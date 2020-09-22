@@ -310,10 +310,14 @@
 # NEW DO NOT ELIMINATE THIS
 - id: topic-unsubscribe
   translation: "Desubscribirse"
-
-
-
-
+- id: curso-python-evaluation-already-passed
+  translation: "Ya estás aprobado ¡Tomate un descanso!"
+- id: topic-reply
+  translation: "Responder"
+- id: topic-edit
+  translation: "Editar"
+- id: reply-edit
+  translation: "Editar"
 
 
 
