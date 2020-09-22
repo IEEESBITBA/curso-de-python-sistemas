@@ -20,8 +20,6 @@ func TopicGet(c buffalo.Context) error {
 	}
 	c.Set("topic", topic)
 	return c.Render(200, r.HTML("topics/get.plush.html"))
-
-	//return c.Redirect(200,"topicGetPath()", renderData)//c.Render(200,r.HTML("topics/index.plush.html"))
 }
 
 func TopicCreateGet(c buffalo.Context) error {
@@ -70,6 +68,27 @@ func TopicCreatePost(c buffalo.Context) error {
 	c.Logger().Infof("TopicCreatePost finish: %s, by %s",topic.Title,topic.Author.Email)
 	c.Flash().Add("success", T.Translate(c, "topic-add-success"))
 	return c.Redirect(302, "catPath()", render.Data{"forum_title": f.Title, "cat_title": cat.Title})
+}
+
+func TopicDelete(c buffalo.Context) error {
+	topic, err := loadTopic(c, c.Param("tid"))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	f := c.Value("forum").(*models.Forum)
+	usr := c.Value("current_user").(*models.User)
+	if !(usr.Role == "admin" || usr.ID == topic.AuthorID) {
+		c.Flash().Add("danger", "You are not authorized to delete this topic")
+		return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
+			"tid": c.Param("tid")})
+	}
+	tx := c.Value("tx").(*pop.Connection)
+	topic.Deleted = true
+	if err := tx.UpdateColumns(topic,"deleted"); err != nil {
+		return errors.WithStack(err)
+	}
+	c.Flash().Add("success", "Topic deleted successfuly.")
+	return c.Redirect(302, "catPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title")})
 }
 
 func TopicEditGet(c buffalo.Context) error {

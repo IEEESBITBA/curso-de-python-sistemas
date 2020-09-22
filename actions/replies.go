@@ -102,7 +102,7 @@ func DeleteReply(c buffalo.Context) error {
 	}
 	f := c.Value("forum").(*models.Forum)
 	usr := c.Value("current_user").(*models.User)
-	if !(usr.Role != "admin") && usr.ID != reply.AuthorID {
+	if !(usr.Role == "admin" || usr.ID == reply.AuthorID) {
 		c.Flash().Add("danger", "You are not authorized to delete this reply")
 		return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
 			"tid": c.Param("tid")})
@@ -115,7 +115,6 @@ func DeleteReply(c buffalo.Context) error {
 	c.Flash().Add("success", "Reply deleted successfuly.")
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
 		"tid": c.Param("tid")})
-
 }
 
 func loadReply(c buffalo.Context, id string) (*models.Reply, error) {

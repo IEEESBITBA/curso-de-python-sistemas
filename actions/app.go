@@ -132,6 +132,7 @@ func App() *buffalo.App {
 		topicGroup.GET("/", TopicGet).Name("topicGet") //
 		topicGroup.GET("/edit", TopicEditGet).Name("topicEdit")
 		topicGroup.POST("/edit", TopicEditPost)
+		topicGroup.GET("/delete",TopicDelete).Name("topicDelete")
 		topicGroup.GET("/reply", ReplyGet).Name("reply")
 		topicGroup.POST("/reply", ReplyPost)
 		topicGroup.Middleware.Skip(Authorize,TopicGet)

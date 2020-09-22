@@ -50,7 +50,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col text-left">
-                        <a href="< %= topicsDeletePath({tid: topic.ID}) %>" class="btn btn-danger">
+                        <a href="<%= topicDeletePath(ctx) %>" class="btn btn-danger">
                            <%= icon("trash-fill",1,1) %>  <%= t("topic-delete") %>
                         </a>
                     </div>
