@@ -14,10 +14,10 @@ let ctx = {evalid: evaluation.ID}
     <%= if (current_user.Role == "admin") { %>
     <div class="col-md-2 mt-3 offset-md-8 text-right">
         <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#topic-modal-<%= evaluation.ID %>">
-            <span><%= icon("trash-fill",1,1) %>  <%=t("topic-delete") %> </span>
+            <span><%= bicon("trash-fill",{size:"1em"}) %>  <%=t("topic-delete") %> </span>
         </button>
         <a href="<%= evaluationEditGetPath(ctx) %>" class="btn btn-secondary btn-sm ">
-            <span><%= icon("input-cursor-text",1,1) %>  <%=t("topic-edit") %> </span>
+            <span><%= bicon("input-cursor-text",{size:"1em"}) %>  <%=t("topic-edit") %> </span>
         </a>
     </div>
     <% } %>
@@ -49,7 +49,7 @@ let header = "# Solución " + evaluation.Title + `(invisible a usuarios comunes)
                 <div class="row">
                     <div class="col text-left">
                         <a href="<%= evaluationDeletePath({evalid: evaluation.ID}) %>" class="btn btn-danger">
-                            <%= icon("trash-fill",1,1) %> <%= t("topic-delete") %>
+                            <%= bicon("trash-fill",{size:"2em"}) %> <%= t("topic-delete") %>
                         </a>
                     </div>
                     <div class="col text-right">

@@ -14,7 +14,7 @@
     </div>
     <%= if ( current_user) { %>
     <div class="col-md-4 col-sm-4 text-right">
-        <a href="<%= topicCreatePath(ctx) %>" class="btn btn-primary btn-sm m-0"><%= icon("pencil-fill",1,1) %> <%=  t("category-new-topic") %></a>
+        <a href="<%= topicCreatePath(ctx) %>" class="btn btn-primary btn-sm m-0"><%= bicon("pencil-fill",{size:"1em"}) %> <%=  t("category-new-topic") %></a>
     </div>
     <% } %>
 </div>
@@ -38,7 +38,7 @@
 <div class="card mb-1 rounded-0" id="<%= topic.ID %>">
     <a href="<%= topicGetPath( ctxTopic ) %>">
     <div class="card-header bg-secondary text-white rounded-0">
-          <%= if (topic.Archived) { %><%= icon("archive-fill",1,1) %><% } %> <%= topic.Title %>
+          <%= if (topic.Archived) { %><%= bicon("archive-fill",{size:"1em",title:t("archived")}) %><% } %> <%= topic.Title %>
         <%= for (author) in topic.Authors() { %>
         <span class="float-right">
 			<%= avatar(derefUser(author)) %>

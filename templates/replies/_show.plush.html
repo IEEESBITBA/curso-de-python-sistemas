@@ -11,10 +11,10 @@
             <div class="col-md-2 offset-md-8 text-right">
                 <%= if  ( current_user.IsAuthor(reply.AuthorID) || current_user.Role == "admin" ) { %>
                 <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#reply-modal-<%= reply.ID %>">
-                    <%= icon("trash-fill",1,1) %>
+                    <%= bicon("trash-fill",{size:"1.4em"}) %>
                 </button>
                 <a href="<%= replyEditPath(ctx) %>" class="btn btn-secondary btn-sm m-0">
-                    <%= icon("input-cursor-text",1,1) %>
+                    <%= bicon("input-cursor-text",{size:"1.4em",title:t("reply-edit")}) %>
                 </a>
                 <% } %>
             </div>

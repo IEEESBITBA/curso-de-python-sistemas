@@ -23,8 +23,8 @@ let tab = t("interpreter-tab")
         </div>
         <% }%>
         <div class="row" id="banner">
-            <div class="col-4" id="head" itemprop="name"> <!-- Si es una evaluación mostramos un icono especial -->
-                <button id="run" class="btn btn-primary btn-lg"><%= if (evaluation) { %> <%= icon("code-slash",2,2) %> <% } else { %> <%= icon("code-slash",2,2) %><% } %> <%= t("curso-python-interpreter-run") %></button>
+            <div class="col-4" id="head" itemprop="name"> <!-- Si es una evaluación mostramos un Icono especial -->
+                <button id="run" class="btn btn-primary btn-lg"><%= if (evaluation) { %> <%= bicon("code-slash",{size:"1em"}) %> <% } else { %> <%= bicon("code-slash",{size:"1em"}) %><% } %> <%= t("curso-python-interpreter-run") %></button>
             </div>
             <div class="col-0"><%= t("curso-python-interpreter-title") %></div>
             <div class="col-5" id="user"><%= t("user") +": "+ current_user.Name %></div>

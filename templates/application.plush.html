@@ -56,7 +56,7 @@
                         <%= forum.LogoImage({class:"img-circle",style:"width:50px;"}) %>
                         <% } else { %>
                         <a class="navbar-brand" href="<%= root_path %>">
-                        <%= icon("house-fill",2,2) %>
+                        <%= bicon("house-fill",{size:"2em"}) %>
                         <% } %> </a>
                 </li>
                 <li class="nav-item">
@@ -81,7 +81,7 @@
                 <%= if (current_user) { %>
                 <li class="nav-item" >
                      <a class="nav-link badge badge-light" href="<%= search_path %>">
-                         <%= icon("search",2,2) %>
+                         <%= bicon("search",{size:"2em"}) %>
                      </a>
                  </li>
                 <li class="nav-item">
@@ -90,15 +90,15 @@
                            <!-- <img src="data:image/png;base64,<%= current_user.Image() %>"
                                  alt="<%= current_user.Name %>" style="width:50px;" class="img-circle"> -->
 
-                            <%= userIcon(current_user,1) %> <%= displayName(current_user) %>
-                            <%= icon("caret-down-fill",1,1) %>
+                            <%= userIcon(current_user,{size:"1em"}) %> <%= displayName(current_user) %>
+                            <%= bicon("caret-down-fill",{size:"1em"}) %>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item nav-link" href="<%=user_settings_path%>"><%= icon("gear-fill",1,1) %> <%=
+                            <a class="dropdown-item nav-link" href="<%=user_settings_path%>"><%= bicon("gear-fill",{size:"1em"}) %> <%=
                                 t("app-settings") %> </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item nav-link" href="<%= logoutPath() %>"
-                               data-method="DELETE"><%= icon("door-open",1,1) %> <%=
+                               data-method="DELETE"><%= bicon("door-open",{size:"1em"}) %> <%=
                                 t("app-request-logout") %></a>
                         </div>
                     </div>

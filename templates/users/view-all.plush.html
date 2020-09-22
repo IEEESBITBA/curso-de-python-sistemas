@@ -46,22 +46,22 @@ if (user.Role == "banned") {
             <%= if (user.Nick != "") { %> (<%= user.Nick %>) <% } %>
         </div>
         <div class="col-1">
-            <%= userIcon(derefUser(user),1) %>
+            <%= userIcon(derefUser(user),{size:"1.5em"}) %>
         </div>
         <div class="col-2">
             <%= if (user.Role != "banned") {%>
             <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#user-modal-<%= user.ID %>">
-                <span> <%= icon("hammer",1,1) %> <%=t("topic-delete") %></span>
+                <span> <%= bicon("hammer",{size:"1em"}) %> <%=t("topic-delete") %></span>
             </button>
             <% } %>
             <%= if (user.Role != "admin") {%>
             <a type="button" class="btn btn-primary btn-sm m-0" href="<%= adminUserPath({uid: user.ID}) %>">
-                <span> <%= icon("shield-fill",1,1) %> <%=t("topic-delete") %></span>
+                <span> <%= bicon("shield-fill",{size:"1em"}) %> <%=t("topic-delete") %></span>
             </a>
             <% } %>
             <%= if (user.Role != "") {%>
             <a type="button" class="btn btn-secondary btn-sm m-0" href="<%= normalizeUserPath({uid: user.ID}) %>">
-               <%= if (user.Role!="banned") {%> <%= icon("shield-slash-fill",1,1) %> <% } else { %> <%=icon("emoji-expressionless",1,1) %>  <% } %>
+               <%= if (user.Role!="banned") {%> <%= bicon("shield-slash-fill",{size:"1em"}) %> <% } else { %> <%=icon("emoji-expressionless",1,1) %>  <% } %>
             </a>
             <% } %>
         </div>
@@ -83,7 +83,7 @@ if (user.Role == "banned") {
                 <div class="row">
                     <div class="col text-left">
                         <a href="<%= banUserPath({uid: user.ID}) %>" class="btn btn-danger">
-                            <span> <%= icon("hammer",1,1) %> <%=t("topic-delete") %></span>
+                            <span> <%= bicon("hammer",{size:"1em"}) %> <%=t("topic-delete") %></span>
                         </a>
                     </div>
                     <div class="col text-right">

@@ -34,9 +34,9 @@
                 </div>
                 <span class="help-block"><%= t("new-forum-logo-help") %> (64x64 px) -- Optimized SVGs are supported but must not contain outer XML tag (start with &lt;svg ...). Example:</span>
                 <code>
-                    &lt;svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-person-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">&lt;path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>&lt;/svg>
+                    &lt;svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-person-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">&lt;path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>&lt;/svg>
                 </code>
-                <span class="help-block">would render as <%= icon("person-fill",2,2) %></span>
+                <span class="help-block">would render as <%= bicon("person-fill",{size:"2em",title:"user"}) %></span>
 
             </div>
 

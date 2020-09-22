@@ -328,3 +328,5 @@
   translation: "Visitar el foro"
 - id: forum-back-to-forums
   translation: "Volver al listado de foros"
+- id: archived
+  translation: "Archivado"

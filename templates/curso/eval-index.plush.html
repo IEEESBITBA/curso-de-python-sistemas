@@ -5,13 +5,19 @@
     </div>
     <%= if ( current_user.Role == "admin") { %>
     <div class="col-md-2 col-sm-2 text-right">
-        <a href="<%= evaluationCreatePath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("pencil-fill",1,1) %> <%=  t("curso-python-new-evaluation") %></a>
+        <a href="<%= evaluationCreatePath()  %>" class="btn btn-primary btn-sm m-0">
+            <%= bicon("pencil-fill",{size:"1.5em"}) %> <%=  t("curso-python-new-evaluation") %>
+        </a>
     </div>
     <div class="col-md-1  col-sm-1 text-right">
-        <a href="<%= cursoCodeBackupPath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("server",1,1) %>  <%=  t("curso-python-code-backup") %></a>
+        <a href="<%= cursoCodeBackupPath()  %>" class="btn btn-primary btn-sm m-0">
+            <%= bicon("server",{size:"1.5em"}) %>  <%=  t("curso-python-code-backup") %>
+        </a>
     </div>
     <div class="col-md-1 col-sm-1  text-right">
-        <a href="<%= cursoCodeBackupReaderPath()  %>" class="btn btn-primary btn-sm m-0"><%= icon("terminal-fill",1,1) %> <%=  ".exe" %></a>
+        <a href="<%= cursoCodeBackupReaderPath()  %>" class="btn btn-primary btn-sm m-0">
+            <%= bicon("terminal-fill",{size:"1.5em"}) %> <%=  ".exe" %>
+        </a>
     </div>
     <% } %>
 </div>
@@ -32,7 +38,7 @@ let ctxEval = {evalid: eval.ID}%>
     <hr class="col-md-12 col-sm-12" id="<%= eval.ID %>">
     <div class="col-md-8">
         <a href="<%= evaluationGetPath( ctxEval ) %>" class="text-secondary">
-          <%= if (eval.Hidden) { %> <%= icon("eye-slash-fill",1,1) %> <% }%>  <%= eval.Title %>
+          <%= if (eval.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%>  <%= eval.Title %>
         </a>
     </div>
 
