@@ -35,6 +35,7 @@ var notify struct {
 	//   list-id = optional-label <list-label "." list-id-namespace>
 	// i.e: List-Id: List Header Mailing List <list-header.nisto.com>
 	ListID          string
+	// We use ListArchive to save our website: https://curso.whittileaks.com
 	ListArchive     string
 	// https://www.ietf.org/rfc/rfc2369.txt
 	// can have this form: <https://github.com/notifications/unsubscribe/ABBXSLhgVLtfNtdMGG1Y0aRw9bFiNJc_ks5teuIcgaJpZM4Ss4xE>

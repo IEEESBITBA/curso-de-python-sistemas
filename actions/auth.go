@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/facebook"
 	"github.com/markbates/goth/providers/google"
 	"github.com/pkg/errors"
 	"os"
@@ -19,6 +20,8 @@ func init() {
 	gothic.Store = App().SessionStore
 	goth.UseProviders(
 		google.New(os.Getenv("GGL_KEY_FORUM"), os.Getenv("GGL_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/google/callback"),
+			"profile", "email"),
+		facebook.New(os.Getenv("FB_KEY_FORUM"), os.Getenv("FB_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/facebook/callback"),
 			"profile", "email"),
 	)
 }

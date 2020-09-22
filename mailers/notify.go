@@ -96,7 +96,7 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 	if err != nil {
 		return errors.WithStack(err)
 	}
-
+	c.Logger().Printf("SEND %v",m)
 	err = smtp.Send(m)
 	if err != nil {
 		return errors.WithStack(err)
@@ -105,6 +105,53 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 	return nil
 }
 
+func NewEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation, recpts []models.User) error {
+	m := mail.NewMessage()
+	user :=c.Value("current_user").(*models.User)
+	if user.Subscribed(eval.ID) { // We subscribe the user once the email is succesfully sent
+		return nil
+	}
+	evalPath := fmt.Sprintf("curso-python/eval/e/%s", eval.ID)
+	notify.SubjectHdr = "Desafío aprobado"
+	m.SetHeader("Reply-To", notify.ReplyTo) //http://site.com/f/Curselli/c/Clases-1/ad2f50ae-11bd-4fea-aed2-69d511225edc/
+	m.SetHeader("Message-ID", fmt.Sprintf("<%s/%s@%s>",evalPath,user.ID, notify.MessageID))
+	m.SetHeader("In-Reply-To", fmt.Sprintf("<%s@%s>",evalPath, notify.InReplyTo))
+	m.SetHeader("List-ID", notify.ListID)
+	m.SetHeader("List-Archive", notify.ListArchive)
+	m.SetHeader("List-Unsubscribe", notify.ListUnsubscribe)
+	m.SetHeader("X-Auto-Response-Suppress", "All")
+
+	m.Subject = notify.SubjectHdr + ": " + eval.Title
+
+	m.From = fmt.Sprintf("%s <%s>", "Curso Python", notify.From)
+	m.To = nil
+	m.Bcc = nil
+	for _, usr := range recpts {
+		m.Bcc = append(m.Bcc, usr.Email)
+	}
+
+	data := map[string]interface{}{
+		"content":     "No responder a este mensaje.",
+		"unsubscribe": filepath.Join(notify.ListArchive),
+		"visit":       filepath.Join(notify.ListArchive, evalPath),
+	}
+	//
+	err := m.AddBodies(
+		data,
+		//r.Plain("mail/notify.txt"),
+		r.HTML("mail/notify.plush.html"),
+	)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	c.Logger().Printf("SEND %v",m)
+	err = smtp.Send(m)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	user.AddSubscription(eval.ID)
+	return nil
+}
 
 func displayName(u interface{}) string {
 	user, ok := u.(*models.User)

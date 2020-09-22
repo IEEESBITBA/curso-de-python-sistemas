@@ -39,7 +39,7 @@ the end of this document)
 
 5. Run the following command in `~/curso` directory. This will install `buffalo-pop` which is the defacto database manager plugin for buffalo. This will enable you to run `buffalo pop <cmd>` commands
 	```
-		buffalo plugins install
+	buffalo plugins install
 	```
 
 6. Create your database according to [`database.yml`](./database.yml) config file. The following section explains how to do that, for now I'll assume you have a SQL database up and running according to `database.yml`.
@@ -54,6 +54,8 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     GGL_KEY_FORUM=1113333333-xXxXxXXX  # This is google's client ID
     
     # Optional
+    # Nothing below this line is required to make the server work
+    # --------------
     GONTAINER_FS=/home/myuser/alpinefs # Path to linux filesystem with python3 installation
     FORUM_HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
@@ -90,8 +92,10 @@ a linux filesystem to get running. Alpine Linux is recommended.)
 9. Enjoy your forum at [127.0.0.1:3000](http://127.0.0.1:3000/).
 To add an admin login to the site and see section on [accessing the database](#access-the-database)
 
+**Some ending notes**  
 Buffalo ships with the `dev` command that will watch your application and automatically rebuild the Go binary and any assets for you. That's useful when developing.
-
+Keep in mind buffalo logs are default ANSI encoded for pretty colors. This can be turned off in logger config if you prefer simple logs. 
+To view ANSI logs you can get Sublime editor and install [AnsiEscape](https://github.com/aziz/SublimeANSI) plugin.
 
 ### Database setup
 

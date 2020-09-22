@@ -5,7 +5,9 @@ import (
 	"crypto"
 	"encoding/json"
 	"fmt"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
 	"github.com/gobuffalo/envy"
+	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -112,15 +114,20 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		return p.codeResult(c, p.Output, err.Error())
 	}
 	if p.Output == peval.Output {
+		go func() { // asynchronous mailer to not impede UX
+			if err:=newEvaluationSuccessNotify(c,eval); err!=nil {
+				c.Logger().Errorf("evaluation: fail to send %s success mail",p.UserName)
+			} else {
+				c.Logger().Infof("evaluation: success sending pass mail to %s",p.UserName)
+			}
+		}()
 		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
 	} else {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))
 	}
 }
 
-func ControlPanel(c buffalo.Context) error {
-	return c.Render(200, r.HTML("curso/control-panel.plush.html"))
-}
+
 
 // Function to delete all python uploads
 func DeletePythonUploads(c buffalo.Context) error {
@@ -424,7 +431,7 @@ func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 		sum := h.Sum(nil)
 		if b.Get(sum) == nil {
 			c.Logger().Infof("Code submitted user: %s", pc.UserName)
-			return b.Put(h.Sum(nil), buff)
+			return b.Put(sum, buff)
 		}
 		c.Logger().Infof("Repeated code submitted user: %s", pc.UserName)
 		return nil
@@ -454,6 +461,22 @@ func boltDBDownload(db *bbolt.DB) func(c buffalo.Context) error {
 		}
 		return nil
 	}
+}
+
+func newEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation) error {
+	var recpts []models.User
+	user := c.Value("current_user").(*models.User)
+	recpts = append(recpts, *user)
+	// mailer checks if user already passed evaluation
+	err := mailers.NewEvaluationSuccessNotify(c, eval, recpts)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func ControlPanel(c buffalo.Context) error {
+	return c.Render(200, r.HTML("curso/control-panel.plush.html"))
 }
 
 // Zips up a folder in relative path /assets and
