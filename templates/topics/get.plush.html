@@ -63,7 +63,7 @@
     </div>
 </div>
 
-<%= for (reply) in topic.Replies { %>
+<%= for (reply) in topic.Replies {  %>
 <%= if (!reply.Deleted) { %>
 <%= partial("replies/show.html") %>
 <% } %>
