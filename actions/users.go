@@ -5,10 +5,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 func UsersViewAllGet(c buffalo.Context) error {
@@ -73,7 +73,7 @@ func UserSettingsGet(c buffalo.Context) error {
 	if err := tx.All(topics); err != nil {
 		return errors.WithStack(err)
 	}
-	c.Set("topics",topics)
+	c.Set("topics", topics)
 	return c.Render(200, r.HTML("users/settings.plush.html"))
 }
 
@@ -87,7 +87,7 @@ func UserSettingsPost(c buffalo.Context) error {
 	s, err := sanitizeNick(user.Nick)
 	emptyIfClean := hasBadWord(s)
 	if emptyIfClean != "" {
-		c.Logger().Infof("Bad word inserted by user %s: %s",user.Email,emptyIfClean)
+		c.Logger().Infof("Bad word inserted by user %s: %s", user.Email, emptyIfClean)
 		c.Flash().Add("warning", "@#%$*!!")
 		return c.Redirect(302, "userSettingsPath()")
 	}
@@ -118,22 +118,41 @@ func sanitizeNick(s string) (string, error) {
 }
 
 func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
-	tx := c.Value("tx").(*pop.Connection)
-	topic := new(models.Topic)
-	if err := tx.Find(topic, c.Param("tid")); err != nil {
-		return errors.WithStack(err)
-	}
+	var unsub []string
 	usr := new(models.User)
+	tx := c.Value("tx").(*pop.Connection)
 	if err := tx.Find(usr, c.Param("uid")); err != nil {
 		return errors.WithStack(err)
 	}
-	usr.RemoveSubscription(topic.ID)
-	if err := tx.Update(usr); err != nil {
-		return errors.WithStack(err)
+	if c.Param("tid") == "all" {
+		for _, sub := range usr.Subscriptions {
+			topic := new(models.Topic)
+			if err := tx.Find(topic, sub); err != nil {
+				continue
+			}
+			unsub = append(unsub, topic.ID.String())
+		}
+		if len(unsub) == 0 {
+			c.Flash().Add("warning",T.Translate(c,"topic-unsubscribe-empty"))
+			return c.Redirect(302, "/u")
+		}
+	} else {
+		unsub = append(unsub, c.Param("tid"))
 	}
-	topic.RemoveSubscriber(usr.ID)
-	if err := tx.Update(topic); err != nil {
-		return errors.WithStack(err)
+	for _, id := range unsub {
+		topic := new(models.Topic)
+		if err := tx.Find(topic, id); err != nil {
+			return errors.WithStack(err)
+		}
+		usr.RemoveSubscription(topic.ID)
+		if err := tx.Update(usr); err != nil {
+			return errors.WithStack(err)
+		}
+		topic.RemoveSubscriber(usr.ID)
+		if err := tx.Update(topic); err != nil {
+			return errors.WithStack(err)
+		}
 	}
+	c.Flash().Add("success",T.Translate(c,"topic-unsubscribe-success"))
 	return c.Redirect(302, "/u")
 }

@@ -318,6 +318,11 @@
   translation: "Editar"
 - id: reply-edit
   translation: "Editar"
-
-
-
+- id: topic-unsubscribe-success
+  translation: "Subscripción(es) eliminada(s)"
+- id: topic-unsubscribe-all
+  translation: "Desubscribirse de todas las publicaciones"
+- id: topic-unsubscribe-empty
+  translation: "No se encontró una subscripción a una publicación"
+- id: forum-visit
+  translation: "Visitar el foro"

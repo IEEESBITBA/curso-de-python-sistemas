@@ -5,24 +5,34 @@
         <% } %>
     </div>
 </div>
-<h2>Foros activos</h2>
 
-<div class="container">
+
+<h2>Foros activos</h2>
     <%= if (len(forums) == 0) {%>
         <div>
             <%= t("no-forums-found") %>
         </div>
     <% } else { %>
+<div class="row row-cols-1 row-cols-md-3">
         <%= for (i, v) in forums { %>
-        <div>
-            <a href="<%= forumPath({forum_title:v.Title}) %>">
-            <%= v.Title %>
-            </a>
-            <span style="margin-left: 4rem"><%= v.Description %></span>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row no-gutters">
+            <div class="col-2 col-md-3">
+                <a href="<%= forumPath({forum_title:v.Title}) %>"><img class="card-img img-thumbnail m-2" src="data:image/png;base64,<%= v.LogoImage() %>"  alt="<%= v.Title %>"></a>
+            </div>
+            <div class="col-10 col-md-9">
+                <div class="card-body">
+                    <h5 class="card-title"><%= v.Title %></h5>
+                    <p class="card-text"><%= v.Description %></p>
+                    <a href="<%= forumPath({forum_title:v.Title}) %>"><button class="btn btn-secondary"><%= t("forum-visit") %></button></a>
+                </div>
+            </div>
         </div>
+    </div>
         <% } %>
-    <% } %>
 </div>
+    <% } %>
+
 
 <div class="row justify-content-center">
     <div class="pagination-sm">

@@ -34,11 +34,12 @@
     </fieldset>
 </form>
 
+<%= if (len(current_user.Subscriptions) > 0) { %>
 <div>
     <%= current_user.Subscriptions %>
 </div>
 <div class="row">
-    <legend>Subscripciones:</legend>
+    <legend>Subscripciones: <a href="<%= topicUnsubscribePath({uid:current_user.ID, tid: `all`}) %>" class="badge badge-danger"><%= t("topic-unsubscribe-all") %></a></legend>
     <table>
         <thead>
         <%= for (topic) in topics { %>
@@ -60,4 +61,6 @@
         </thead>
     </table>
 </div>
+<% } %>
+<!-- current user end -->
 <% } %>
