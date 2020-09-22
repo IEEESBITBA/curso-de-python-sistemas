@@ -1,7 +1,10 @@
 <div class="row">
+    <a class="badge badge-secondary text-white mb-3" href="<%= root_path %>"><%= icon("house-fill",2,2) %><%= t("forum-back-to-forums") %></a>
+</div>
+
+<div class="row">
     <h1><%= forum.Title %></h1>
     <div class="col-3 offset-md-9 text-right">
-
         <%= if (current_user.Role == "admin") { %>
         <a href="<%= catCreatePath({forum_title:forum.Title}) %>" class="btn btn-primary"><%= icon("folder-plus",1,1) %> <%= t("category-new-category") %></a>
         <% } %>

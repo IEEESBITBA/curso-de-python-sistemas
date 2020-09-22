@@ -51,7 +51,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li>
-                    <%= if (len(forum.Logo)==0 || inForum) { %>
+                    <%= if (inForum) { %>
                     <a class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
                         <img src="data:image/png;base64,<%= forum.LogoImage() %>" class="img-circle" style="width: 50px;">
                         <% } else { %>
@@ -115,6 +115,7 @@
     <!-- End NavBar -->
 </div>
 <div class="container" style="margin-bottom:4rem;">
+
     <%= partial("flash.html") %>
     <%= yield %>
 </div>

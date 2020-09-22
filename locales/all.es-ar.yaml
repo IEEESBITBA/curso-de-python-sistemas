@@ -326,3 +326,5 @@
   translation: "No se encontró una subscripción a una publicación"
 - id: forum-visit
   translation: "Visitar el foro"
+- id: forum-back-to-forums
+  translation: "Volver al listado de foros"
