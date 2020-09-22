@@ -3,6 +3,9 @@ package models
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"github.com/gobuffalo/buffalo/render"
+	"html/template"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -32,8 +35,18 @@ func (f Forum) String() string {
 	return string(jf)
 }
 
-func (f Forum) LogoImage() string {
-	return base64.StdEncoding.EncodeToString(f.Logo)
+func (f Forum) LogoImage(opt render.Data) template.HTML {
+	class, style := "forum-logo", ""
+	if c, ok := opt["class"]; ok {
+		class = c.(string)
+	}
+	if s, ok := opt["style"]; ok {
+		style = s.(string)
+	}
+	if string(f.Logo[0:5]) == "<svg " || string(f.Logo[0:6]) == "\n<svg " {
+		return template.HTML(string(f.Logo[0:5]) + fmt.Sprintf(" class=\"%s\" style=\"%s\" ", class, style) + string(f.Logo[5:]))
+	}
+	return template.HTML(fmt.Sprintf("<img class=\"%s\" style=\"%s\" src=\"data:image/png;base64,%s\">", class, style, base64.StdEncoding.EncodeToString(f.Logo)))
 }
 
 // Forums is not required by pop and may be deleted

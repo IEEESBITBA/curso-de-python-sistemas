@@ -15,6 +15,7 @@ require (
 	github.com/gobuffalo/nulls v0.4.0
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.8.0
+	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plush/v4 v4.0.0
 	github.com/gobuffalo/pop/v5 v5.2.4
 	github.com/gobuffalo/suite v2.8.2+incompatible

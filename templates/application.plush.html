@@ -53,7 +53,7 @@
                 <li>
                     <%= if (inForum) { %>
                     <a class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
-                        <img src="data:image/png;base64,<%= forum.LogoImage() %>" class="img-circle" style="width: 50px;">
+                        <%= forum.LogoImage({class:"img-circle",style:"width:50px;"}) %>
                         <% } else { %>
                         <a class="navbar-brand" href="<%= root_path %>">
                         <%= icon("house-fill",2,2) %>

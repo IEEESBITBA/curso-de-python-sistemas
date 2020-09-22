@@ -79,7 +79,6 @@ func createForumPost(c buffalo.Context) error {
 	exist, err := q.Exists(&models.Forum{})
 	if exist {
 		c.Flash().Add("danger", "Forum already exists")
-		//return c.Render(200,r.HTML("forums/create.plush.html"))
 		return c.Redirect(302, "/admin/f/")
 	}
 	v, _ := f.Validate(tx)

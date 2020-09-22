@@ -32,7 +32,7 @@ func init() {
 			// below and import "github.com/gobuffalo/helpers/forms"
 			// forms.FormKey:     forms.Form,
 			// forms.FormForKey:  forms.FormFor,
-			"icon":        bootstrapIcon,
+			"icon":        bi,
 			"userIcon":    userIcon,
 			"timeSince":   timeSince,
 			"joinPath":    joinPath,
@@ -218,8 +218,13 @@ var bootstrapHTMLSprites = map[string]string{ // https://icons.getbootstrap.com/
 	"search":                `<svg width="%dem" height="%dem" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/><path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/></svg>`,
 }
 
+
+func bootstrapIcon(name string, opts render.Data) template.HTML {
+	return ""
+}
+
 // width and height in rem integers
-func bootstrapIcon(key string, width, height int) template.HTML {
+func bi(key string, width, height int) template.HTML {
 	html, present := bootstrapHTMLSprites[key]
 	if !present {
 		return ""
@@ -230,10 +235,10 @@ func bootstrapIcon(key string, width, height int) template.HTML {
 func userIcon(u *models.User, size int) template.HTML {
 	switch u.Role {
 	case "admin":
-		return bootstrapIcon("shield-fill", 1, 1)
+		return bi("shield-fill", 1, 1)
 	case "banned":
-		return bootstrapIcon("alert-octagon-fill", 1, 1)
+		return bi("alert-octagon-fill", 1, 1)
 	default:
-		return bootstrapIcon("person-fill", 1, 1)
+		return bi("person-fill", 1, 1)
 	}
 }
