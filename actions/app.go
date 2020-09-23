@@ -110,6 +110,8 @@ func App() *buffalo.App {
 		// Actual forum stuiff
 		forum := app.Group("/f/{forum_title}")
 		forum.Use(SetCurrentForum)
+		forum.GET("/edit", CreateEditForum).Name("forumEdit")
+		forum.POST("/edit", EditForumPost)
 		forum.GET("/", forumIndex).Name("forum")
 		forum.GET("/create", CategoriesCreateGet).Name("catCreate")
 		forum.POST("/create", CategoriesCreateOrEditPost)
@@ -150,7 +152,7 @@ func App() *buffalo.App {
 		admin.Use(SiteStruct)
 		admin.Use(AdminAuth,SafeList)
 		admin.GET("/f", manageForum)
-		admin.GET("newforum", createForum)
+		admin.GET("newforum", CreateEditForum)
 		admin.POST("newforum/post", createForumPost)
 
 		admin.GET("users", UsersViewAllGet).Name("allUsers")

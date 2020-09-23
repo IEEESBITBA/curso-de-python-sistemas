@@ -97,7 +97,7 @@
 - id: new-forum-category
   translation: "Nueva categoría"
 - id: new-forum-staff-help
-  translation: "Emails de encargados. Separar con commas."
+  translation: "Emails de encargados. Separar con comas."
 - id: new-forum-access-help
   translation: "Nivel de acceso. 0 es público. 1 es solo moderadores."
 

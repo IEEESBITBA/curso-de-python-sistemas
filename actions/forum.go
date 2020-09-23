@@ -5,12 +5,13 @@ import (
 	"io/ioutil"
 	"regexp"
 	"sort"
+	"strings"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/pop/v5/slices"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 // SetCurrentForum attempts to find a forum definition in the db.
@@ -26,7 +27,7 @@ func SetCurrentForum(next buffalo.Handler) buffalo.Handler {
 		err := q.First(forum)
 		if err != nil {
 			c.Flash().Add("danger", "Error while seeking forum")
-			return c.Error(404,err)
+			return c.Error(404, err)
 		}
 		c.Set("inForum", true)
 		c.Set("forum", forum)
@@ -53,8 +54,37 @@ func forumIndex(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/index.plush.html"))
 }
 
-func createForum(c buffalo.Context) error {
+func CreateEditForum(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/create.plush.html"))
+}
+func EditForumPost(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	originalForum := &models.Forum{}
+	q := tx.Where("title = ?", c.Param("forum_title"))
+	if err := q.First(originalForum); err != nil {
+		c.Flash().Add("danger", "internal error. could not find forum")
+		return c.Error(500, err)
+	}
+	f := &models.Forum{}
+	if err := c.Bind(f);  err != nil && !strings.Contains(err.Error(), "could not parse number") {
+		c.Flash().Add("danger", "could not edit forum"+err.Error())
+		return c.Error(400, err)
+	}
+	if !validURLDir(f.Title) {
+		c.Flash().Add("danger", "Forum title should contain url safe characters (A-Z,a-z,-,_)")
+		return c.Redirect(302, "/admin/f/")
+	}
+	originalForum.Title, originalForum.Description, originalForum.Defcon = f.Title, f.Description, f.Defcon
+	b, _ := getFormFile(c, "logo")
+	if b != nil {
+		originalForum.Logo = *b
+	}
+	if _,err:=tx.ValidateAndUpdate(originalForum); err!=nil {
+		c.Flash().Add("danger", "error validating or saving")
+		return c.Redirect(500, "/admin/f/")
+	}
+	c.Flash().Add("success", fmt.Sprintf("Forum %s edited", originalForum.Title))
+	return c.Redirect(302, "/admin/f")
 }
 
 func createForumPost(c buffalo.Context) error {
@@ -116,10 +146,19 @@ func getFormFile(c buffalo.Context, key string) (*[]byte, error) {
 	var b []byte
 	in, _, err := c.Request().FormFile(key)
 	if err != nil {
-		return &b, err
+		return nil, err
 	}
 	defer in.Close()
 	b, err = ioutil.ReadAll(in)
+	if err!=nil || len(b) < 2 {
+		return nil, err
+	}
+	if len(b) > 100 { // we discard xml start of svg file
+		svgIdx := strings.Index(string(b[:100]), "<svg ")
+		if svgIdx > 0 {
+			b = b[svgIdx:]
+		}
+	}
 	return &b, nil
 }
 

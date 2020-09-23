@@ -20,9 +20,9 @@ type Forum struct {
 	ID          uuid.UUID   `json:"id" db:"id"`
 	Title       string      `json:"title" db:"title" form:"title"`
 	Description string      `json:"description" db:"description" form:"description"`
-	Logo        []byte      `json:"logo" db:"logo" form:"logo"`
+	Logo        []byte      `json:"logo" db:"logo" form:"-"`
 	Defcon      string      `json:"defcon" db:"defcon" form:"access"` // level of access needed to see forum
-	Staff       slices.UUID `json:"staff" db:"staff" form:"staff"`    // moderator IDs
+	Staff       slices.UUID `json:"staff" db:"staff" form:"-"`    // moderator IDs
 	CreatedAt   time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at" db:"updated_at"`
 
