@@ -54,18 +54,18 @@
                     <%= if (inForum) { %>
                     <a class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
                         <%= forum.LogoImage({class:"img-circle",style:"width:50px;"}) %>
-                        <% } else { %>
+                    <% } else { %>
                         <a class="navbar-brand" href="<%= root_path %>">
                         <%= bicon("house-fill",{size:"2em"}) %>
-                        <% } %> </a>
+                    <% } %> </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<%= evaluationPath() %>"><%= t("curso-python-evaluator") %></a>
                 </li>
                 <%= if (inForum) {
-                let ftitle = {forum_title:forum.Title}
-                let fpath = forumPath(ftitle)
-                %>
+                    let ftitle = {forum_title:forum.Title}
+                    let fpath = forumPath(ftitle)
+                    %>
                 <li class="nav-item">
                     <a class="nav-link" href="<%= fpath %>"><%= t("app-categories") %></a>
                 </li>
@@ -79,17 +79,15 @@
             </ul>
             <ul class="navbar-nav">
                 <%= if (current_user) { %>
+                <!--
                 <li class="nav-item" >
                      <a class="nav-link badge badge-light" href="<%= search_path %>">
                          <%= bicon("search",{size:"2em"}) %>
                      </a>
-                 </li>
+                 </li> -->
                 <li class="nav-item">
                     <div class="dropdown">
                         <button type="button" class="btn btn-light" data-toggle="dropdown">
-                           <!-- <img src="data:image/png;base64,<%= current_user.Image() %>"
-                                 alt="<%= current_user.Name %>" style="width:50px;" class="img-circle"> -->
-
                             <%= userIcon(current_user,{size:"1em"}) %> <%= displayName(current_user) %>
                             <%= bicon("caret-down-fill",{size:"1em"}) %>
                         </button>

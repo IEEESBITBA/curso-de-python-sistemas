@@ -39,7 +39,6 @@ func BBoltTransaction(db *bbolt.DB) buffalo.MiddlewareFunc {
 			// ANY error returned by the tx function will cause the
 			// tx to be rolled back
 			bTx, err := db.Begin(true)
-
 			if err != nil {
 				return fmt.Errorf("in begin bbolt Tx: %s", err)
 			}
@@ -49,16 +48,16 @@ func BBoltTransaction(db *bbolt.DB) buffalo.MiddlewareFunc {
 				// log database usage statistics to context
 				defer func() {
 					if txError != nil {
-						txError = bTx.Rollback()
+						err = bTx.Rollback()
 					} else {
-						txError = bTx.Commit()
+						err = bTx.Commit()
+					}
+					if err != nil { // if BBoltDB fails we replace error
+						txError = errx.Wrap(err,"BBoltDB committing/rolling back fail")
 					}
 					stats := bTx.Stats()
 					elapsed := stats.WriteTime + stats.SpillTime + stats.RebalanceTime
 					c.LogField("bdb", elapsed)
-					if txError != nil {
-						c.Logger().Errorf("error commit/rollback: %s", txError)
-					}
 				}()
 
 				// add transaction to context

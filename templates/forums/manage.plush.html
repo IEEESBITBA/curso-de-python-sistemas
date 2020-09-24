@@ -14,7 +14,13 @@
         </div>
     <% } else { %>
 <div class="row row-cols-1 row-cols-md-3">
-        <%= for (i, v) in forums { %>
+        <%= for (i, v) in forums {
+            let admin = false
+            if (current_user) {
+                admin = current_user.Role == "admin"
+            } %>
+
+    <%= if (v.Defcon < 3 || admin) { %>
     <div class="card mb-3" style="max-width: 540px;">
         <div class="row no-gutters">
             <div class="col-2 col-md-3">
@@ -29,7 +35,7 @@
             </div>
         </div>
     </div>
-        <% } %>
+        <% } } %>
 </div>
     <% } %>
 

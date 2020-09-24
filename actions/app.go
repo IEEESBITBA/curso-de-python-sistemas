@@ -169,8 +169,8 @@ func App() *buffalo.App {
 		// We associate the HTTP 404 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
 		if ENV == "production" {
-			app.ErrorHandlers[404] = err404
-			app.ErrorHandlers[500] = err500
+			//app.ErrorHandlers[404] = err404
+			//app.ErrorHandlers[500] = err500
 		}
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
 	}

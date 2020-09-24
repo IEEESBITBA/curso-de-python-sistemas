@@ -63,7 +63,7 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	}
-	c.Session().Set(cookieUidName, u.ID) // This line sets user cookie for future Authorize callbacks to verify succesfully
+	c.Session().Set(cookieUidName, u.ID) // This line sets user cookie for future Authorize callbacks to verify successfully
 	err = c.Session().Save()
 	if err != nil {
 		return errors.WithStack(err)
@@ -147,7 +147,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			u.Theme = fmt.Sprintf("%s", theme)
 			c.Set("current_user", u)
 		}
-		c.Logger().Debug("SetCurrentUser finished succesfully")
+		c.Logger().Debug("SetCurrentUser finished successfully")
 		return next(c)
 	}
 }
