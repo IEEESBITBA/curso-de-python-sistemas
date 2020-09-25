@@ -330,3 +330,11 @@
   translation: "Volver al listado de foros"
 - id: archived
   translation: "Archivado"
+- id: app-search
+  translation: "Buscar..."
+- id: app-search-title
+  translation: "Buscar"
+- id: app-search-match
+  translation: "Resultados"
+- id: reply-from
+  translation: "Comentario de"

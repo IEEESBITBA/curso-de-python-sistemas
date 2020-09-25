@@ -55,6 +55,14 @@ footer {
     width:100%;
 }
 
+#searchbar {
+    border: 0;
+    box-shadow: none !important;
+    border-bottom: 2px solid #ced4da;
+    border-radius: 0;
+    transition:border-color .15s ease-in-out;
+}
+
 // markdown images
 p > img {
     max-width: 60%;

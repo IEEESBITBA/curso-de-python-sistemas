@@ -1,0 +1,49 @@
+<h1><%= t("app-search-title") %></h1>
+
+<div class="row">
+    <%= form({action: "/s", method: "GET"}) { %>
+    <div class="col">
+        <%= f.InputTag({name: "query", id:"search", value: params["query"]}) %>
+
+    </div>
+    
+    <div class="col-md-1">
+        <button class="btn btn-primary"><%= t("app-search-title") %></button>
+    </div>
+    <% } %>
+</div>
+<style>
+    mark {
+        font-weight: bolder;
+    }
+    li > pre {
+        color: #717171;
+    }
+</style>
+<%= if (results) { %>
+
+<h2><%= t("app-search-match", {total: results.Total, took: results.Took}) %></h2>
+
+<ol>
+    <%= for (hit) in results.Hits {
+        let topic = unpackTopic(hit.ID)
+        let reply = false
+        let searchpath = topicSearchPath({tid:topic.ID})
+        if (topic.Replies && len(topic.Replies) > 0) {
+            let reply = topic.Replies[0]
+        }
+    %>
+    <li>
+        <a href="<%= searchpath %>#<%=if (reply) { %><%= reply.ID %><% }%>"><%= topic.Title %></a> -
+        <%= if (reply) { %>
+            <%= t("reply-from") %>
+        <% } %>
+        <span><%= displayName(topic.Author) %></span> (<%= score(hit.Score) %>)
+        <%= for (body) in hit.Fragments["content"] { %>
+        <%= debug(body) %>
+        <% } %>
+    </li>
+    <% } %>
+</ol>
+<% } %>
+<span class="help-block">Powered by <a href="http://blevesearch.com/docs/Query-String-Query/"> bleve <img width="20" src="https://avatars-01.gitter.im/group/iv/4/57542cc9c43b8c601977690f?s=48" alt="bleve"></a></span>

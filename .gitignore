@@ -5,6 +5,9 @@ container/alpine/*
 # Setup
 setup.bat
 # buffalo
+saloon.bleve.search/*
+# bleve indexing
+**.bleve/*
 
 assets/logs/curso.log
 vendor/

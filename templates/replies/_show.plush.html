@@ -6,7 +6,7 @@
             <%=avatar(reply.Author)%> <%= displayName(reply.Author) %>
             <span class="float-right"> <%= timeSince(reply.UpdatedAt) %></span>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="<%= reply.ID %>">
             <%= markdown(reply.Content) %>
             <div class="col-md-2 offset-md-8 text-right">
                 <%= if  ( current_user.IsAuthor(reply.AuthorID) || current_user.Role == "admin" ) { %>

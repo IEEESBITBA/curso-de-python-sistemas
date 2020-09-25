@@ -79,12 +79,16 @@
             </ul>
             <ul class="navbar-nav">
                 <%= if (current_user) { %>
-                <!--
+
                 <li class="nav-item" >
-                     <a class="nav-link badge badge-light" href="<%= search_path %>">
-                         <%= bicon("search",{size:"2em"}) %>
-                     </a>
-                 </li> -->
+                    <%= form({action: search_path, method: "GET"}) { %>
+                    <div class="form-inline ml-auto ">
+                        <label for="search"></label>
+                        <%= f.InputTag({name: "query", id:"searchbar", class:"mr-0", placeholder: t("app-search"), value: params["query"]}) %>
+                        <button type="submit" class="btn btn-light mr-2" ><%= bicon("search",{size:"1.5em"}) %></button>
+                    </div>
+                    <% } %>
+                 </li>
                 <li class="nav-item">
                     <div class="dropdown">
                         <button type="button" class="btn btn-light" data-toggle="dropdown">

@@ -82,6 +82,10 @@ func App() *buffalo.App {
 		auth.Middleware.Skip(Authorize, bah, AuthCallback,AuthHome)      // don't ask for authorization on authorization page
 		auth.Middleware.Skip(SetCurrentUser, bah, AuthCallback,AuthHome) // set current user needs to seek user in db. if no users present in db setcurrentuser fails
 
+		searcher := app.Group("/s")
+		searcher.GET("/",Search).Name("search")
+		searcher.GET("/topic/{tid}", TopicSearch).Name("topicSearch")
+
 		app.GET("/u/{uid}/unsubscribe/{tid}",UsersSettingsRemoveTopicSubscription).Name("topicUnsubscribe")
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
@@ -172,7 +176,9 @@ func App() *buffalo.App {
 			//app.ErrorHandlers[404] = err404
 			//app.ErrorHandlers[500] = err500
 		}
+		go runDBSearchIndex()
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
+
 	}
 	return app
 }
