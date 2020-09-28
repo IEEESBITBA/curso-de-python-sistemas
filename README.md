@@ -129,18 +129,19 @@ Ok, so you've edited the `database.yml` file and started postgres, now Buffalo c
 $> buffalo pop create -a
 ```
 
-You can run `buffalo pop migrate` to initialize the forum and the content of its database:
+You can now run `buffalo pop migrate` to initialize the forum and the content of its database.
+
 ### Access the database
 So you probably have the server up and running but have no forum to post 
 in and are unable to create forums! What a conundrum. To create a forum you need to be
 an admin. To do this you first must login to the site. After that access the site through
 docker:
 ```bash
-docker exec -it forum psql -U pato -W curso
+docker exec -it forum-postgres psql -U pato -W curso
 ```
-where `forum` is the image name, `pato` is the user for the `-U` flag, 
+where `forum-postgres` is the image name, `pato` is the user for the `-U` flag, 
 and `curso` is the name of the database. These last two are `postgres` by default
-if not explicitly set.
+if not explicitly set. If you get an error message you may be getting the username or docker image name wrong. Run `docker ps` for a list of images currently running.
 
 Now you are in the SQL console run `FROM users SELECT *;` (caps are not necessary) 
 to verify everything is in working condition. You should see your

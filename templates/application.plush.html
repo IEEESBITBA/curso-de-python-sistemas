@@ -41,81 +41,9 @@
     </script>
 </head>
 <body>
-<div class="container">
-    <!-- NavBar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li>
-                    <%= if (inForum) { %>
-                    <a class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
-                        <%= forum.LogoImage({class:"img-circle",style:"width:50px;"}) %>
-                    <% } else { %>
-                        <a class="navbar-brand" href="<%= root_path %>">
-                        <%= bicon("house-fill",{size:"2em"}) %>
-                    <% } %> </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%= evaluationPath() %>"><%= t("curso-python-evaluator") %></a>
-                </li>
-                <%= if (inForum) {
-                    let ftitle = {forum_title:forum.Title}
-                    let fpath = forumPath(ftitle)
-                    %>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%= fpath %>"><%= t("app-categories") %></a>
-                </li>
-                <% } %>
 
-                <%= if (current_user && current_user.Role == "admin") { %>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%= allUsersPath() %>"><%= t("app-users") %></a>
-                </li>
-                <% } %>
-            </ul>
-            <ul class="navbar-nav">
-                <%= if (current_user) { %>
+<%= partial("navbar.plush.html") %>
 
-                <li class="nav-item" >
-                    <%= form({action: search_path, method: "GET"}) { %>
-                    <div class="form-inline ml-auto ">
-                        <label for="search"></label>
-                        <%= f.InputTag({name: "query", id:"searchbar", class:"mr-0", placeholder: t("app-search"), value: params["query"]}) %>
-                        <button type="submit" class="btn btn-light mr-2" ><%= bicon("search",{size:"1.5em"}) %></button>
-                    </div>
-                    <% } %>
-                 </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-light" data-toggle="dropdown">
-                            <%= userIcon(current_user,{size:"1em"}) %> <%= displayName(current_user) %>
-                            <%= bicon("caret-down-fill",{size:"1em"}) %>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item nav-link" href="<%=user_settings_path%>"><%= bicon("gear-fill",{size:"1em"}) %> <%=
-                                t("app-settings") %> </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item nav-link" href="<%= logoutPath() %>"
-                               data-method="DELETE"><%= bicon("door-open",{size:"1em"}) %> <%=
-                                t("app-request-logout") %></a>
-                        </div>
-                    </div>
-                </li>
-
-                <% } else { %>
-                <li class="nav-item">
-                    <a href="<%= auth_path %>" class="nav-link"><%= t("app-request-login") %></a>
-                </li>
-                <% } %>
-            </ul>
-        </div>
-    </nav>
-    <!-- End NavBar -->
-</div>
 <div class="container" style="margin-bottom:4rem;">
 
     <%= partial("flash.html") %>
