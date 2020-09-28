@@ -12,16 +12,16 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item pr-md-1"><!--Evaluations-->
-                 <a class="nav-link" href="<%= evaluationPath() %>"><%= t("curso-python-evaluator") %><span class="sr-only">(Evaluaciones o desafios)</span></a>
+                <a class="btn rounded-pill btn-outline-secondary border-0" href="<%= evaluationPath() %>"><%= t("curso-python-evaluator") %><span class="sr-only">(Evaluaciones o desafios)</span></a> 
             </li>
             <%= if (inForum) { %>
             <li class="nav-item px-md-1">
-                <a class="nav-link" href="<%= forumPath({forum_title:forum.Title}) %>"><%= t("app-categories") %></a>
+                <a class="btn rounded-pill btn-outline-secondary border-0" href="<%= forumPath({forum_title:forum.Title}) %>"><%= t("app-categories") %></a>
             </li>
             <% } %>
             <%= if (current_user && current_user.Role == "admin") { %>
             <li class="nav-item">
-                <a class="nav-link" href="<%= allUsersPath() %>"><%= t("app-users") %></a>
+                <a class="btn rounded-pill btn-outline-secondary border-0" href="<%= allUsersPath() %>"><%= t("app-users") %></a>
             </li>
             <% } %>
         </ul>
