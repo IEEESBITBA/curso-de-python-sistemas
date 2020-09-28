@@ -111,19 +111,19 @@ func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 	t.Subscribers = subs
 }
 
-// ByAge slice of Topics. sorted by age.
-type ByAge []Topic
-
-func (t ByAge) Len() int           { return len(t) }
-func (t ByAge) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
-func (t ByAge) Less(i, j int) bool { return t[i].CreatedAt.After(t[j].CreatedAt) }
-
-// Topics slice of Topics. sorted by age. Archived topics last
+// Topics slice of Topics. sorted by age.
 type Topics []Topic
 
-func (t Topics) Len() int      { return len(t) }
-func (t Topics) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t Topics) Less(i, j int) bool {
+func (t Topics) Len() int           { return len(t) }
+func (t Topics) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t Topics) Less(i, j int) bool { return t[i].CreatedAt.After(t[j].CreatedAt) }
+
+// ByArchived slice of Topics. sorted by age. Archived topics last
+type ByArchived []Topic
+
+func (t ByArchived) Len() int      { return len(t) }
+func (t ByArchived) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t ByArchived) Less(i, j int) bool {
 	// Un branchless algorithm para que ande mas rapido
 	return ((t[i].Archived == t[j].Archived) && t[i].CreatedAt.After(t[j].CreatedAt)) ||
 		((t[i].Archived != t[j].Archived) && (t[j].Archived))

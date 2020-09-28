@@ -24,21 +24,22 @@
 <div class="row">
     <div class="col-md-8"><%= t("curso-python-evaluations-title") %></div>
      <div class="col-md-3 text-center"><%= t("description") %></div>
-    <!--   <div class="col-md-1 text-center"><%= t("category-replies") %></div>
-      <div class="col-md-1 text-center"><%= t("category-activity") %></div> -->
 </div>
 
 <%= if (len(evaluations) == 0)  {%>
 <h4><%= t("curso-python-no-evaluations-found") %></h4>
 <% } %>
 <%= for (eval) in evaluations {evaluations
-let ctxEval = {evalid: eval.ID}%>
+let ctxEval = {evalid: eval.ID}
+let userPassed = current_user.Subscribed(eval.ID)
+%>
 <div class="row">
     <%= if (!eval.Deleted && ( !eval.Hidden || current_user.Role == "admin" ) ) { %>
     <hr class="col-md-12 col-sm-12" id="<%= eval.ID %>">
     <div class="col-md-8">
         <a href="<%= evaluationGetPath( ctxEval ) %>" class="text-secondary">
-          <%= if (eval.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%>  <%= eval.Title %>
+          <%= if (userPassed) { %> <div class="badge badge-success"><%= bicon("patch-check",{size:"2em",title:"Aprobado"}) %> <%= t("evaluation-passed") %> </div> <% } %>
+          <%= if (eval.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%> <%= raw(eval.Title) %>
         </a>
     </div>
 

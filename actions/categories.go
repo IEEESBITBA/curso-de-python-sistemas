@@ -26,6 +26,7 @@ func CategoriesIndex(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 	c.Set("category", cat)
+
 	topics := &models.Topics{}
 	q := tx.BelongsTo(cat).Order("updated_at desc").PaginateFromParams(c.Params())
 	if c.Param("per_page") == "" { // set default max results per page if not set
@@ -46,9 +47,9 @@ func CategoriesIndex(c buffalo.Context) error {
 	}
 	role := c.Value("role").(string)
 	if role == "admin" {
-		sort.Sort(topics)
+		sort.Sort(models.ByArchived(*topics))
 	} else {
-		//sort.Sort(models.ByAge(topics))
+		sort.Sort(topics)
 	}
 
 	c.Set("topics", topics)

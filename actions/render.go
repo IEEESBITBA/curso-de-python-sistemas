@@ -10,6 +10,7 @@ import (
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo/render"
+	"github.com/gobuffalo/helpers"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush/v4"
 )
@@ -28,6 +29,7 @@ func init() {
 
 		// Add template helpers here:
 		Helpers: render.Helpers{
+			// LIST OF BUILT-IN HELPERS: https://github.com/gobuffalo/helpers
 			// for non-bootstrap form helpers uncomment the lines
 			// below and import "github.com/gobuffalo/helpers/forms"
 			// forms.FormKey:     forms.Form,
@@ -39,7 +41,9 @@ func init() {
 			"timeSince":   timeSince,
 			"joinPath":    joinPath,
 			"displayName": DisplayName,
-			"derefUser":   derefUser,
+			"encoders":    helpers.Encoders,
+			// "escapes":     helpers.Escapes,
+			"derefUser": derefUser,
 			"csrf": func() template.HTML {
 				return template.HTML("<input name=\"authenticity_token\" value=\"<%= authenticity_token %>\" type=\"hidden\">")
 			},

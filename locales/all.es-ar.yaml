@@ -338,3 +338,5 @@
   translation: "Resultados"
 - id: reply-from
   translation: "Comentario de"
+- id: evaluation-passed
+  translation: "Aprobado"

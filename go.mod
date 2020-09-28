@@ -14,6 +14,7 @@ require (
 	github.com/gobuffalo/buffalo-pop/v2 v2.2.0
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/flect v0.2.2
+	github.com/gobuffalo/helpers v0.6.1
 	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/mw-csrf v1.0.0
 	github.com/gobuffalo/mw-forcessl v0.0.0-20200131175327-94b2bd771862
