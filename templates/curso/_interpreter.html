@@ -9,11 +9,11 @@ let tab = t("interpreter-tab")
 %>
 <form id="interpreter" action="<%= interpretPath() %>" method="POST" enctype="multipart/form-data">
     <%= csrf() %>
-    <%= if ((evaluation)) { %>
+    <%= if (evaluation) { %>
     <input name="evalid" value="<%= evalid %>" type="hidden">
     <% }%>
     <div class="container">
-        <%= if ((evaluation)) { %>
+        <%= if (evaluation) { %>
         <div class="row">
             <div class="col-sm-12">
                 <label for="input">ID del equipo: </label>
@@ -24,8 +24,12 @@ let tab = t("interpreter-tab")
         <% }%>
         <div class="row" id="banner">
             <div class="col-4" id="head" itemprop="name"> <!-- Si es una evaluación mostramos un Icono especial -->
-                <button id="run" class="btn btn-primary btn-lg"><%= if (evaluation) { %> <%= bicon("code-slash",{size:"1em"}) %> <% } else { %> <%= bicon("code-slash",{size:"1em"}) %><% } %> <%= t("curso-python-interpreter-run") %></button>
-            </div>
+                <%= if (evaluation && current_user.Subscribed(evaluation.ID))  { %>
+                    <div class="badge badge-success"><%= bicon("patch-check",{size:"2em"}) %> <%= t("evaluation-passed") %></div>
+                <% } else {%>
+                    <button id="run" class="btn btn-primary btn-lg"><%= bicon("file-play",{size:"1.4em"}) %> <%= t("curso-python-interpreter-run") %></button>
+                <% } %>
+           </div>
             <div class="col-0"><%= t("curso-python-interpreter-title") %></div>
             <div class="col-5" id="user"><%= t("user") +": "+ current_user.Name %></div>
             <div class="col-3" id="elapsed"></div>
