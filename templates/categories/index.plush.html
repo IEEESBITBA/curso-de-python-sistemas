@@ -38,12 +38,18 @@
 <div class="card mb-1 rounded-0" id="<%= topic.ID %>">
     <a href="<%= topicGetPath( ctxTopic ) %>">
     <div class="card-header bg-secondary text-white rounded-0">
-          <%= if (topic.Archived) { %><%= bicon("archive-fill",{size:"1em",title:t("archived")}) %><% } %> <%= topic.Title %>
+        <div class="row">
+        <div class="col-8">
+         <%= if (topic.Archived) { %><%= bicon("archive-fill",{size:"1em",title:t("archived")}) %><% } %> <%= topic.Title %>
+        </div>
+        <div class="col-4">
         <%= for (author) in topic.Authors() { %>
         <span class="float-right">
 			<%= avatar(derefUser(author)) %>
 		</span>
         <% } %>
+        </div>
+        </div>
     </div>
     </a>
 
