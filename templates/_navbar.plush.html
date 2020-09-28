@@ -21,7 +21,7 @@
             <% } %>
             <%= if (current_user && current_user.Role == "admin") { %>
             <li class="nav-item">
-                <a class="btn rounded-pill btn-outline-secondary border-0" href="<%= allUsersPath() %>"><%= t("app-users") %></a>
+                <a class="btn rounded-pill btn-outline-secondary" href="<%= allUsersPath() %>"><%= t("app-users") %></a>
             </li>
             <% } %>
         </ul>
