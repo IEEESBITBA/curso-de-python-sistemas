@@ -3,13 +3,14 @@ package actions
 import (
 	"sort"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
+// TopicGet render a topic. basis of the forum
 func TopicGet(c buffalo.Context) error {
 	f := c.Value("forum").(*models.Forum)
 	tid := c.Param("tid")
@@ -22,10 +23,12 @@ func TopicGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("topics/get.plush.html"))
 }
 
+// TopicCreateGet renders the topic creation page
 func TopicCreateGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("topics/create.plush.html"))
 }
 
+// TopicCreatePost handles the topic creation event
 func TopicCreatePost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	topic := &models.Topic{}
@@ -62,14 +65,15 @@ func TopicCreatePost(c buffalo.Context) error {
 	//}
 	u := c.Value("current_user").(*models.User)
 	u.AddSubscription(topic.ID)
-	_ = tx.UpdateColumns(u,"subscriptions")
+	_ = tx.UpdateColumns(u, "subscriptions")
 	_ = tx.UpdateColumns(cat, "updated_at")
 	f := c.Value("forum").(*models.Forum)
-	c.Logger().Infof("TopicCreatePost finish: %s, by %s",topic.Title,topic.Author.Email)
+	c.Logger().Infof("TopicCreatePost finish: %s, by %s", topic.Title, topic.Author.Email)
 	c.Flash().Add("success", T.Translate(c, "topic-add-success"))
 	return c.Redirect(302, "catPath()", render.Data{"forum_title": f.Title, "cat_title": cat.Title})
 }
 
+// TopicDelete handles topic deletion event
 func TopicDelete(c buffalo.Context) error {
 	topic, err := loadTopic(c, c.Param("tid"))
 	if err != nil {
@@ -84,17 +88,19 @@ func TopicDelete(c buffalo.Context) error {
 	}
 	tx := c.Value("tx").(*pop.Connection)
 	topic.Deleted = true
-	if err := tx.UpdateColumns(topic,"deleted"); err != nil {
+	if err := tx.UpdateColumns(topic, "deleted"); err != nil {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", "Topic deleted successfuly.")
 	return c.Redirect(302, "catPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title")})
 }
 
+// TopicEditGet renders topic editing page. topic is already set by SetCurrentTopic
 func TopicEditGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("topics/create.plush.html"))
 }
 
+// TopicEditPost handles topic editing event
 func TopicEditPost(c buffalo.Context) error {
 	topic := c.Value("topic").(*models.Topic)
 	tx := c.Value("tx").(*pop.Connection)
@@ -110,19 +116,21 @@ func TopicEditPost(c buffalo.Context) error {
 		"cat_title": c.Param("cat_title"), "tid": c.Param("tid")})
 }
 
+// SetCurrentTopic sets 'topic' in context for easy use in html template
 func SetCurrentTopic(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		//topic := &models.Topic{}
 		topic, err := loadTopic(c, c.Param("tid"))
 		if err != nil {
 			c.Flash().Add("danger", T.Translate(c, "topic-not-found"))
-			return c.Error(404,err)
+			return c.Error(404, err)
 		}
 		c.Set("topic", topic)
 		return next(c)
 	}
 }
 
+// loadTopic creates and populates a models.Topic from a uuid string
 func loadTopic(c buffalo.Context, tid string) (*models.Topic, error) {
 	tx := c.Value("tx").(*pop.Connection)
 	topic := &models.Topic{}

@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"os"
+	"strings"
+	"time"
+
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/blevesearch/bleve"
 	"github.com/gobuffalo/buffalo"
@@ -8,9 +12,6 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"os"
-	"strings"
-	"time"
 )
 
 const indexName = "cursoP.bleve"
@@ -18,8 +19,8 @@ const indexName = "cursoP.bleve"
 var bleveIndex bleve.Index
 
 func init() {
-	os.Mkdir(indexName,os.ModeDir)
-	os.Chmod(indexName,0666)
+	os.Mkdir(indexName, os.ModeDir)
+	os.Chmod(indexName, 0666)
 }
 
 func runDBSearchIndex() {
@@ -30,11 +31,11 @@ func runDBSearchIndex() {
 	case bleve.ErrorIndexPathExists:
 		bleveIndex, err = bleve.Open(indexName)
 	}
-	if err != nil || bleveIndex == nil{
-		os.Remove(indexName+"/store")
-		os.Remove(indexName+"/index_meta.json")
+	if err != nil || bleveIndex == nil {
+		os.Remove(indexName + "/store")
+		os.Remove(indexName + "/index_meta.json")
 		os.RemoveAll(indexName)
-		l.Fatalf("at runDBSearchIndex(): bleve New index. removing all contents. please restart: %s",err)
+		l.Fatalf("at runDBSearchIndex(): bleve New index. removing all contents. please restart: %s", err)
 	}
 
 	tick := time.NewTicker(30 * time.Minute)
@@ -82,7 +83,7 @@ func indexDB() error {
 				continue
 			}
 			t.Author = usr
-			ID := bleveTopicID(&t,nil)
+			ID := bleveTopicID(&t, nil)
 			err := bleveIndex.Index(ID, t)
 			if err != nil {
 				return errors.WithStack(err)
@@ -107,7 +108,7 @@ func indexDB() error {
 				continue
 			}
 			r.Author = usr
-			ID := bleveTopicID(t,&r)
+			ID := bleveTopicID(t, &r)
 			err := bleveIndex.Index(ID, r)
 			if err != nil {
 				return errors.WithStack(err)
@@ -117,6 +118,7 @@ func indexDB() error {
 	})
 }
 
+// TopicSearch handles search-link click event from the search result page
 func TopicSearch(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	topic := &models.Topic{}
@@ -127,18 +129,19 @@ func TopicSearch(c buffalo.Context) error {
 	}
 	c.Logger().Infof("topicSearch with params:", c.Params())
 	cat := &models.Category{}
-	if err := tx.Find(cat,topic.CategoryID); err != nil {
+	if err := tx.Find(cat, topic.CategoryID); err != nil {
 		c.Flash().Add("danger", T.Translate(c, "category-not-found"))
 		return c.Error(404, err)
 	}
 	forum := &models.Forum{}
-	if err := tx.Find(forum,cat.ParentCategory); err != nil {
+	if err := tx.Find(forum, cat.ParentCategory); err != nil {
 		c.Flash().Add("danger", T.Translate(c, "forum-not-found"))
 		return c.Error(404, err)
 	}
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": forum.Title, "cat_title": cat.Title, "tid": topic.ID})
 }
 
+// Search handles and does heavylifting of search. renders search results page
 func Search(c buffalo.Context) error {
 	if c.Param("query") == "" {
 		return c.Render(200, r.HTML("/search/search.plush.html"))
@@ -163,23 +166,29 @@ func Search(c buffalo.Context) error {
 	return c.Render(200, r.HTML("/search/search.plush.html"))
 }
 
-// just a random separator
+/*
+ * the functions below are to provide
+ * us with topic and reply information
+ * once a match is found. This is done
+ * by adding topic author, title information
+ * into the bleve ID so it can be extracted once
+ * it is found. schSS is a arbitrary separator
+ */
 const schSS = " __\000-__ "
 
-func bleveTopicID(t *models.Topic,r *models.Reply) string {
+func bleveTopicID(t *models.Topic, r *models.Reply) string {
 	if r != nil {
-		return strings.Join([]string{t.Title, r.TopicID.String(), DisplayName(r.Author),r.ID.String()}, schSS)
+		return strings.Join([]string{t.Title, r.TopicID.String(), DisplayName(r.Author), r.ID.String()}, schSS)
 	}
 	return strings.Join([]string{t.Title, t.ID.String(), DisplayName(t.Author)}, schSS)
 }
-
-func bleveTopicFromID(s string) (*models.Topic) {
+func bleveTopicFromID(s string) *models.Topic {
 	tsli := strings.Split(s, schSS)
 	ID, _ := uuid.FromString(tsli[1])
 	t := models.Topic{
-		ID:         ID,
-		Title:       tsli[0],
-		Author:      &models.User{Nick: tsli[2]},
+		ID:     ID,
+		Title:  tsli[0],
+		Author: &models.User{Nick: tsli[2]},
 	}
 	if len(tsli) > 3 { // we have a reply on our hands
 		rID, _ := uuid.FromString(tsli[3])

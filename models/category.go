@@ -29,6 +29,7 @@ func (c Category) String() string {
 	return string(jc)
 }
 
+// AddSubscriber add a uuid to category.Subscribers
 func (c *Category) AddSubscriber(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	set[id] = struct{}{}
@@ -42,6 +43,7 @@ func (c *Category) AddSubscriber(id uuid.UUID) {
 	c.Subscribers = subs
 }
 
+// RemoveSubscriber remove a uuid from category.Subscribers
 func (c *Category) RemoveSubscriber(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	for _, sub := range c.Subscribers {

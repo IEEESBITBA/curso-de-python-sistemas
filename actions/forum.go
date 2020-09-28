@@ -54,9 +54,12 @@ func forumIndex(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/index.plush.html"))
 }
 
+// CreateEditForum renders forum creation page
 func CreateEditForum(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/create.plush.html"))
 }
+
+// EditForumPost handles forum editing event
 func EditForumPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	originalForum := &models.Forum{}
@@ -66,7 +69,7 @@ func EditForumPost(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 	f := &models.Forum{}
-	if err := c.Bind(f);  err != nil && !strings.Contains(err.Error(), "could not parse number") {
+	if err := c.Bind(f); err != nil && !strings.Contains(err.Error(), "could not parse number") {
 		c.Flash().Add("danger", "could not edit forum"+err.Error())
 		return c.Error(400, err)
 	}
@@ -79,7 +82,7 @@ func EditForumPost(c buffalo.Context) error {
 	if b != nil {
 		originalForum.Logo = *b
 	}
-	if _,err:=tx.ValidateAndUpdate(originalForum); err!=nil {
+	if _, err := tx.ValidateAndUpdate(originalForum); err != nil {
 		c.Flash().Add("danger", "error validating or saving")
 		return c.Redirect(500, "/admin/f/")
 	}
@@ -87,6 +90,7 @@ func EditForumPost(c buffalo.Context) error {
 	return c.Redirect(302, "/admin/f")
 }
 
+// createForumPost handles forum creation event
 func createForumPost(c buffalo.Context) error {
 	f := &models.Forum{}
 	if err := c.Bind(f); err != nil {
@@ -126,6 +130,8 @@ func createForumPost(c buffalo.Context) error {
 	return c.Redirect(302, "/admin/f")
 }
 
+// manageForum renders page with list of all forums.
+// for now is used as landing page
 func manageForum(c buffalo.Context) error {
 	//forum := c.Value("forum").(*models.Forum)
 	tx := c.Value("tx").(*pop.Connection)
@@ -142,6 +148,7 @@ func manageForum(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/manage.plush.html"))
 }
 
+// getFormFile get a file from a form. key is given by form filesubmission input name
 func getFormFile(c buffalo.Context, key string) (*[]byte, error) {
 	var b []byte
 	in, _, err := c.Request().FormFile(key)
@@ -150,7 +157,7 @@ func getFormFile(c buffalo.Context, key string) (*[]byte, error) {
 	}
 	defer in.Close()
 	b, err = ioutil.ReadAll(in)
-	if err!=nil || len(b) < 2 {
+	if err != nil || len(b) < 2 {
 		return nil, err
 	}
 	if len(b) > 100 { // we discard xml start of svg file
@@ -162,6 +169,7 @@ func getFormFile(c buffalo.Context, key string) (*[]byte, error) {
 	return &b, nil
 }
 
+// validURLDir returns true if a string can be a directory of a url
 func validURLDir(name string) bool {
 	re := regexp.MustCompile(fmt.Sprintf(`[0-9a-zA-Z\-_]{%d}`, len(name)))
 	return re.MatchString(name)

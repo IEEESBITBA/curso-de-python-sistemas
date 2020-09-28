@@ -5,9 +5,6 @@ import (
 	"crypto"
 	"encoding/json"
 	"fmt"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
-	"github.com/gobuffalo/envy"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -19,6 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
+	"github.com/gobuffalo/envy"
+	"github.com/pkg/errors"
+
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
@@ -28,7 +29,7 @@ import (
 
 const nullUUID = "00000000-0000-0000-0000-000000000000"
 
-// recieve POST request to submit and evaluate code
+// InterpretPost recieve POST request to submit and evaluate code
 func InterpretPost(c buffalo.Context) error {
 	p := pythonHandler{}
 	u := c.Value("current_user")
@@ -61,7 +62,7 @@ func InterpretPost(c buffalo.Context) error {
 	return p.codeResult(c)
 }
 
-// This runs user submitted code and compares with evaluator output
+// interpretEvaluation This runs user submitted code and compares with evaluator output
 // it then saves the result and writes to response.
 // Interpreter will show if user submitted a correct result or incorrect
 // or show line of error/exception
@@ -108,8 +109,10 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		err = peval.containerPy()
 	}
 	if err != nil {
-		return p.codeResult(c, peval.Output, "Evaluation errored! "+err.Error()) // TODO this is the debug line
-		//return  p.codeResult(c,"","Evaluation errored! "+err.Error()) // TODO this is the production line
+		if c.Value("role").(string) == "admin" {
+			return p.codeResult(c, peval.Output, "Evaluation errored! "+err.Error())
+		}
+		return p.codeResult(c, "", "Evaluation errored! "+err.Error())
 	}
 	btx := c.Value("btx").(*bbolt.Tx)
 	defer p.PutTx(btx, c)
@@ -120,23 +123,20 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	}
 	if p.Output == peval.Output {
 		go func() { // asynchronous mailer to not impede UX
-			if err:=newEvaluationSuccessNotify(c,eval); err!=nil {
-				c.Logger().Errorf("evaluation: fail to send %s success mail",p.UserName)
+			if err := newEvaluationSuccessNotify(c, eval); err != nil {
+				c.Logger().Errorf("evaluation: fail to send %s success mail", p.UserName)
 			} else {
-				c.Logger().Infof("evaluation: success sending pass mail to %s",p.UserName)
+				c.Logger().Infof("evaluation: success sending pass mail to %s", p.UserName)
 			}
 		}()
 		user.AddSubscription(eval.ID)
-		_=tx.UpdateColumns(user,"subscriptions")
+		_ = tx.UpdateColumns(user, "subscriptions")
 		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
-	} else {
-		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))
 	}
+	return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))
 }
 
-
-
-// Function to delete all python uploads
+// DeletePythonUploads delete all python uploads in bbolt DB
 func DeletePythonUploads(c buffalo.Context) error {
 	var auth struct {
 		Key string `form:"authkey"`
@@ -156,7 +156,7 @@ func DeletePythonUploads(c buffalo.Context) error {
 	return c.Redirect(302, "/")
 }
 
-// adds code result to context response.
+// codeResult adds code result to context response.
 // First and second string inputs will replace
 // stdout and stderr code output, respectively
 // so be careful not to delete important output/error
@@ -220,13 +220,13 @@ type pythonHandler struct {
 	filename string
 }
 
-// sanitization structures
+// reForbid sanitization structures
 var reForbid = map[*regexp.Regexp]string{
 	regexp.MustCompile(`exec|eval|globals|locals|write|breakpoint|getattr|memoryview|vars|super`): "forbidden function key '%s'",
 	//regexp.MustCompile(`input\s*\(`):                           "no %s) to parse!",
-	regexp.MustCompile("tofile|savetxt|fromfile|fromtxt|load"): "forbidden numpy function key '%s'",
+	regexp.MustCompile("tofile|savetxt|fromfile|fromtxt|load"):                                                                                  "forbidden numpy function key '%s'",
 	regexp.MustCompile("to_csv|to_json|to_html|to_clipboard|to_excel|to_hdf|to_feather|to_parquet|to_msgpack|to_stata|to_pickle|to_sql|to_gbq"): "forbidden pandas function key '%s'",
-	regexp.MustCompile(`__\w+__`):                              "forbidden dunder function key '%s'",
+	regexp.MustCompile(`__\w+__`): "forbidden dunder function key '%s'",
 }
 
 // special treatment cursofor imports since we may allow special imports such as math, numpy, pandas
@@ -241,7 +241,7 @@ var allowedImports = map[string]bool{
 	"os":         false,
 }
 
-// This function runs python in a container (only works on linux)
+// containerPy This function runs python in a container (only works on linux)
 // thus it is safe from hackers. Can't touch this requires installing
 // github.com/soypat/gontainer in PATH. Also requires setting GONTAINER_FS
 // to the path of the filesystem that will be containerized.
@@ -305,11 +305,11 @@ func (p *pythonHandler) containerPy() (err error) {
 		}
 	}
 	cmd.Process.Kill()
-	return fmt.Errorf("server error.")
+	return fmt.Errorf("server error in container")
 
 }
 
-// this function runs python on the machine python
+// runPy this function runs python on the machine python
 // installation. It creates a file in /tmp/{userID}
 // and runs it as stdin. The combined output (stderr+stdout)
 // is saved to the pythonHandler Output field.
@@ -371,7 +371,7 @@ func (p *pythonHandler) runPy() (err error) {
 
 func (c *code) sanitizePy() error {
 	if len(c.Source) > 600 {
-		return fmt.Errorf("code snippet too long!")
+		return fmt.Errorf("code snippet too long")
 	}
 	semicolonSplit := strings.Split(c.Source, ";")
 	newLineSplit := strings.Split(c.Source, "\n")
@@ -399,6 +399,9 @@ func (c *code) sanitizePy() error {
 	}
 	return nil
 }
+
+// printSafeList shows user what imports can
+// be used in interpreter
 func printSafeList() (s string) {
 	counter := 0
 	for k, v := range allowedImports {
@@ -483,11 +486,13 @@ func newEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation) erro
 	return nil
 }
 
+// ControlPanel renders page for controlling server backend stuff.
+// html contains python deletion at the time of writing this
 func ControlPanel(c buffalo.Context) error {
 	return c.Render(200, r.HTML("curso/control-panel.plush.html"))
 }
 
-// Zips up a folder in relative path /assets and
+// zipAssetFolder Zips up a folder in relative path /assets and
 // sends content to user requesting. Should be used sparingly
 // for maintenance and admin tasks ideally.
 func zipAssetFolder(path string) func(c buffalo.Context) error {

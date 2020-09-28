@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gobuffalo/buffalo/render"
 	"html/template"
 	"time"
+
+	"github.com/gobuffalo/buffalo/render"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/pop/v5/slices"
@@ -22,7 +23,7 @@ type Forum struct {
 	Description string      `json:"description" db:"description" form:"description"`
 	Logo        []byte      `json:"logo" db:"logo" form:"-"`
 	Defcon      string      `json:"defcon" db:"defcon" form:"access"` // level of access needed to see forum
-	Staff       slices.UUID `json:"staff" db:"staff" form:"-"`    // moderator IDs
+	Staff       slices.UUID `json:"staff" db:"staff" form:"-"`        // moderator IDs
 	CreatedAt   time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at" db:"updated_at"`
 
@@ -35,6 +36,7 @@ func (f Forum) String() string {
 	return string(jf)
 }
 
+// LogoImage returns html for inserting forum logo straight into template
 func (f Forum) LogoImage(opt render.Data) template.HTML {
 	class, style := "forum-logo", ""
 	if c, ok := opt["class"]; ok {

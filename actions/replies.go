@@ -1,21 +1,21 @@
 package actions
 
 import (
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
+// ReplyGet  creation page rendering
 func ReplyGet(c buffalo.Context) error {
-	//reply := models.Reply{}
-	//c.Set("reply",reply)
 	return c.Render(200, r.HTML("replies/create.plush.html"))
 }
 
+// ReplyPost handling of reply creation event
 func ReplyPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	reply := new(models.Reply)
@@ -46,24 +46,26 @@ func ReplyPost(c buffalo.Context) error {
 	}
 	// https://myaccount.google.com/lesssecureapps allow mailing
 	go func() { // run mailer asynchronously so process does not hang
-		if err:=newReplyNotify(c, topic, reply); err!=nil{
-			c.Logger().Errorf("Failed sending notification messages for reply %s: %s",reply.ID,err)
+		if err := newReplyNotify(c, topic, reply); err != nil {
+			c.Logger().Errorf("Failed sending notification messages for reply %s: %s", reply.ID, err)
 		} else {
-			c.Logger().Infof("Success sending notification messages for reply %s",reply.ID)
+			c.Logger().Infof("Success sending notification messages for reply %s", reply.ID)
 		}
 	}()
 
 	user.AddSubscription(topic.ID)
-	_ = tx.UpdateColumns(user,"subscriptions")
+	_ = tx.UpdateColumns(user, "subscriptions")
 	c.Flash().Add("success", T.Translate(c, "reply-create-success"))
 	f := c.Value("forum").(*models.Forum)
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
 		"tid": topic.ID})
 }
 
+//
 func editReplyGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("replies/create.plush.html"))
 }
+
 func editReplyPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	reply := new(models.Reply)
@@ -83,18 +85,20 @@ func editReplyPost(c buffalo.Context) error {
 		"tid": c.Param("tid")})
 }
 
+// SetCurrentReply don't know if this is used, probably not, right?
 func SetCurrentReply(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		reply, err := loadReply(c, c.Param("rid"))
 		if err != nil {
 			c.Flash().Add("danger", T.Translate(c, "topic-not-found"))
-			return c.Error(404,err)
+			return c.Error(404, err)
 		}
 		c.Set("reply", reply)
 		return next(c)
 	}
 }
 
+// DeleteReply handles reply delete event
 func DeleteReply(c buffalo.Context) error {
 	reply, err := loadReply(c, c.Param("rid"))
 	if err != nil {
@@ -117,6 +121,7 @@ func DeleteReply(c buffalo.Context) error {
 		"tid": c.Param("tid")})
 }
 
+// loadReply creates and populates models.Reply from an ID
 func loadReply(c buffalo.Context, id string) (*models.Reply, error) {
 	tx := c.Value("tx").(*pop.Connection)
 	reply := &models.Reply{}
@@ -139,9 +144,8 @@ func loadReply(c buffalo.Context, id string) (*models.Reply, error) {
 	return reply, nil
 }
 
-// mailer functionality. This is called when a reply is posted in a topic.
+// newReplyNotify mailer functionality. This is called when a reply is posted in a topic.
 // newReplyNotify expects a models.Topic with Subscribers, who will be the recipients, and
-//
 func newReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply) error {
 	replyingUser := c.Value("current_user").(*models.User)
 	tx := c.Value("tx").(*pop.Connection)
@@ -160,7 +164,7 @@ func newReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply)
 	var recpts []models.User
 	for _, usr := range *users {
 		// users has ALL users. we append users who are in `set` AND if they are subscribed to the reply
-		if _, ok := set[usr.ID]; !ok {// || !usr.Subscribed(topic.ID) {
+		if _, ok := set[usr.ID]; !ok { // || !usr.Subscribed(topic.ID) {
 			continue
 		}
 		recpts = append(recpts, usr)

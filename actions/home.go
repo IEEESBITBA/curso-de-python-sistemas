@@ -7,11 +7,14 @@ import (
 )
 
 // HomeHandler is a default handler to serve up
-// a home page.
+// a home page. unused.
 func HomeHandler(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.HTML("index.html"))
 }
 
+// SiteStruct adds basic paths to context. is legacy code
+// and should be removed in favour of using context functions
+// such as forumPath()
 func SiteStruct(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Set("forumBase", "/f")
@@ -27,6 +30,7 @@ func SiteStruct(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
+// AuthHome renders page with all provider options
 func AuthHome(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.HTML("auth.html"))
 }

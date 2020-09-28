@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// UsersViewAllGet renders all users page (admins only)
 func UsersViewAllGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	users := &models.Users{}
@@ -21,6 +22,7 @@ func UsersViewAllGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("users/view-all.plush.html"))
 }
 
+// AdminUserGet handles the event when an admin is created by another admin
 func AdminUserGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	adminuser := &models.User{}
@@ -36,6 +38,7 @@ func AdminUserGet(c buffalo.Context) error {
 	return c.Redirect(302, "allUsersPath()")
 }
 
+// NormalizeUserGet event removing status from user and setting to empty string
 func NormalizeUserGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	adminuser := &models.User{}
@@ -51,6 +54,7 @@ func NormalizeUserGet(c buffalo.Context) error {
 	return c.Redirect(302, "allUsersPath()")
 }
 
+// BanUserGet ban user event by admin
 func BanUserGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	banuser := &models.User{}
@@ -67,6 +71,7 @@ func BanUserGet(c buffalo.Context) error {
 
 }
 
+// UserSettingsGet render page with user settings :)
 func UserSettingsGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	topics := &models.Topics{}
@@ -77,6 +82,7 @@ func UserSettingsGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("users/settings.plush.html"))
 }
 
+// UserSettingsPost handles event when user changes setting by submitting setting form
 func UserSettingsPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	userDB := c.Value("current_user").(*models.User)
@@ -105,6 +111,7 @@ func UserSettingsPost(c buffalo.Context) error {
 	// "tid":c.Param("tid")})
 }
 
+// sanitizeNick don't want bad characters that break urls or weird stuff.
 func sanitizeNick(s string) (string, error) {
 	s = strings.TrimSpace(s)
 	if len(s) > 10 {
@@ -117,6 +124,7 @@ func sanitizeNick(s string) (string, error) {
 	return s, nil
 }
 
+// UsersSettingsRemoveTopicSubscription handles user clicking remove subscription button
 func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
 	var unsub []string
 	usr := new(models.User)
@@ -133,7 +141,7 @@ func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
 			unsub = append(unsub, topic.ID.String())
 		}
 		if len(unsub) == 0 {
-			c.Flash().Add("warning",T.Translate(c,"topic-unsubscribe-empty"))
+			c.Flash().Add("warning", T.Translate(c, "topic-unsubscribe-empty"))
 			return c.Redirect(302, "/u")
 		}
 	} else {
@@ -153,6 +161,6 @@ func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	}
-	c.Flash().Add("success",T.Translate(c,"topic-unsubscribe-success"))
+	c.Flash().Add("success", T.Translate(c, "topic-unsubscribe-success"))
 	return c.Redirect(302, "/u")
 }

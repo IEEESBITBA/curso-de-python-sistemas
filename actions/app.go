@@ -21,7 +21,10 @@ import (
 // GO_ENV = "production" for deployment
 var ENV = envy.Get("GO_ENV", "development")
 var app *buffalo.App
+
+// T translator for context. use by calling T.Translate(ctx, "id")
 var T *i18n.Translator
+
 //var TT *i18n.
 const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. Argentina == 3h
 
@@ -69,24 +72,24 @@ func App() *buffalo.App {
 		// -- Authorization/Security procedures --
 		// sets user data in context from session data.
 		app.Use(SetCurrentUser)
-		app.Use(SafeList,Authorize) // AUTHORIZATION MIDDLEWARE. Checks if user is in safelist
+		app.Use(SafeList, Authorize) // AUTHORIZATION MIDDLEWARE. Checks if user is in safelist
 		app.Use(SiteStruct)
 		//app.GET("/auth", AuthHome)
 		bah := buffalo.WrapHandlerFunc(gothic.BeginAuthHandler) // Begin authorization handler = bah
 		auth := app.Group("/auth")
-		auth.GET("/",AuthHome)
+		auth.GET("/", AuthHome)
 		auth.GET("/{provider}/callback", AuthCallback)
 		auth.GET("/{provider}", bah)
 		auth.DELETE("/logout", AuthDestroy).Name("logout")
-		auth.Middleware.Skip(SafeList, bah, AuthCallback,AuthHome, AuthDestroy)      // don't ask for user to be on safelist on authorization page
-		auth.Middleware.Skip(Authorize, bah, AuthCallback,AuthHome)      // don't ask for authorization on authorization page
-		auth.Middleware.Skip(SetCurrentUser, bah, AuthCallback,AuthHome) // set current user needs to seek user in db. if no users present in db setcurrentuser fails
+		auth.Middleware.Skip(SafeList, bah, AuthCallback, AuthHome, AuthDestroy) // don't ask for user to be on safelist on authorization page
+		auth.Middleware.Skip(Authorize, bah, AuthCallback, AuthHome)             // don't ask for authorization on authorization page
+		auth.Middleware.Skip(SetCurrentUser, bah, AuthCallback, AuthHome)        // set current user needs to seek user in db. if no users present in db setcurrentuser fails
 
 		searcher := app.Group("/s")
-		searcher.GET("/",Search).Name("search")
+		searcher.GET("/", Search).Name("search")
 		searcher.GET("/topic/{tid}", TopicSearch).Name("topicSearch")
 
-		app.GET("/u/{uid}/unsubscribe/{tid}",UsersSettingsRemoveTopicSubscription).Name("topicUnsubscribe")
+		app.GET("/u/{uid}/unsubscribe/{tid}", UsersSettingsRemoveTopicSubscription).Name("topicUnsubscribe")
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
 		app.GET("/favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico
@@ -94,8 +97,8 @@ func App() *buffalo.App {
 		})
 		// home page setup
 		app.GET("/", manageForum) //TODO change homepage
-		app.Middleware.Skip(SafeList,manageForum)
-		app.Middleware.Skip(Authorize,manageForum)
+		app.Middleware.Skip(SafeList, manageForum)
+		app.Middleware.Skip(Authorize, manageForum)
 
 		// All things curso de python
 		curso := app.Group("/curso-python")
@@ -106,7 +109,6 @@ func App() *buffalo.App {
 		curso.GET("/eval/e/{evalid}/edit", CursoEvaluationEditGet).Name("evaluationEditGet")
 		curso.POST("/eval/e/{evalid}/edit", CursoEvaluationEditPost)
 		curso.GET("/eval/e/{evalid}/delete", CursoEvaluationDelete).Name("evaluationDelete")
-
 
 		interpreter := app.Group("/py")
 		interpreter.POST("/", InterpretPost).Name("Interpret")
@@ -119,18 +121,18 @@ func App() *buffalo.App {
 		forum.GET("/", forumIndex).Name("forum")
 		forum.GET("/create", CategoriesCreateGet).Name("catCreate")
 		forum.POST("/create", CategoriesCreateOrEditPost)
-		forum.Middleware.Skip(Authorize,forumIndex)
-		forum.Middleware.Skip(SafeList,forumIndex)
+		forum.Middleware.Skip(Authorize, forumIndex)
+		forum.Middleware.Skip(SafeList, forumIndex)
 
 		catGroup := forum.Group("/c/{cat_title}")
 		catGroup.Use(SetCurrentCategory)
 		catGroup.GET("/", CategoriesIndex).Name("cat")
 		catGroup.GET("/createTopic", TopicCreateGet).Name("topicCreate")
 		catGroup.POST("/createTopic", TopicCreatePost)
-		catGroup.GET("/edit",CategoriesCreateGet).Name("catEdit")
-		catGroup.POST("/edit",CategoriesCreateOrEditPost)
-		catGroup.Middleware.Skip(Authorize,CategoriesIndex)
-		catGroup.Middleware.Skip(SafeList,CategoriesIndex)
+		catGroup.GET("/edit", CategoriesCreateGet).Name("catEdit")
+		catGroup.POST("/edit", CategoriesCreateOrEditPost)
+		catGroup.Middleware.Skip(Authorize, CategoriesIndex)
+		catGroup.Middleware.Skip(SafeList, CategoriesIndex)
 
 		topicGroup := catGroup.Group("/{tid}")
 
@@ -138,11 +140,11 @@ func App() *buffalo.App {
 		topicGroup.GET("/", TopicGet).Name("topicGet") //
 		topicGroup.GET("/edit", TopicEditGet).Name("topicEdit")
 		topicGroup.POST("/edit", TopicEditPost)
-		topicGroup.GET("/delete",TopicDelete).Name("topicDelete")
+		topicGroup.GET("/delete", TopicDelete).Name("topicDelete")
 		topicGroup.GET("/reply", ReplyGet).Name("reply")
 		topicGroup.POST("/reply", ReplyPost)
-		topicGroup.Middleware.Skip(Authorize,TopicGet)
-		topicGroup.Middleware.Skip(SafeList,TopicGet)
+		topicGroup.Middleware.Skip(Authorize, TopicGet)
+		topicGroup.Middleware.Skip(SafeList, TopicGet)
 
 		replyGroup := topicGroup.Group("/{rid}")
 		replyGroup.Use(SetCurrentReply)
@@ -150,11 +152,9 @@ func App() *buffalo.App {
 		replyGroup.POST("/edit", editReplyPost)
 		replyGroup.DELETE("/edit", DeleteReply)
 
-
-
 		admin := app.Group("/admin")
 		admin.Use(SiteStruct)
-		admin.Use(AdminAuth,SafeList)
+		admin.Use(AdminAuth, SafeList)
 		admin.GET("/f", manageForum)
 		admin.GET("newforum", CreateEditForum)
 		admin.POST("newforum/post", createForumPost)
@@ -164,11 +164,11 @@ func App() *buffalo.App {
 		admin.GET("users/{uid}/admin", AdminUserGet).Name("adminUser")
 		admin.GET("users/{uid}/normalize", NormalizeUserGet).Name("normalizeUser")
 
-		admin.GET("safelist",SafeListGet).Name("safeList")
-		admin.POST("safelist",SafeListPost)
+		admin.GET("safelist", SafeListGet).Name("safeList")
+		admin.POST("safelist", SafeListPost)
 		admin.GET("/cbu", boltDBDownload(models.BDB)).Name("cursoCodeBackup")
 		admin.GET("/cbureader", zipAssetFolder("uploadReader")).Name("cursoCodeBackupReader")
-		admin.GET("/control-panel",ControlPanel).Name("controlPanel")
+		admin.GET("/control-panel", ControlPanel).Name("controlPanel")
 		admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
 		// We associate the HTTP 404 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
@@ -215,19 +215,17 @@ func must(err error) {
 }
 
 func err500(status int, err error, c buffalo.Context) error {
-	u,ok:=c.Value("current_user").(*models.User)
-	if !ok || u == nil || u.Role != "admin"{
-		return c.Render(500,r.HTML("meta/500.plush.html"))
+	u, ok := c.Value("current_user").(*models.User)
+	if !ok || u == nil || u.Role != "admin" {
+		return c.Render(500, r.HTML("meta/500.plush.html"))
 	}
-	c.Flash().Add("danger","Internal server error (500): "+err.Error()) // T.Translate(c,"app-status-internal-error")
-	return c.Render(500,r.HTML("meta/500.plush.html"))
+	c.Flash().Add("danger", "Internal server error (500): "+err.Error()) // T.Translate(c,"app-status-internal-error")
+	return c.Render(500, r.HTML("meta/500.plush.html"))
 }
 
-
-
 func err404(status int, err error, c buffalo.Context) error {
-	c.Flash().Add("warning", "Page not found (404)") // T.Translate(c,"app-not-found")
-	return c.Render(404, r.HTML("meta/404.plush.html"))//c.Redirect(302,"/")
+	c.Flash().Add("warning", "Page not found (404)")    // T.Translate(c,"app-not-found")
+	return c.Render(404, r.HTML("meta/404.plush.html")) //c.Redirect(302,"/")
 }
 
 func defaultCookieStore() sessions.Store {

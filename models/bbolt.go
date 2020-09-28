@@ -1,14 +1,16 @@
+package models
+
 // This is not an SQL models file. This contains
 // the middleware for a BBolt database, which is
 // a simple key/value store when a full blown
 // SQL server is not needed.
 //
 // Patricio Whittingslow 2020
-package models
 
 import (
 	"errors"
 	"fmt"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/errx"
 	"go.etcd.io/bbolt"
@@ -53,7 +55,7 @@ func BBoltTransaction(db *bbolt.DB) buffalo.MiddlewareFunc {
 						err = bTx.Commit()
 					}
 					if err != nil { // if BBoltDB fails we replace error
-						txError = errx.Wrap(err,"BBoltDB committing/rolling back fail")
+						txError = errx.Wrap(err, "BBoltDB committing/rolling back fail")
 					}
 					stats := bTx.Stats()
 					elapsed := stats.WriteTime + stats.SpillTime + stats.RebalanceTime

@@ -3,12 +3,13 @@ package actions
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gobuffalo/buffalo"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
-	"go.etcd.io/bbolt"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
+	"github.com/gobuffalo/buffalo"
+	"go.etcd.io/bbolt"
 )
 
 var (
@@ -19,16 +20,16 @@ var (
 const safeUsersBucketName = "safeUsers"
 
 type safeUser struct {
-	Name  string `json:"nick" gob:"nick"`
-	Email string `json:"email" gob:"email"`
+	Name        string `json:"nick" gob:"nick"`
+	Email       string `json:"email" gob:"email"`
 	Responsible string `json:"responsible" gob:"resp"`
 }
 
 type safeUsers []safeUser
 
 func (s safeUsers) String() (out string) {
-	for _,u := range s {
-		out+= u.Email + "\n"
+	for _, u := range s {
+		out += u.Email + "\n"
 	}
 	return
 }
@@ -36,13 +37,14 @@ func (s safeUsers) String() (out string) {
 var words []string
 
 func init() {
-	f,err :=os.Open("assets/server/badwords.es.en.txt")
+	f, err := os.Open("assets/server/badwords.es.en.txt")
 	must(err)
-	b, err :=ioutil.ReadAll(f)
+	b, err := ioutil.ReadAll(f)
 	must(err)
-	words = strings.Split(string(b),"\n")
+	words = strings.Split(string(b), "\n")
 }
 
+// SafeListGet renders page with safelist. only admins can see
 func SafeListGet(c buffalo.Context) error {
 	var users safeUsers
 	btx := c.Value("btx").(*bbolt.Tx)
@@ -65,7 +67,7 @@ func SafeListGet(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(500, err)
 	}
-	c.Set("safe_users",users)
+	c.Set("safe_users", users)
 	return c.Render(200, r.HTML("users/safelist.plush.html"))
 }
 
@@ -73,11 +75,12 @@ type safeForm struct {
 	List string `json:"safelist" form:"safelist"`
 }
 
+// SafeListPost handles event when more emails are added to safelist
 func SafeListPost(c buffalo.Context) error {
 	responsible := c.Value("current_user").(*models.User)
 	var form safeForm
-	if err:=c.Bind(&form); err!=nil {
-		return c.Error(500,err)
+	if err := c.Bind(&form); err != nil {
+		return c.Error(500, err)
 	}
 	users := safeFormToSafeList(form)
 	btx := c.Value("btx").(*bbolt.Tx)
@@ -86,13 +89,13 @@ func SafeListPost(c buffalo.Context) error {
 		if b == nil {
 			return errBucketNotFound
 		}
-		for _,user := range users {
+		for _, user := range users {
 			user.Responsible = responsible.Name
-			bson, err:= json.Marshal(user)
-			if err!=nil {
+			bson, err := json.Marshal(user)
+			if err != nil {
 				return err
 			}
-			err = b.Put([]byte(user.Email),bson)
+			err = b.Put([]byte(user.Email), bson)
 			if err != nil {
 				return err
 			}
@@ -100,25 +103,24 @@ func SafeListPost(c buffalo.Context) error {
 		return nil
 	}()
 	if err != nil {
-		return c.Error(500,err)
+		return c.Error(500, err)
 	}
-	c.Flash().Add("success","Safelist updated successfully.")
-	return c.Redirect(302,"allUsersPath()")
+	c.Flash().Add("success", "Safelist updated successfully.")
+	return c.Redirect(302, "allUsersPath()")
 }
 
 type void struct{}
 
 const safeDomain = "itba.edu.ar"
 
-
-// works kind of like authorize but does not verify user exists.
+// SafeList works kind of like authorize but does not verify user exists.
 //includes helper function "hasBadWord" for sanitizing dirty language
 func SafeList(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		c.Set("hasBadWord",hasBadWord)
+		c.Set("hasBadWord", hasBadWord)
 		u := c.Value("current_user")
 		if u == nil {
-			c.Flash().Add("danger", T.Translate(c,"app-user-required"))
+			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
 		}
 		email := u.(*models.User).Email
@@ -137,7 +139,7 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return nil
 		})
 		if err != nil {
-			c.Logger().Errorf("SAFELIST MALUFUNCTION: %s",err)
+			c.Logger().Errorf("SAFELIST MALUFUNCTION: %s", err)
 			return next(c)
 		}
 		if !exists {
@@ -149,20 +151,21 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 		user := u.(*models.User)
 		if user.Role == "" {
 			user.Role = "safe"
-			c.Set("current_user",u)
+			c.Set("current_user", u)
 		}
 		return next(c)
 	}
 }
 
+// Parses form list from the form Post event
 func safeFormToSafeList(sf safeForm) (SU safeUsers) {
-	splits := strings.Split(sf.List,"\n")
-	splitComma := strings.Split(sf.List,",")
-	splitSColon:= strings.Split(sf.List,";")
-	if  len(splitComma) > len(splits) {
+	splits := strings.Split(sf.List, "\n")
+	splitComma := strings.Split(sf.List, ",")
+	splitSColon := strings.Split(sf.List, ";")
+	if len(splitComma) > len(splits) {
 		splits = splitComma
 	}
-	if  len(splitSColon) > len(splits) && len(splitSColon) > len(splitComma) {
+	if len(splitSColon) > len(splits) && len(splitSColon) > len(splitComma) {
 		splits = splitSColon
 	}
 	for _, email := range splits {
@@ -179,14 +182,14 @@ func safeFormToSafeList(sf safeForm) (SU safeUsers) {
 }
 
 func isEmail(s string) bool {
-	if strings.ContainsAny(s,"\"(),:;<>[\\] \t\n") {
+	if strings.ContainsAny(s, "\"(),:;<>[\\] \t\n") {
 		return false
 	}
-	dub := strings.Split(s,"@")
+	dub := strings.Split(s, "@")
 	if len(dub) != 2 {
 		return false
 	}
-	back := strings.Split(dub[1],".")
+	back := strings.Split(dub[1], ".")
 	return len(back) >= 2
 }
 
@@ -195,8 +198,8 @@ func hasBadWord(s string) string {
 		return ""
 	}
 	for _, w := range words {
-		w = strings.Trim(w,"*. ")
-		if strings.Contains(s,w) {
+		w = strings.Trim(w, "*. ")
+		if strings.Contains(s, w) {
 			return w
 		}
 	}

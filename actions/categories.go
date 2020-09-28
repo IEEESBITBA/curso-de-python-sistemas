@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 )
 
 // CategoriesIndex default implementation.
@@ -44,7 +44,13 @@ func CategoriesIndex(c buffalo.Context) error {
 		}
 		(*topics)[i] = *topic
 	}
-	sort.Sort(topics)
+	role := c.Value("role").(string)
+	if role == "admin" {
+		sort.Sort(topics)
+	} else {
+		//sort.Sort(models.ByAge(topics))
+	}
+
 	c.Set("topics", topics)
 	c.Set("pagination", q.Paginator)
 	return c.Render(200, r.HTML("categories/index.plush.html"))
@@ -56,12 +62,12 @@ func CategoriesCreateGet(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.HTML("categories/create_get.plush.html"))
 }
 
-// CategoriesCreatePost default implementation.
+// CategoriesCreateOrEditPost default implementation.
 func CategoriesCreateOrEditPost(c buffalo.Context) error {
 	cat := &models.Category{}
 	if err := c.Bind(cat); err != nil {
 		c.Flash().Add("danger", "could not create category")
-		return c.Error(500,err)
+		return c.Error(500, err)
 	}
 	if !validURLDir(cat.Title) {
 		c.Flash().Add("danger", T.Translate(c, "category-invalid-title"))
@@ -86,7 +92,7 @@ func CategoriesCreateOrEditPost(c buffalo.Context) error {
 		return c.Redirect(302, "/")
 	}
 	nilIfNewCat := c.Value("category") // if we are editing a category this will be set
-	if nilIfNewCat != nil { // this branch edits an already existing category
+	if nilIfNewCat != nil {            // this branch edits an already existing category
 
 		oldCat := nilIfNewCat.(*models.Category)
 		oldCat.Title, oldCat.Description = cat.Title, cat.Description
@@ -106,8 +112,6 @@ func CategoriesCreateOrEditPost(c buffalo.Context) error {
 	c.Flash().Add("success", fmt.Sprintf("Category %s created", cat.Title))
 	return c.Redirect(302, "forumPath()", render.Data{"forum_title": f.Title})
 }
-
-
 
 // SetCurrentCategory attempts to find a category and set context `category`
 func SetCurrentCategory(next buffalo.Handler) buffalo.Handler {

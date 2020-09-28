@@ -2,16 +2,17 @@ package actions
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/pop/v5"
+	pop "github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/facebook"
 	"github.com/markbates/goth/providers/google"
 	"github.com/pkg/errors"
-	"os"
 )
 
 const cookieUidName = "current_user_id"
@@ -26,7 +27,7 @@ func init() {
 	)
 }
 
-// When user log into provider they are redirected
+// AuthCallback When user log into provider they are redirected
 // to this function which creates the session id
 // in user cookie jar. The user then can then be
 // authorized successfully through Authorize function
@@ -74,7 +75,7 @@ func AuthCallback(c buffalo.Context) error {
 	return c.Redirect(302, "/") // redirect to homepage
 }
 
-// logout process. kills cookies leaving user
+// AuthDestroy logout process. kills cookies leaving user
 // unable to Authorize without logging in again
 func AuthDestroy(c buffalo.Context) error {
 	//c.Session().Set(app.SessionName,"")
@@ -90,7 +91,7 @@ func AuthDestroy(c buffalo.Context) error {
 	return c.Redirect(302, "/")
 }
 
-// Backbone of the authorization process.
+// Authorize Backbone of the authorization process.
 // This should run before displaying any internal page
 // and kick unauthorized users back to homepage
 func Authorize(next buffalo.Handler) buffalo.Handler {
@@ -123,11 +124,12 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
-// This function is to provide Context with user information on `current_user`.
+// SetCurrentUser This function is to provide Context with user information on `current_user`.
 // If user is not logged in it does nothing.
 func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Logger().Debugf("SetCurrentUser called. Session: %s", c.Session().Session)
+		c.Set("role", "")
 		if uid := c.Session().Get(cookieUidName); uid != nil {
 			c.Logger().Debug("user id found in SetCurrentUser")
 			u := &models.User{}
@@ -146,13 +148,14 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			}
 			u.Theme = fmt.Sprintf("%s", theme)
 			c.Set("current_user", u)
+			c.Set("role", u.Role)
 		}
 		c.Logger().Debug("SetCurrentUser finished successfully")
 		return next(c)
 	}
 }
 
-// This authorization is for server maintenance/management only
+// AdminAuth This authorization is for server maintenance/management only
 // authorizes where user has role=='admin'
 func AdminAuth(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {

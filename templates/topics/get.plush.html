@@ -21,8 +21,8 @@
                 <%= bicon("trash-fill",{size:"1.4em"}) %> <%=t("topic-delete") %>
         </button>
         <% } %>
-        <a href="<%= topicEditPath(ctx) %>" class="btn btn-secondary btn-sm ">
-            <%= bicon("input-cursor-text",{size:"1.4em"}) %> <%=t("topic-edit") %>
+        <a href="<%= topicEditPath(ctx) %>" class="btn btn-secondary btn-sm m-1">
+            <%= bicon("pencil-square",{size:"1.4em"}) %> <%=t("topic-edit") %>
         </a>
         <% } %>
         <%= if (current_user) { %>

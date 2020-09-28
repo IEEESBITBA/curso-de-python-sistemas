@@ -55,6 +55,7 @@ func init() {
 		},
 	})
 }
+
 func joinPath(sli ...string) string {
 	for i, s := range sli {
 		s = strings.TrimSuffix(s, "/")
@@ -66,6 +67,8 @@ func joinPath(sli ...string) string {
 	return strings.Join(sli, "/") + "/"
 }
 
+// DisplayName user's Nick/alias or name is shown.
+// preference for showing user Nick for privacy purposes
 func DisplayName(u interface{}) string {
 	user, ok := u.(*models.User)
 	if !ok {
@@ -164,7 +167,7 @@ func codeTheme(theme string) template.HTML {
 
 func codeThemeOptions(u *models.User) template.HTML {
 	var form []string
-	for name, _ := range codeThemes {
+	for name := range codeThemes {
 		if name == u.Theme || (u.Theme == "" && name == defaultTheme) {
 			form = append(form, fmt.Sprintf("<option name=\"%s\" selected>%s</option>", name, name))
 		} else {
@@ -220,7 +223,7 @@ var bootstrapHTMLSprites = map[string]string{ // https://icons.getbootstrap.com/
 	"search":                `<svg width="%s" height="%s" %s viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/><path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/></svg>`,
 }
 
-// plush helper. takes in the name of the icon according to bootstrap v4
+// bootstrapIcon plush helper. takes in the name of the icon according to bootstrap v4
 // and optional parameters "w" for width, "h" for height, "size" override
 // replaces both "h" and "w". and "title" for the title attribute of the icon.
 //i.e: bicon("person-fill",{size:"2em",title:"user"})
@@ -252,6 +255,7 @@ func bootstrapIcon(name string, opts render.Data) template.HTML {
 	return template.HTML(fmt.Sprintf(sprite, opts["w"], opts["h"], attr))
 }
 
+// userIcon shows user icon with title information 'admin', 'user', 'banned'
 func userIcon(u *models.User, r render.Data) template.HTML {
 	r["title"] = u.Role
 	switch u.Role {

@@ -10,11 +10,11 @@
             <%= markdown(reply.Content) %>
             <div class="col-md-2 offset-md-8 text-right">
                 <%= if  ( current_user.IsAuthor(reply.AuthorID) || current_user.Role == "admin" ) { %>
-                <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#reply-modal-<%= reply.ID %>">
+                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#reply-modal-<%= reply.ID %>">
                     <%= bicon("trash-fill",{size:"1.4em"}) %>
                 </button>
-                <a href="<%= replyEditPath(ctx) %>" class="btn btn-secondary btn-sm m-0">
-                    <%= bicon("input-cursor-text",{size:"1.4em",title:t("reply-edit")}) %>
+                <a href="<%= replyEditPath(ctx) %>" class="btn btn-secondary btn-sm mr-1">
+                    <%= bicon("pencil-square",{size:"1.4em",title:t("reply-edit")}) %>
                 </a>
                 <% } %>
             </div>

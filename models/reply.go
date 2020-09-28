@@ -30,12 +30,12 @@ func (r Reply) String() string {
 	return string(jr)
 }
 
-// replies and sort algorithm
+// Replies and sort algorithm
 type Replies []Reply
 
-func (p Replies) Len() int           { return len(p) }
-func (p Replies) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p Replies) Less(i, j int) bool { return p[i].CreatedAt.Before(p[j].CreatedAt) }
+func (r Replies) Len() int           { return len(r) }
+func (r Replies) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+func (r Replies) Less(i, j int) bool { return r[i].CreatedAt.Before(r[j].CreatedAt) }
 
 // String is not required by pop and may be deleted
 func (r Replies) String() string {

@@ -29,6 +29,8 @@ type Topic struct {
 	Replies  Replies   `json:"-" db:"-"`
 }
 
+// Authors returns a slice of users including the main topic author
+// and also reply authors.
 func (t Topic) Authors() Users {
 	var set = make(map[uuid.UUID]User, 1+len(t.Replies))
 	set[t.Author.ID] = *t.Author
@@ -54,6 +56,7 @@ func (t Topic) String() string {
 	return string(jt)
 }
 
+// LastUpdate returns last time topic was edited, created or replied to
 func (t Topic) LastUpdate() time.Time {
 	last := func(a, b time.Time) time.Time {
 		if a.UTC().After(b.UTC()) {
@@ -69,6 +72,7 @@ func (t Topic) LastUpdate() time.Time {
 	return v
 }
 
+// Subscribed checks if id in Topic.Subscribers
 func (t Topic) Subscribed(id uuid.UUID) bool {
 	for _, usr := range t.Subscribers {
 		if usr == id {
@@ -78,6 +82,7 @@ func (t Topic) Subscribed(id uuid.UUID) bool {
 	return false
 }
 
+// AddSubscriber add id to topic.subscribers
 func (t *Topic) AddSubscriber(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	set[id] = struct{}{}
@@ -91,6 +96,7 @@ func (t *Topic) AddSubscriber(id uuid.UUID) {
 	t.Subscribers = subs
 }
 
+// RemoveSubscriber remove subscirber from topic.Subscribers
 func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	for _, sub := range t.Subscribers {
@@ -105,16 +111,22 @@ func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 	t.Subscribers = subs
 }
 
-// Topics is not required by pop and may be deleted
+// ByAge slice of Topics. sorted by age.
+type ByAge []Topic
 
+func (t ByAge) Len() int           { return len(t) }
+func (t ByAge) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t ByAge) Less(i, j int) bool { return t[i].CreatedAt.After(t[j].CreatedAt) }
+
+// Topics slice of Topics. sorted by age. Archived topics last
 type Topics []Topic
 
 func (t Topics) Len() int      { return len(t) }
 func (t Topics) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 func (t Topics) Less(i, j int) bool {
 	// Un branchless algorithm para que ande mas rapido
-	return (( t[i].Archived ==  t[j].Archived  ) && t[i].CreatedAt.After(t[j].CreatedAt) ) ||
-		(( t[i].Archived !=  t[j].Archived  ) && ( t[j].Archived ) )
+	return ((t[i].Archived == t[j].Archived) && t[i].CreatedAt.After(t[j].CreatedAt)) ||
+		((t[i].Archived != t[j].Archived) && (t[j].Archived))
 }
 
 // String is not required by pop and may be deleted

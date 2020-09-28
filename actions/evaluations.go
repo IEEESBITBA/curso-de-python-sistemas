@@ -1,15 +1,16 @@
 package actions
 
 import (
+	"sort"
+
+	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
-	"sort"
 )
 
-// CategoriesIndex default implementation.
+// EvaluationIndex default implementation.
 func EvaluationIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	evals := &models.Evaluations{}
@@ -21,12 +22,14 @@ func EvaluationIndex(c buffalo.Context) error {
 	return c.Render(200, r.HTML("curso/eval-index.plush.html"))
 }
 
+// CursoEvaluationCreateGet renders evaluation creation page
 func CursoEvaluationCreateGet(c buffalo.Context) error {
 	e := models.Evaluation{}
-	c.Set("evaluation",e)
+	c.Set("evaluation", e)
 	return c.Render(200, r.HTML("curso/eval-create.plush.html"))
 }
 
+// CursoEvaluationCreatePost handles creation of evaluation
 func CursoEvaluationCreatePost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	eval := &models.Evaluation{}
@@ -49,6 +52,7 @@ func CursoEvaluationCreatePost(c buffalo.Context) error {
 	return c.Render(200, r.HTML("curso/eval-get.plush.html"))
 }
 
+// CursoEvaluationEditGet handles the rendering of the evaluation edit page
 func CursoEvaluationEditGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	eval := &models.Evaluation{}
@@ -61,6 +65,7 @@ func CursoEvaluationEditGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("curso/eval-create.plush.html"))
 }
 
+// CursoEvaluationEditPost handles the editing of an already existing evaluation
 func CursoEvaluationEditPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	eid := c.Param("evalid")
@@ -83,6 +88,7 @@ func CursoEvaluationEditPost(c buffalo.Context) error {
 	return c.Redirect(302, "evaluationGetPath()", render.Data{"evalid": eval.ID})
 }
 
+// CursoEvaluationDelete handles deletion event of evaluation
 func CursoEvaluationDelete(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	eid := c.Param("evalid")
@@ -99,6 +105,7 @@ func CursoEvaluationDelete(c buffalo.Context) error {
 	return c.Redirect(302, "evaluationPath()")
 }
 
+// CursoEvaluationGet handles rendering of an evaluation
 func CursoEvaluationGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	eval := &models.Evaluation{}

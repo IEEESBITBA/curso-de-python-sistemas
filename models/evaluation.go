@@ -34,12 +34,12 @@ func (e Evaluation) String() string {
 // Evaluations is not required by pop and may be deleted
 type Evaluations []Evaluation
 
-func (t Evaluations) Len() int      { return len(t) }
-func (t Evaluations) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t Evaluations) Less(i, j int) bool {
+func (e Evaluations) Len() int      { return len(e) }
+func (e Evaluations) Swap(i, j int) { e[i], e[j] = e[j], e[i] }
+func (e Evaluations) Less(i, j int) bool {
 	// Un branchless algorithm para que ande mas rapido
-	return (( t[i].Hidden ==  t[j].Hidden  ) && t[i].CreatedAt.After(t[j].CreatedAt) ) ||
-		(( t[i].Hidden !=  t[j].Hidden  ) && ( t[j].Hidden ) )
+	return ((e[i].Hidden == e[j].Hidden) && e[i].CreatedAt.After(e[j].CreatedAt)) ||
+		((e[i].Hidden != e[j].Hidden) && (e[j].Hidden))
 }
 
 // String is not required by pop and may be deleted

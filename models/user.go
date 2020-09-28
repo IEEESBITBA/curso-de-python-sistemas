@@ -37,6 +37,7 @@ func (u User) String() string {
 	return string(ju)
 }
 
+// Icon returns html for user icon
 func (u User) Icon(label string) template.HTML {
 	var icon string
 	switch u.Role {
@@ -47,9 +48,10 @@ func (u User) Icon(label string) template.HTML {
 	default:
 		icon = "user"
 	}
-	return template.HTML(fmt.Sprintf("<i title=\"%s\" class=\"icon-%s\"> </i>%s",u.Role, icon, flect.Capitalize(label)))
+	return template.HTML(fmt.Sprintf("<i title=\"%s\" class=\"icon-%s\"> </i>%s", u.Role, icon, flect.Capitalize(label)))
 }
 
+// Subscribed returns true if id is in user.Subscriptions
 func (u User) Subscribed(id uuid.UUID) bool {
 	for _, sub := range u.Subscriptions {
 		if sub == id {
@@ -59,6 +61,7 @@ func (u User) Subscribed(id uuid.UUID) bool {
 	return false
 }
 
+// AddSubscription add uuid to user.Subscriptions
 func (u *User) AddSubscription(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	set[id] = struct{}{}
@@ -72,7 +75,7 @@ func (u *User) AddSubscription(id uuid.UUID) {
 	u.Subscriptions = subs
 }
 
-// safe way to update models.User Subscriptions.
+// RemoveSubscription safe way to update models.User Subscriptions.
 func (u *User) RemoveSubscription(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	for _, sub := range u.Subscriptions {
@@ -87,11 +90,12 @@ func (u *User) RemoveSubscription(id uuid.UUID) {
 	u.Subscriptions = subs
 }
 
-// for now just return u.AvatarURL
+// ImageSrc for now just return u.AvatarURL
 func (u User) ImageSrc() string {
 	return u.AvatarURL
 }
 
+// IsAuthor checks if user.ID is equal to the uuid
 func (u User) IsAuthor(id uuid.UUID) bool {
 	return u.ID.String() == id.String()
 }
