@@ -71,7 +71,11 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	// The value obtained from code submission as `input` is the team ID in the context of an
 	// evaluation. Reason being that there is no other input a user can have for the time being.
 	user := c.Value("current_user").(*models.User)
-
+	btx := c.Value("btx").(*bbolt.Tx)
+	if p.Exists(btx, c) && user.Subscribed(p.code.Evaluation) { // if code is duplicate and user already passed error out
+		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-duplicate"))
+	}
+	
 	teamID := p.Input
 	var ID big.Int
 	ID.SetString(teamID, 10)
@@ -94,9 +98,9 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	if err = q.First(eval); err != nil {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-not-found"))
 	}
-	if user.Subscribed(eval.ID) {
-		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-already-passed"))
-	}
+	// if user.Subscribed(eval.ID) {
+	// 	return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-already-passed"))
+	// }
 	peval := pythonHandler{}
 	peval.userID = p.userID
 	peval.Source = eval.Solution
@@ -114,7 +118,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		}
 		return p.codeResult(c, "", "Evaluation errored! "+err.Error())
 	}
-	btx := c.Value("btx").(*bbolt.Tx)
+	
 	defer p.PutTx(btx, c)
 	p.Input = eval.Inputs.String
 	err = p.runPy()
@@ -416,6 +420,19 @@ func printSafeList() (s string) {
 	return
 }
 
+// Exists check if code has already been submitted to database
+// Depends on pythonhandler having both Source and UserName fields
+func (p *pythonHandler) Exists(tx *bbolt.Tx, c buffalo.Context) bool {
+	src := p.Source
+	if len(src) > pyMaxSourceLength {
+		src= src[:pyMaxSourceLength]
+	}
+	b := tx.Bucket([]byte(pyDBUploadBucketName))
+	h := crypto.MD5.New()
+	h.Write([]byte(p.UserName + src))
+	sum := h.Sum(nil)
+	return b.Get(sum) != nil
+}
 // Saves Python code and user to database
 func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 	// closure eases error management

@@ -25,7 +25,7 @@ let tab = t("interpreter-tab")
         <div class="row" id="banner">
             <div class="col-4" id="head" itemprop="name"> <!-- Si es una evaluación mostramos un Icono especial -->
                 <%= if (evaluation && current_user.Subscribed(evaluation.ID))  { %>
-                    <div class="badge badge-success"><%= bicon("patch-check",{size:"2em"}) %> <%= t("evaluation-passed") %></div>
+                    <button id="run" class="btn btn-success"><%= bicon("patch-check",{size:"2em"}) %> <%= t("evaluation-passed") %></button>
                 <% } else {%>
                     <button id="run" class="btn btn-primary btn-lg p-1 px-2"><%= bicon("caret-right-fill",{size:"1.6em"}) %> <%= t("curso-python-interpreter-run") %></button>
                 <% } %>

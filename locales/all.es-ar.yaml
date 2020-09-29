@@ -291,6 +291,8 @@
   translation: "Evaluación OK! aprobado!"
 - id: curso-python-evaluation-fail
   translation: "Evaluación desaprobada."
+- id: curso-python-evaluation-duplicate
+  translation: "No puede ingresar dos códigos iguales!"
 - id: curso-python-code-backup
   translation: "DB"
 - id: curso-python-input-field-error

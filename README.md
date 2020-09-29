@@ -19,7 +19,7 @@ Thanks to Sebastian Binet and the go-saloon authors for providing a sturdy found
 ### Replies on topic
 ![00-home](_assets/replies.png)
 
-## How to run application
+# How to run application
 1. First step is to install `go` from [golang.org](https://golang.org).
 
 2. Install buffalo from [buffalo.io](https://gobuffalo.io).
@@ -155,7 +155,16 @@ Remember the trailing semicolon to execute the query.
 `UPDATE 1` should print to console showing the query was successful.
 Now refresh the page and see if it works!
 
-### Windows Front-end packages
+### Pinning a topic
+We can use SQL. Access the database as seen in the previous section and run
+```sql
+UPDATE topics 
+SET created_at='2020-09-21 17:45:30.447654'
+WHERE id = '4c8c42c6-9b61-4491-adca-547d576a19cf';
+```
+where the long number is the topic UUID. It appears in the topic's url so it should be easy to copy. To set how long the post is pinned just add the number of days to the current date. For example, if today is the 28th of September 2020 and I wanted the post to be pinned a month or so then `created_at` could be set to `'2020-10-28 23:00:00.000000'`. This will work since topics are organized by date published and older topics are sorted last.
+
+## Windows Front-end packages
 1. Install scoop! minimalistic package manager
 2. `scoop install nodejs`
 3. `scoop install yarn`
@@ -165,7 +174,7 @@ npm install -g node-gyp
 npm install --global --production windows-build-tools
 ```
 
-### Altering tables in production
+## Altering tables in production
 If one wanted to add functionality to, say, topics one should modify the `models/table.go` file
 and add column name. Then when implemented in the server back end code one should simply
 use the `ALTER TABLE` command in postgres console.
