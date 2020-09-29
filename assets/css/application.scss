@@ -82,7 +82,7 @@ div > pre.hljs , pre > code.hljs {
     max-height: 24rem;
     max-width: 80rem;
 }
-// Inline code
+// Inline code. match all possible permutations of markdown
 p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
     display:inline;
     border-style: solid ;
@@ -109,7 +109,7 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
     /* The default monospace font on OS X is ugly, so specify Menlo
      * instead. On other systems the default monospace font will be used. */
     font-family: Menlo, monospace;
-    font-size: 11pt;
+    font-size: 12pt;
 }
 
 #wrap {
@@ -165,7 +165,7 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
 }
 
 .lines div {
-    padding-right: 5px;
+    padding-right: 0px;
     color: lightgray;
 }
 .lineerror {
@@ -174,5 +174,9 @@ p > code.hljs , li > code.hljs , td > code.hljs , header > code.hljs{
 }
 .linedtextarea .codelines .lineselect {
     color: red;
+    
+}
+.codelines, textarea.lined  {
+    line-height: normal !important;
 }
 
