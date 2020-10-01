@@ -19,7 +19,17 @@ Thanks to Sebastian Binet and the go-saloon authors for providing a sturdy found
 ### Replies on topic
 ![00-home](_assets/replies.png)
 
-# How to run application
+# How to run application (static binary)
+The app can be run from a binary (.exe on windows) without any need of installation. If you choose to do this you will forgo development capabilities. To do this you must download the [assets](./assets) folder from the github repository and the [latest release](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/releases) for your operating system. Keep the binary and `assets` in the same directory. You'll also need to have Postgres running. The simplest way to do this is by downloading docker and following [these steps to setup a database](#database-setup). To run migrations on the db you can use the binary file with the `migate` argument once postgres is running.
+
+```bash
+./curso-binary migrate 
+```
+
+Look at step 7 for environment configuration. 
+
+# Steps to run the server and develop it
+
 1. First step is to install `go` from [golang.org](https://golang.org).
 
 2. Install buffalo from [buffalo.io](https://gobuffalo.io).
@@ -67,7 +77,7 @@ a linux filesystem to get running. Alpine Linux is recommended.)
    export CURSO_SEND_MAIL=true
    export SMTP_PORT=587 #for google
    export SMTP_HOST=smtp.gmail.com
-   export SMTP_USER=cursos@ieeeitba.org
+   export SMTP_USER=miusuario@itba.edu.ar
    export SMTP_PASSWORD=abc123
    export CURSO_MAIL_NOTIFY_REPLY_TO=donotreply@ieeeitba.org
    export CURSO_MAIL_NOTIFY_MESSAGE_ID=ieeeitba.org
@@ -75,7 +85,7 @@ a linux filesystem to get running. Alpine Linux is recommended.)
    export CURSO_MAIL_NOTIFY_LIST_ID="Notificaciones Foro <cursos.ieeeitba.org>"
    export CURSO_MAIL_NOTIFY_LIST_ARCHIVE="https://curso.whittileaks.com"
    export CURSO_MAIL_NOTIFY_SUBJECT_HDR="Te han respondido - Curso de Python"
-   export CURSO_MAIL_NOTIFY_FROM=$SMTP_USER
+   export CURSO_MAIL_NOTIFY_FROM=cursos_IEEE@itba.edu.ar # Configurar alias para usar este campo. Si no configuro el alias: usar ${SMTP_USER} para esta variable
     ```
     
     It is worth noting if `GONTAINER_FS` is not set the server will use the system
