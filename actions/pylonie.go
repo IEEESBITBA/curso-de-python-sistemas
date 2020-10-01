@@ -186,7 +186,7 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 const (
 	pyCommand = "python3"
 	// [Milliseconds] after running python code for this time the process is killed
-	pyTimeout_ms = 500
+	pyTimeoutMS = 500
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
@@ -283,7 +283,7 @@ func (p *pythonHandler) containerPy() (err error) {
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
-		time.Sleep(pyTimeout_ms * time.Millisecond)
+		time.Sleep(pyTimeoutMS * time.Millisecond)
 		status <- pyTimeout
 	}()
 	var tstart time.Time
@@ -301,7 +301,7 @@ func (p *pythonHandler) containerPy() (err error) {
 		switch s {
 		case pyTimeout:
 			_ = cmd.Process.Kill()
-			return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
+			return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 		case pyError, pyOK:
 			p.Elapsed = time.Since(tstart)
 			p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
@@ -341,7 +341,7 @@ func (p *pythonHandler) runPy() (err error) {
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
-		time.Sleep(pyTimeout_ms * time.Millisecond)
+		time.Sleep(pyTimeoutMS * time.Millisecond)
 		status <- pyTimeout
 	}()
 	var tstart time.Time
@@ -360,7 +360,7 @@ func (p *pythonHandler) runPy() (err error) {
 			switch s {
 			case pyTimeout:
 				_ = cmd.Process.Kill()
-				return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
+				return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 			case pyError, pyOK:
 				p.Elapsed = time.Since(tstart)
 				p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
