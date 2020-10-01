@@ -1,9 +1,11 @@
 package models
 
 import (
-	"go.etcd.io/bbolt"
 	"log"
+	"os"
 	"time"
+
+	"go.etcd.io/bbolt"
 
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop/v5"
@@ -29,6 +31,7 @@ func init() {
 	pop.Debug = env == "development"
 
 	// Begin BBolt initialization
+	_ = os.Mkdir("tmp", os.ModeDir) // make directory just in case
 	BDB, err = bbolt.Open("tmp/bbolt.db", 0600, &bbolt.Options{Timeout: 4 * time.Second})
 	if err != nil {
 		log.Fatal(err)

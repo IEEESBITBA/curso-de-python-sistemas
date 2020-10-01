@@ -5,6 +5,7 @@ container/alpine/*
 # Setup
 setup.bat
 # buffalo
+*curso-**.exe
 saloon.bleve.search/*
 # bleve indexing
 **.bleve/*
