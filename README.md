@@ -34,10 +34,10 @@ the end of this document)
 
 4.  Clone this repo on your machine
 	```bash
-	git clone https://github.com/soypat/curso 
+	git clone https://github.com/IEEESBITBA/Curso-de-Python-Sistemas
 	```
 
-5. Run the following command in `~/curso` directory. This will install `buffalo-pop` which is the defacto database manager plugin for buffalo. This will enable you to run `buffalo pop <cmd>` commands
+5. Run the following command in `~/Curso-de-Python-Sistemas` directory. This will install `buffalo-pop` which is the defacto database manager plugin for buffalo. This will enable you to run `buffalo pop <cmd>` commands
 	```
 	buffalo plugins install
 	```

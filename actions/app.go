@@ -7,13 +7,13 @@ import (
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/logger"
 	csrf "github.com/gobuffalo/mw-csrf"
-	forcessl "github.com/gobuffalo/mw-forcessl"
+
+	// forcessl "github.com/gobuffalo/mw-forcessl"
 	i18n "github.com/gobuffalo/mw-i18n"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth/gothic"
-	"github.com/unrolled/secure"
 )
 
 // ENV is used to help switch settings based on where the
@@ -173,8 +173,8 @@ func App() *buffalo.App {
 		// We associate the HTTP 404 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
 		if ENV == "production" {
-			//app.ErrorHandlers[404] = err404
-			//app.ErrorHandlers[500] = err500
+			app.ErrorHandlers[404] = err404
+			app.ErrorHandlers[500] = err500
 		}
 		go runDBSearchIndex()
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
@@ -190,7 +190,7 @@ func App() *buffalo.App {
 func translations() buffalo.MiddlewareFunc {
 	var err error
 	if T, err = i18n.New(packr.New("app:locales", "../locales"), "es-ar"); err != nil {
-		app.Stop(err)
+		_ = app.Stop(err)
 	}
 	return T.Middleware()
 }
@@ -200,12 +200,12 @@ func translations() buffalo.MiddlewareFunc {
 // This middleware does **not** enable SSL. for your application. To do that
 // we recommend using a proxy: https://gobuffalo.io/en/docs/proxy
 // for more information: https://github.com/unrolled/secure/
-func forceSSL() buffalo.MiddlewareFunc {
-	return forcessl.Middleware(secure.Options{
-		SSLRedirect:     ENV == "production",
-		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
-	})
-}
+// func forceSSL() buffalo.MiddlewareFunc {
+// 	return forcessl.Middleware(secure.Options{
+// 		SSLRedirect:     ENV == "production",
+// 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
+// 	})
+// }
 
 // Call to must panics if err != nil
 func must(err error) {

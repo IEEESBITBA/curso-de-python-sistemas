@@ -115,6 +115,9 @@ func createForumPost(c buffalo.Context) error {
 		c.Flash().Add("danger", "Forum already exists")
 		return c.Redirect(302, "/admin/f/")
 	}
+	if err != nil {
+		return c.Error(500, err)
+	}
 	v, _ := f.Validate(tx)
 	if v.HasAny() {
 		c.Flash().Add("danger", "Title and description should have something!")

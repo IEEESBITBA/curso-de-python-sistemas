@@ -5,8 +5,8 @@ FROM gobuffalo/buffalo:v0.16.14 as builder
 ENV GO111MODULE on
 ENV GOPROXY http://proxy.golang.org
 
-RUN mkdir -p /src/github.com/soypat/curso
-WORKDIR /src/github.com/soypat/curso
+RUN mkdir -p /src/github.com/IEEESBITBA/Curso-de-Python-Sistemas
+WORKDIR /src/github.com/IEEESBITBA/Curso-de-Python-Sistemas
 
 # this will cache the npm install step, unless package.json changes
 ADD package.json .

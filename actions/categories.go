@@ -83,6 +83,9 @@ func CategoriesCreateOrEditPost(c buffalo.Context) error {
 		c.Flash().Add("danger", "Category with same title already exists")
 		return c.Redirect(302, "/")
 	}
+	if err != nil {
+		return c.Error(500, err)
+	}
 	v, _ := cat.Validate(tx)
 	if v.HasAny() {
 		c.Flash().Add("danger", "Title should have something!")

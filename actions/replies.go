@@ -169,7 +169,7 @@ func newReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply)
 		}
 		recpts = append(recpts, usr)
 	}
-	if recpts == nil || len(recpts) == 0 {
+	if len(recpts) == 0 {
 		return nil
 	}
 	err := mailers.NewReplyNotify(c, topic, reply, recpts)

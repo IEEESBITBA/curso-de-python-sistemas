@@ -17,7 +17,6 @@ require (
 	github.com/gobuffalo/helpers v0.6.1
 	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/mw-csrf v1.0.0
-	github.com/gobuffalo/mw-forcessl v0.0.0-20200131175327-94b2bd771862
 	github.com/gobuffalo/mw-i18n v1.1.0
 	github.com/gobuffalo/mw-paramlogger v1.0.0
 	github.com/gobuffalo/nulls v0.4.0
@@ -36,6 +35,5 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
-	github.com/unrolled/secure v1.0.8
 	go.etcd.io/bbolt v1.3.5
 )

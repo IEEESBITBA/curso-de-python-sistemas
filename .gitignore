@@ -15,6 +15,7 @@ vendor/
 **/*.sqlite
 .idea/
 bin/
+bin/*
 tmp/
 node_modules/
 .sass-cache/

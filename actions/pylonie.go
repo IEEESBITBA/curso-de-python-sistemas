@@ -38,7 +38,7 @@ func InterpretPost(c buffalo.Context) error {
 	}
 	user := u.(*models.User)
 	p.UserName = user.Name
-	p.userID = encode([]rune(user.ID.String()), b64safe)
+	p.userID = Encode([]rune(user.ID.String()), Abc64safe)
 	if err := c.Bind(&p.code); err != nil {
 		_ = p.codeResult(c, "", "An unexpected error occurred. You were logged out")
 		return AuthDestroy(c)
@@ -75,7 +75,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	if p.Exists(btx, c) && user.Subscribed(p.code.Evaluation) { // if code is duplicate and user already passed error out
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-duplicate"))
 	}
-	
+
 	teamID := p.Input
 	var ID big.Int
 	ID.SetString(teamID, 10)
@@ -118,7 +118,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		}
 		return p.codeResult(c, "", "Evaluation errored! "+err.Error())
 	}
-	
+
 	defer p.PutTx(btx, c)
 	p.Input = eval.Inputs.String
 	err = p.runPy()
@@ -178,7 +178,7 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 	}
 	jsonResponse, _ := json.Marshal(p.result)
 	c.Response().WriteHeader(200) // all good status so tx is committed
-	c.Response().Write(jsonResponse)
+	_, _ = c.Response().Write(jsonResponse)
 	return nil
 }
 
@@ -217,11 +217,11 @@ type result struct {
 type pythonHandler struct {
 	result
 	code
-	timecode time.Time
+	Timecode time.Time
 	Time     string `json:"time"`
 	UserName string `json:"user"`
 	userID   string
-	filename string
+	Filename string `json:"-" form:"-"`
 }
 
 // reForbid sanitization structures
@@ -233,7 +233,7 @@ var reForbid = map[*regexp.Regexp]string{
 	regexp.MustCompile(`__\w+__`): "forbidden dunder function key '%s'",
 }
 
-// special treatment cursofor imports since we may allow special imports such as math, numpy, pandas
+// special treatment for imports since we may allow special imports such as math, numpy, pandas
 var reImport = regexp.MustCompile(`^from[\s]+[\w]+|import[\s]+[\w]+`)
 
 var allowedImports = map[string]bool{
@@ -261,7 +261,7 @@ func (p *pythonHandler) containerPy() (err error) {
 	}
 	userDir := fmt.Sprintf("/home/%s-%s", p.UserName, p.userID[0:5])
 	if _, err := os.Stat(filepath.Join(chrootPath, userDir)); os.IsNotExist(err) {
-		os.Mkdir(filepath.Join(chrootPath, userDir), os.ModeDir)
+		_ = os.Mkdir(filepath.Join(chrootPath, userDir), os.ModeDir)
 	}
 	chrootFilename := filepath.Join(userDir, "f.py")
 	filename := filepath.Join(chrootPath, chrootFilename)
@@ -279,7 +279,7 @@ func (p *pythonHandler) containerPy() (err error) {
 	cmd := exec.Command("gontainer", gontainerArgs...)
 	stdin, _ := cmd.StdinPipe()
 	go func() {
-		stdin.Write([]byte(p.Input + "\n"))
+		_, _ = stdin.Write([]byte(p.Input + "\n"))
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
@@ -300,15 +300,15 @@ func (p *pythonHandler) containerPy() (err error) {
 	case s := <-status:
 		switch s {
 		case pyTimeout:
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 			return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
 		case pyError, pyOK:
-			p.Elapsed = time.Now().Sub(tstart)
+			p.Elapsed = time.Since(tstart)
 			p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
 			return
 		}
 	}
-	cmd.Process.Kill()
+	_ = cmd.Process.Kill()
 	return fmt.Errorf("server error in container")
 
 }
@@ -323,22 +323,21 @@ func (p *pythonHandler) runPy() (err error) {
 	if err != nil {
 		return
 	}
-	os.Mkdir(fmt.Sprintf("tmp/%s", p.userID), os.ModeTemporary)
+	err = os.Mkdir(fmt.Sprintf("tmp/%s", p.userID), os.ModeTemporary)
 	if err != nil && err != os.ErrExist {
 		return
 	}
 	filename := fmt.Sprintf("tmp/%s/f.py", p.userID)
-
 	f, err := os.Create(filename)
 	if err != nil {
 		return
 	}
 	defer f.Close()
-	f.Write([]byte(p.code.Source))
+	_, _ = f.Write([]byte(p.code.Source))
 	cmd := exec.Command(pyCommand, filename)
 	stdin, _ := cmd.StdinPipe()
 	go func() {
-		stdin.Write([]byte(p.Input + "\n"))
+		_, _ = stdin.Write([]byte(p.Input + "\n"))
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
@@ -360,10 +359,10 @@ func (p *pythonHandler) runPy() (err error) {
 		case s := <-status:
 			switch s {
 			case pyTimeout:
-				cmd.Process.Kill()
+				_ = cmd.Process.Kill()
 				return fmt.Errorf("process timed out (%dms)", pyTimeout_ms)
 			case pyError, pyOK:
-				p.Elapsed = time.Now().Sub(tstart)
+				p.Elapsed = time.Since(tstart)
 				p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
 				return
 			default:
@@ -425,14 +424,15 @@ func printSafeList() (s string) {
 func (p *pythonHandler) Exists(tx *bbolt.Tx, c buffalo.Context) bool {
 	src := p.Source
 	if len(src) > pyMaxSourceLength {
-		src= src[:pyMaxSourceLength]
+		src = src[:pyMaxSourceLength]
 	}
 	b := tx.Bucket([]byte(pyDBUploadBucketName))
 	h := crypto.MD5.New()
-	h.Write([]byte(p.UserName + src))
+	_, _ = h.Write([]byte(p.UserName + src))
 	sum := h.Sum(nil)
 	return b.Get(sum) != nil
 }
+
 // Saves Python code and user to database
 func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 	// closure eases error management
@@ -442,8 +442,8 @@ func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 			return err
 		}
 		p.Time = time.Now().String()
-		var pc pythonHandler
-		pc = *p // because we don't want to store 5000000 length outputs
+		// var pc pythonHandler
+		pc := *p // because we don't want to store 5000000 length outputs
 		if len(pc.Output) > pyMaxOutputLength {
 			pc.Output = pc.Output[:pyMaxOutputLength]
 		}
@@ -455,7 +455,7 @@ func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 			return err
 		}
 		h := crypto.MD5.New()
-		h.Write([]byte(pc.UserName + pc.code.Source))
+		_, _ = h.Write([]byte(pc.UserName + pc.code.Source))
 		sum := h.Sum(nil)
 		if b.Get(sum) == nil {
 			c.Logger().Infof("Code submitted user: %s", pc.UserName)
@@ -514,10 +514,10 @@ func ControlPanel(c buffalo.Context) error {
 // for maintenance and admin tasks ideally.
 func zipAssetFolder(path string) func(c buffalo.Context) error {
 	return func(c buffalo.Context) error {
-		jobname := encode([]rune(path), b64safe)
+		jobname := Encode([]rune(path), Abc64safe)
 		fo, err := os.Create("tmp/" + jobname)
 		if err != nil {
-			c.Response().Write([]byte(err.Error()))
+			_, _ = c.Response().Write([]byte(err.Error()))
 			return c.Redirect(500, "/")
 		}
 		w := c.Response()
@@ -526,18 +526,21 @@ func zipAssetFolder(path string) func(c buffalo.Context) error {
 		defer z.Close()
 		fullpath := "assets/" + strings.Trim(path, "/\\") + "/"
 		finfos, err := ioutil.ReadDir(fullpath)
+		if err != nil {
+			return c.Error(500, err)
+		}
 		for _, f := range finfos {
 			if f.IsDir() {
 				continue
 			}
 			if err = addFileToZip(z, fullpath+f.Name()); err != nil {
-				c.Response().Write([]byte(err.Error()))
+				_, _ = c.Response().Write([]byte(err.Error()))
 				return c.Redirect(500, "/")
 			}
 		}
 		z.Flush()
 		if err := z.Close(); err != nil {
-			c.Response().Write([]byte(err.Error()))
+			_, _ = c.Response().Write([]byte(err.Error()))
 			return c.Redirect(500, "/")
 		}
 
@@ -548,7 +551,7 @@ func zipAssetFolder(path string) func(c buffalo.Context) error {
 		// Add files to zip
 		zipfile, err := os.Open("tmp/" + jobname)
 		if err != nil {
-			c.Response().Write([]byte(err.Error()))
+			_, _ = c.Response().Write([]byte(err.Error()))
 			return c.Redirect(500, "/")
 		}
 		name := strings.Split(path, string(filepath.Separator))

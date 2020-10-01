@@ -109,8 +109,6 @@ func SafeListPost(c buffalo.Context) error {
 	return c.Redirect(302, "allUsersPath()")
 }
 
-type void struct{}
-
 const safeDomain = "itba.edu.ar"
 
 // SafeList works kind of like authorize but does not verify user exists.

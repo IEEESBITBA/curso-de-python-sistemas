@@ -73,6 +73,8 @@ func joinPath(sli ...string) string {
 
 // DisplayName user's Nick/alias or name is shown.
 // preference for showing user Nick for privacy purposes
+// this should be a method in models/user.go so it
+// can be called directly without having nil checks (TODO)
 func DisplayName(u interface{}) string {
 	user, ok := u.(*models.User)
 	if !ok {
@@ -84,6 +86,7 @@ func DisplayName(u interface{}) string {
 	}
 	return user.Name
 }
+
 func derefUser(u models.User) *models.User { return &u }
 
 func timeSince(created time.Time, ctx plush.HelperContext) string {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
-	pop "github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const cookieUidName = "current_user_id"
+const cookieUIDName = "current_user_id"
 
 func init() {
 	gothic.Store = App().SessionStore
@@ -64,7 +64,7 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	}
-	c.Session().Set(cookieUidName, u.ID) // This line sets user cookie for future Authorize callbacks to verify successfully
+	c.Session().Set(cookieUIDName, u.ID) // This line sets user cookie for future Authorize callbacks to verify successfully
 	err = c.Session().Save()
 	if err != nil {
 		return errors.WithStack(err)
@@ -97,7 +97,7 @@ func AuthDestroy(c buffalo.Context) error {
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Logger().Debug("Authorize called")
-		unverifiedUid := c.Session().Get(cookieUidName)
+		unverifiedUid := c.Session().Get(cookieUIDName)
 		if unverifiedUid == nil {
 			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
@@ -130,7 +130,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Logger().Debugf("SetCurrentUser called. Session: %s", c.Session().Session)
 		c.Set("role", "")
-		if uid := c.Session().Get(cookieUidName); uid != nil {
+		if uid := c.Session().Get(cookieUIDName); uid != nil {
 			c.Logger().Debug("user id found in SetCurrentUser")
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
@@ -160,7 +160,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 func AdminAuth(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Logger().Debug("AdminAuth called")
-		if uid := c.Session().Get(cookieUidName); uid != nil {
+		if uid := c.Session().Get(cookieUIDName); uid != nil {
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
 			c.Logger().Debug(uid.(uuid.UUID).String())

@@ -6,18 +6,18 @@ import (
 )
 
 const (
-	padding     = '='
-	bASCII      = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\a\b\t\n\v\f\n\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F"
-	b64         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	b64safe     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-	b10         = "0123456789"
-	bABC        = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	babc        = "abcdefghijklmnopqrstuvwxyz"
-	uidAlphabet = babc + b10 + "-"
+	Padding   = '='
+	AbcASCII  = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\a\b\t\n\v\f\n\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F"
+	Abc64     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+	Abc64safe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+	Abc10     = "0123456789"
+	AbcABC    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	Abcabc    = "abcdefghijklmnopqrstuvwxyz"
+	AbcUID    = Abcabc + Abc10 + "-"
 )
 
 // encodes rune message to given alphabet
-func encode(msg []rune, alphabet string) string {
+func Encode(msg []rune, alphabet string) string {
 	length := int(math.Log2(float64(len(alphabet))))
 	shift := make([]bool, 0, length)
 	bCounter := 0
@@ -56,7 +56,7 @@ func encode(msg []rune, alphabet string) string {
 	return string(R)
 }
 
-func toBase(N *big.Int, alphabet string) string {
+func ToBase(N *big.Int, alphabet string) string {
 	var num big.Int
 	num.Set(N)
 	amap := make(map[int64]rune)
@@ -78,7 +78,7 @@ func toBase(N *big.Int, alphabet string) string {
 	return string(R)
 }
 
-func toNum(R []rune, alphabet string) *big.Int {
+func ToNum(R []rune, alphabet string) *big.Int {
 	amap := make(map[rune]*big.Int)
 	for i, v := range alphabet {
 		amap[v] = big.NewInt(int64(i))

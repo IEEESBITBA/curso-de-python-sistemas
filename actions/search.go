@@ -19,8 +19,8 @@ const indexName = "cursoP.bleve"
 var bleveIndex bleve.Index
 
 func init() {
-	os.Mkdir(indexName, os.ModeDir)
-	os.Chmod(indexName, 0666)
+	_ = os.Mkdir(indexName, os.ModeDir)
+	_ = os.Chmod(indexName, 0666)
 }
 
 func runDBSearchIndex() {
@@ -56,16 +56,16 @@ func runDBSearchIndex() {
 
 func indexDB() error {
 	l := App().Logger
-	type indexedTopic struct {
-		ID      uuid.UUID
-		Title   string
-		Content string
-	}
+	// type indexedTopic struct {
+	// 	ID      uuid.UUID
+	// 	Title   string
+	// 	Content string
+	// }
 
-	type indexedReply struct {
-		ID      uuid.UUID
-		Content string
-	}
+	// type indexedReply struct {
+	// 	ID      uuid.UUID
+	// 	Content string
+	// }
 
 	return models.DB.Transaction(func(tx *pop.Connection) error {
 
