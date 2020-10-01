@@ -19,7 +19,7 @@ List-Post: <mailto:reply+00105748c619555d4a6c80b4faccec22003b863b33e73ae092cf000
 List-Unsubscribe: <mailto:unsub+00105748c619555d4a6c80b4faccec22003b863b33e73ae092cf0000000116c2ac9c92a169ce1238ebbe@reply.github.com>, <https://github.com/notifications/unsubscribe/ABBXSLhgVLtfNtdMGG1Y0aRw9bFiNJc_ks5teuIcgaJpZM4Ss4xE>
 */
 
-//  NewTopicNotify Sends an email out to users about a new topic on their subscribed category
+// NewTopicNotify Sends an email out to users about a new topic on their subscribed category
 // Subscription should be checked beforehand
 func NewTopicNotify(c buffalo.Context, topic *models.Topic, recpts []models.User) error {
 
@@ -62,7 +62,7 @@ func NewTopicNotify(c buffalo.Context, topic *models.Topic, recpts []models.User
 	return nil
 }
 
-//  NewReplyNotify Sends an email out to users about a reply on their subscribed topic
+// NewReplyNotify Sends an email out to users about a reply on their subscribed topic
 // Subscription should be checked beforehand
 func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply, recpts []models.User) error {
 	m := mail.NewMessage()

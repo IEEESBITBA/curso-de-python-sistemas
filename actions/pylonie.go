@@ -185,8 +185,8 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 // configuration values
 const (
 	pyCommand = "python3"
-
-	pyTimeout_ms = 500
+	// [Milliseconds] after running python code for this time the process is killed
+	pyTimeoutMS = 500
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
