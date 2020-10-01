@@ -116,7 +116,7 @@ func DeleteReply(c buffalo.Context) error {
 	if err := tx.Update(reply); err != nil {
 		return errors.WithStack(err)
 	}
-	c.Flash().Add("success", "Reply deleted successfuly.")
+	c.Flash().Add("success", "Reply deleted successfully.")
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"),
 		"tid": c.Param("tid")})
 }

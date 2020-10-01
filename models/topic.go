@@ -96,7 +96,7 @@ func (t *Topic) AddSubscriber(id uuid.UUID) {
 	t.Subscribers = subs
 }
 
-// RemoveSubscriber remove subscirber from topic.Subscribers
+// RemoveSubscriber remove subscriber from topic.Subscribers
 func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 	set := make(map[uuid.UUID]struct{})
 	for _, sub := range t.Subscribers {

@@ -1,4 +1,7 @@
 # curso: a saloon homage
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/IEEESBITBA/Curso-de-Python-Sistemas)](https://goreportcard.com/report/github.com/IEEESBITBA/Curso-de-Python-Sistemas)
+
 A place to chat and communicate. Basically, a forum.
 ---
 This is a [Buffalo](https://gobuffalo.io/) application based heavily on the excellent

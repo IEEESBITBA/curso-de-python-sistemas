@@ -5,6 +5,7 @@ import (
 	"math/big"
 )
 
+// These are
 const (
 	Padding   = '='
 	AbcASCII  = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\a\b\t\n\v\f\n\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F"
@@ -16,7 +17,7 @@ const (
 	AbcUID    = Abcabc + Abc10 + "-"
 )
 
-// encodes rune message to given alphabet
+// Encode encodes rune message to given alphabet
 func Encode(msg []rune, alphabet string) string {
 	length := int(math.Log2(float64(len(alphabet))))
 	shift := make([]bool, 0, length)
@@ -56,6 +57,7 @@ func Encode(msg []rune, alphabet string) string {
 	return string(R)
 }
 
+// ToBase changes base of a number to len(alphabet).
 func ToBase(N *big.Int, alphabet string) string {
 	var num big.Int
 	num.Set(N)
@@ -78,6 +80,8 @@ func ToBase(N *big.Int, alphabet string) string {
 	return string(R)
 }
 
+// ToNum changes representation of a number in base len(alphabet)
+// to it's math/big Int representation.
 func ToNum(R []rune, alphabet string) *big.Int {
 	amap := make(map[rune]*big.Int)
 	for i, v := range alphabet {

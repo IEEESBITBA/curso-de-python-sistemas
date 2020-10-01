@@ -60,7 +60,7 @@ func main() {
 }
 
 var tform = "2006-01-02 15:04:05.999999999 -0700 MST"
-//var dateString = "2018-10-15 15:42:37.5989253 +1100 AEDT m=+3610.688917401" // as is recieved by go
+//var dateString = "2018-10-15 15:42:37.5989253 +1100 AEDT m=+3610.688917401" // as is received by go
 // sort interface
 type ByTime []pythonHandler
 

@@ -91,7 +91,7 @@ func TopicDelete(c buffalo.Context) error {
 	if err := tx.UpdateColumns(topic, "deleted"); err != nil {
 		return errors.WithStack(err)
 	}
-	c.Flash().Add("success", "Topic deleted successfuly.")
+	c.Flash().Add("success", "Topic deleted successfully.")
 	return c.Redirect(302, "catPath()", render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title")})
 }
 

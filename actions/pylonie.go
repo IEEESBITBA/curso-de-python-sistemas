@@ -29,7 +29,7 @@ import (
 
 const nullUUID = "00000000-0000-0000-0000-000000000000"
 
-// InterpretPost recieve POST request to submit and evaluate code
+// InterpretPost receive POST request to submit and evaluate code
 func InterpretPost(c buffalo.Context) error {
 	p := pythonHandler{}
 	u := c.Value("current_user")
