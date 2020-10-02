@@ -50,11 +50,16 @@
     <%= yield %>
 </div>
 <footer class="container">
-    <div class="row justify-content-center sponsors py-5">
-        <a href="<%=t("app-footer-link-url") %>">
-            <img class="img-sponsor"  src="<%= assetPath("images/ieeesbitba.png") %>">
+    <div class="row text-center sponsors py-5">
+        <a href="https://www.ieee.org/" class="col-sm my-auto">
+            <img height="56px" class="img-sponsor" src="<%=  assetPath("images/ieee.png")  %>">
         </a>
-        <img class="img-sponsor"  src="<%= assetPath("images/ieee.png") %>">
+        <a href="<%=t("app-footer-link-url") %>" class="col-sm">
+            <img class="img-sponsor"  src="<%= assetPath("images/IEEE-Icon.png") %>">
+        </a>
+        <a href="https://itba.edu.ar" class="col-sm my-auto">
+            <img class="img-itba" src="//i0.wp.com/www.itba.edu.ar/wp-content/uploads/2020/03/Marca-ITBA-Color-ALTA.png">
+        </a>
     </div>
     <div class="row">
         <p class="col-sm-8"><%= t("app-footer-title") %> &middot; <a href="<%= t("app-footer-link-url") %>"><%= t("app-footer-link-name") %></a> <!--&middot; <a href="#">Terms</a>--></p>
