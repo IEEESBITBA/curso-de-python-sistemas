@@ -72,7 +72,7 @@ func App() *buffalo.App {
 		// -- Authorization/Security procedures --
 		// sets user data in context from session data.
 		app.Use(SetCurrentUser)
-		app.Use(SafeList, Authorize) // AUTHORIZATION MIDDLEWARE. Checks if user is in safelist
+		app.Use(SafeList, Authorize) // AUTHORIZATION MIDDLEWARE. Checks if user is in safelist and then if user is in DB
 		app.Use(SiteStruct)
 		//app.GET("/auth", AuthHome)
 		bah := buffalo.WrapHandlerFunc(gothic.BeginAuthHandler) // Begin authorization handler = bah
@@ -92,7 +92,7 @@ func App() *buffalo.App {
 		app.GET("/u/{uid}/unsubscribe/{tid}", UsersSettingsRemoveTopicSubscription).Name("topicUnsubscribe")
 		app.GET("/u", UserSettingsGet).Name("userSettings")
 		app.POST("/u", UserSettingsPost)
-		app.GET("/favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favico.ico
+		app.GET("/favicon.ico", func(c buffalo.Context) error { // Browsers by default look for favicon at http://mysite.com/favicon.ico
 			return c.Redirect(301, "/assets/images/logo-curso32x32.png")
 		})
 		// home page setup
@@ -172,13 +172,11 @@ func App() *buffalo.App {
 		admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
 		// We associate the HTTP 404 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
-		if ENV == "production" {
-			app.ErrorHandlers[404] = err404
-			app.ErrorHandlers[500] = err500
-		}
+		app.ErrorHandlers[404] = err404
+		app.ErrorHandlers[500] = err500
+
 		go runDBSearchIndex()
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
-
 	}
 	return app
 }
@@ -216,16 +214,14 @@ func must(err error) {
 
 func err500(status int, err error, c buffalo.Context) error {
 	u, ok := c.Value("current_user").(*models.User)
-	if !ok || u == nil || u.Role != "admin" {
-		return c.Render(500, r.HTML("meta/500.plush.html"))
+	if ok && u != nil && u.Role == "admin" { // show bad errors only to our admins
+		c.Flash().Add("danger", "Internal server error (500): "+err.Error())
 	}
-	c.Flash().Add("danger", "Internal server error (500): "+err.Error()) // T.Translate(c,"app-status-internal-error")
-	return c.Render(500, r.HTML("meta/500.plush.html"))
+	return c.Render(200, r.HTML("meta/500.plush.html"))
 }
 
 func err404(status int, err error, c buffalo.Context) error {
-	c.Flash().Add("warning", "Page not found (404)")    // T.Translate(c,"app-not-found")
-	return c.Render(404, r.HTML("meta/404.plush.html")) //c.Redirect(302,"/")
+	return c.Render(200, r.HTML("meta/404.plush.html"))
 }
 
 func defaultCookieStore() sessions.Store {
