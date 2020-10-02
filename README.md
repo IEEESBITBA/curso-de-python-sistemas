@@ -117,7 +117,7 @@ One needs a database to run `curso`.
 Here is an example, running postgres inside a docker container:
 
 ```
-$> docker run --name curso-postgres -e POSTGRES_PASSWORD=1337 -p 5432:5432 -d postgres
+$> docker run --name forum-postgres -e POSTGRES_PASSWORD=1337 -p 5432:5432 -d postgres
 ```
 
 or optionally you can straight up create the curso db to not have to let 

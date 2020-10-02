@@ -28,7 +28,7 @@ func CategoriesIndex(c buffalo.Context) error {
 	c.Set("category", cat)
 
 	topics := &models.Topics{}
-	q := tx.BelongsTo(cat).Order("updated_at desc").PaginateFromParams(c.Params())
+	q := tx.BelongsTo(cat).Order("created_at desc").PaginateFromParams(c.Params())
 	if c.Param("per_page") == "" { // set default max results per page if not set
 		q.Paginator.PerPage = 8
 	}
