@@ -148,6 +148,23 @@ func TopicVote(c buffalo.Context) error {
 		"cat_title": c.Param("cat_title")})
 }
 
+// TopicUnvote remove vote from topic
+func TopicUnvote(c buffalo.Context) error {
+	topic := c.Value("topic").(*models.Topic)
+	user := c.Value("current_user").(*models.User)
+	if topic.Voted(user.ID) {
+		topic.RemoveVoter(user.ID)
+		tx := c.Value("tx").(*pop.Connection)
+		if err := tx.UpdateColumns(topic, "voters"); err != nil {
+			return c.Error(500, err)
+		}
+	} else {
+		c.Flash().Add("warning", "Error de voto.")
+	}
+	return c.Redirect(302, "catPath()", render.Data{"forum_title": c.Param("forum_title"),
+		"cat_title": c.Param("cat_title")})
+}
+
 // loadTopic creates and populates a models.Topic from a uuid string
 func loadTopic(c buffalo.Context, tid string) (*models.Topic, error) {
 	tx := c.Value("tx").(*pop.Connection)

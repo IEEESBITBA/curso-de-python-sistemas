@@ -126,6 +126,21 @@ func (t *Topic) AddVoter(id uuid.UUID) {
 	t.Voters = voters
 }
 
+// RemoveVoter remove subscriber from topic.Voters
+func (t *Topic) RemoveVoter(id uuid.UUID) {
+	set := make(map[uuid.UUID]struct{})
+	for _, voter := range t.Voters {
+		if voter != id {
+			set[voter] = struct{}{}
+		}
+	}
+	voters := make(slices.UUID, 0, len(set))
+	for voter := range set {
+		voters = append(voters, voter)
+	}
+	t.Voters = voters
+}
+
 // Subscribed checks if id in Topic.Subscribers
 func (t Topic) Voted(id uuid.UUID) bool {
 	for _, usr := range t.Voters {

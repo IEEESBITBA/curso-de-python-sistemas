@@ -38,8 +38,8 @@
  if (current_user) {
      if (topic.Voted(current_user.ID)) {
         voteBtnClass = "btn-primary"
-        voteHref = ""
-     }
+        voteHref = unvotePath(ctxTopic)
+     } 
  } else {
     voteHref = ""
  }
