@@ -4,6 +4,11 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode"
+
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/blevesearch/bleve"
@@ -18,9 +23,19 @@ const indexName = "cursoP.bleve"
 
 var bleveIndex bleve.Index
 
+var theGreatNormalizer transform.Transformer
+
 func init() {
 	_ = os.Mkdir(indexName, os.ModeDir)
 	_ = os.Chmod(indexName, 0666)
+	theGreatNormalizer = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+}
+
+// normalize converts extended unicode characters to their `normalized version`.
+// examples: à -> a,   å -> a,   é -> e
+func normalize(s string) string {
+	result, _, _ := transform.String(theGreatNormalizer, s)
+	return result
 }
 
 // runDBSearchIndex Indexes topics and replies every x minutes (30 minutes)
@@ -44,10 +59,12 @@ func runDBSearchIndex() {
 	defer tick.Stop()
 
 	run := func() {
+		tstart := time.Now()
 		err := indexDB()
 		if err != nil {
 			l.Errorf("bleve indexing DB: %s", err)
 		}
+		l.Printf("topic/reply indexing elapsed: %s", time.Since(tstart))
 	}
 
 	run()
@@ -74,7 +91,10 @@ func indexDB() error {
 				l.Errorf("'tx.Find(usr, %s)' FAILED in bleve.indexDB!", t.AuthorID)
 				continue
 			}
+			t.Content = normalize(t.Content)
+			t.Title = normalize(t.Title)
 			t.Author = usr
+			t.Author.Name = normalize(t.Author.Name)
 			ID := bleveTopicID(&t, nil)
 			err := bleveIndex.Index(ID, t)
 			if err != nil {
@@ -99,7 +119,9 @@ func indexDB() error {
 				l.Errorf("'tx.Find(usr, %s)' FAILED in bleve.indexDB!", r.AuthorID)
 				continue
 			}
+			r.Content = normalize(r.Content)
 			r.Author = usr
+			r.Author.Name = normalize(r.Author.Name)
 			ID := bleveTopicID(t, &r)
 			err := bleveIndex.Index(ID, r)
 			if err != nil {
@@ -140,7 +162,7 @@ func Search(c buffalo.Context) error {
 	}
 
 	// query string is human syntax, see: http://blevesearch.com/docs/Query-String-Query/
-	query := bleve.NewQueryStringQuery(c.Param("query"))
+	query := bleve.NewQueryStringQuery(normalize(c.Param("query")))
 	req := bleve.NewSearchRequest(query)
 
 	req.Size = 100
