@@ -18,6 +18,7 @@ type Topic struct {
 	Content     string      `json:"content" db:"content" form:"content"`
 	AuthorID    uuid.UUID   `json:"author_id" db:"author_id"`
 	CategoryID  uuid.UUID   `json:"category_id" db:"category_id" `
+	Votes       int16       `json:"votes" db:"votes"`
 	Archived    bool        `jsonL:"archived" db:"archived" form:"archive"`
 	Deleted     bool        `json:"deleted" db:"deleted"`
 	Subscribers slices.UUID `json:"subscribers" db:"subscribers"`
