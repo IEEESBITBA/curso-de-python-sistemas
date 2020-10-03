@@ -11,8 +11,8 @@ development:
 #test:
 #  url: {{envOr "TEST_DATABASE_URL" "postgres://postgres:postgres@127.0.0.1:5432/curso-test?sslmode=disable"}}
 #
-production:
-  url: {{envOr "DATABASE_URL" "postgres://pato:1337@127.0.0.1:5432/curso?sslmode=disable"}}
+# production:
+#   url: {{envOr "DATABASE_URL" "postgres://pato:1337@127.0.0.1:5432/curso?sslmode=disable"}}
 
 # docker run --name pyc-postgres -e POSTGRES_PASSWORD=1337 -p 5432:5432 -d postgres
 # sudo docker run --name forum \ # uncomment this and paste in bash

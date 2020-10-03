@@ -133,7 +133,10 @@ docker run --name forum-postgres  \
 
 with this you are ready to run `buffalo pop migrate` and start up your application!
 
+After commit fc0bdb9 `buffalo pop migrate` creates a default 'Curso' forum with a category so users can start trying it out right away.
+
 ### Create your databases the hard way
+
 If you did not create a database with `POSTGRES_DB` and `POSTGRES_USER` environment variables set then you must create the database beforehand. Remember the default docker `POSTGRES_USER` and `POSTGRES_DB` is `postgres` (for both) so you should change your `database.yml` file to match that. 
 
 Ok, so you've edited the `database.yml` file and started postgres, now Buffalo can create the databases in that file for you:
@@ -145,7 +148,7 @@ $> buffalo pop create -a
 You can now run `buffalo pop migrate` to initialize the forum and the content of its database.
 
 ### Access the database
-So you probably have the server up and running but have no forum to post 
+So you probably have the server up and running but probably have no forum to post 
 in and are unable to create forums! What a conundrum. To create a forum you need to be
 an admin. To do this you first must login to the site. After that access the site through
 docker:
@@ -198,8 +201,15 @@ ALTER TABLE topics
    CONSTRAINT archived_d DEFAULT FALSE;
 ```
 where `BOOL` is the datatype. Remember to specify if the field can be null.
-You can check out commit [`6b6809a`](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/commit/6b6809a08e124a4d78fe56c0f6a08312278e183f)
-when this change was made for a real life example of what was changed.
+You can check out commit [`6b6809a`](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/commit/6b6809a08e124a4d78fe56c0f6a08312278e183f) or `fc0bdb9` when this change was made for a real life example of what was changed.
+
+If you accidentally contrain the column badly or regret the column creation in any way one can 
+drop the column using
+
+```sql
+ALTER TABLE table_name 
+DROP COLUMN column_name;
+```
 
 ## how i did this
 Don't bother reading this. These are notes for myself if I ever try building a new buffalo app in the future.
