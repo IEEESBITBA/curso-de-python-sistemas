@@ -11,4 +11,4 @@ create_table("categories") {
 Next step is to generate default category under the other forum we created so 
 user can start testing it out right away
 "
-sql("INSERT INTO categories (id, title, description,  subscribers, parent_category, created_at, updated_at) VALUES ('aa71f592-25d7-416e-8d94-606a419d1b2f', 'Categoria prueba', 'Prueba',  '{}', 'aa71f592-25d7-416e-8d94-606a419d1b2e', DATE '2020-10-03', DATE '2020-10-03') ")
+sql("INSERT INTO categories (id, title, description,  subscribers, parent_category, created_at, updated_at) VALUES ('aa71f592-25d7-416e-8d94-606a419d1b2f', 'Categoria-prueba', 'Prueba',  '{}', 'aa71f592-25d7-416e-8d94-606a419d1b2e', DATE '2020-10-03', DATE '2020-10-03') ")

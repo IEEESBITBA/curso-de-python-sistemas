@@ -18,7 +18,6 @@ type Topic struct {
 	Content     string      `json:"content" db:"content" form:"content"`
 	AuthorID    uuid.UUID   `json:"author_id" db:"author_id"`
 	CategoryID  uuid.UUID   `json:"category_id" db:"category_id" `
-	Votes       int16       `json:"votes" db:"votes"`
 	Voters      slices.UUID `json:"voters" db:"voters"`
 	Archived    bool        `jsonL:"archived" db:"archived" form:"archive"`
 	Deleted     bool        `json:"deleted" db:"deleted"`
@@ -113,6 +112,33 @@ func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 	t.Subscribers = subs
 }
 
+// AddVoter add id to topic.voters
+func (t *Topic) AddVoter(id uuid.UUID) {
+	set := make(map[uuid.UUID]struct{})
+	set[id] = struct{}{}
+	for _, sub := range t.Voters {
+		set[sub] = struct{}{}
+	}
+	voters := make(slices.UUID, 0, len(set))
+	for voter := range set {
+		voters = append(voters, voter)
+	}
+	t.Voters = voters
+}
+
+// Subscribed checks if id in Topic.Subscribers
+func (t Topic) Voted(id uuid.UUID) bool {
+	for _, usr := range t.Voters {
+		if usr == id {
+			return true
+		}
+	}
+	return false
+}
+
+// Votes returns number of votes a topic has
+func (t Topic) Votes() int { return len(t.Voters) }
+
 // Topics slice of Topics. sorted by age.
 type Topics []Topic
 
@@ -128,6 +154,18 @@ func (t ByArchived) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 func (t ByArchived) Less(i, j int) bool {
 	// Un branchless algorithm para que ande mas rapido
 	return ((t[i].Archived == t[j].Archived) && t[i].CreatedAt.After(t[j].CreatedAt)) ||
+		((t[i].Archived != t[j].Archived) && (t[j].Archived))
+}
+
+// ByVotes sorts primarily by archived, then by votes,
+// lastly by creation date
+type ByVotes []Topic
+
+func (t ByVotes) Len() int      { return len(t) }
+func (t ByVotes) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t ByVotes) Less(i, j int) bool {
+	return ((t[i].Archived == t[j].Archived) && (t[i].Votes() == t[j].Votes()) && t[i].CreatedAt.After(t[j].CreatedAt)) ||
+		((t[i].Archived == t[j].Archived) && (t[i].Votes() != t[j].Votes()) && (t[i].Votes() > t[j].Votes())) ||
 		((t[i].Archived != t[j].Archived) && (t[j].Archived))
 }
 

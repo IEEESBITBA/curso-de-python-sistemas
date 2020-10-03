@@ -143,6 +143,7 @@ func App() *buffalo.App {
 		topicGroup.GET("/delete", TopicDelete).Name("topicDelete")
 		topicGroup.GET("/reply", ReplyGet).Name("reply")
 		topicGroup.POST("/reply", ReplyPost)
+		topicGroup.GET("/vote", TopicVote).Name("vote")
 		topicGroup.Middleware.Skip(Authorize, TopicGet)
 		topicGroup.Middleware.Skip(SafeList, TopicGet)
 

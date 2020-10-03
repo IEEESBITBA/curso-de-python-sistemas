@@ -46,16 +46,24 @@ func CategoriesIndex(c buffalo.Context) error {
 		}
 		(*topics)[i] = *topic
 	}
+	forum := c.Value("forum").(*models.Forum)
 	role := c.Value("role").(string)
-	if role == "admin" {
-		sort.Sort(models.ByArchived(*topics))
+	var renderer render.Renderer
+	if forum.Defcon == "2" {
+		renderer = r.HTML("categories/index_voting.plush.html")
+		sort.Sort(models.ByVotes(*topics))
 	} else {
-		sort.Sort(topics)
+		renderer = r.HTML("categories/index.plush.html")
+		if role == "admin" {
+			sort.Sort(models.ByArchived(*topics))
+		} else {
+			sort.Sort(topics)
+		}
 	}
 
 	c.Set("topics", topics)
 	c.Set("pagination", q.Paginator)
-	return c.Render(200, r.HTML("categories/index.plush.html"))
+	return c.Render(200, renderer)
 	//return c.Render(http.StatusOK, r.HTML("categories/index.plush.html"))
 }
 

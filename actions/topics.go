@@ -48,6 +48,7 @@ func TopicCreatePost(c buffalo.Context) error {
 	topic.AuthorID = topic.Author.ID
 	topic.CategoryID = topic.Category.ID
 	topic.AddSubscriber(topic.AuthorID)
+	topic.AddVoter(topic.AuthorID)
 	// Validate the data from the html form
 	verrs, err := tx.ValidateAndCreate(topic)
 	if err != nil {
@@ -111,8 +112,8 @@ func TopicEditPost(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "topic-edit-success"))
-	f := c.Value("forum").(*models.Forum)
-	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": f.Title,
+	// f := c.Value("forum").(*models.Forum)
+	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": c.Param("forum_title"),
 		"cat_title": c.Param("cat_title"), "tid": c.Param("tid")})
 }
 
@@ -128,6 +129,23 @@ func SetCurrentTopic(next buffalo.Handler) buffalo.Handler {
 		c.Set("topic", topic)
 		return next(c)
 	}
+}
+
+func TopicVote(c buffalo.Context) error {
+	topic := c.Value("topic").(*models.Topic)
+	user := c.Value("current_user").(*models.User)
+	if topic.Voted(user.ID) {
+		c.Flash().Add("warning", "Ya votaste.")
+	} else {
+		topic.AddVoter(user.ID)
+		tx := c.Value("tx").(*pop.Connection)
+		if err := tx.UpdateColumns(topic, "voters"); err != nil {
+			return c.Error(500, err)
+		}
+		c.Flash().Add("success", "Voto registrado.")
+	}
+	return c.Redirect(302, "catPath()", render.Data{"forum_title": c.Param("forum_title"),
+		"cat_title": c.Param("cat_title")})
 }
 
 // loadTopic creates and populates a models.Topic from a uuid string

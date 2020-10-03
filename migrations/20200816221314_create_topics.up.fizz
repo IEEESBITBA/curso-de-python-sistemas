@@ -8,7 +8,6 @@ create_table("topics") {
 	t.Column("archived", "bool", {})
 	t.Column("subscribers", "varchar[]", {"null": true})
 	t.Column("voters", "varchar[]", {"null": true})
-	t.Column("votes", "smallint", {})
 	t.Timestamps()
 } 
 add_index("topics", ["updated_at"], {"unique": false})
