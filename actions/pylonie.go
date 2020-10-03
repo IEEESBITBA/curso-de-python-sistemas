@@ -18,7 +18,6 @@ import (
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/mailers"
 	"github.com/gobuffalo/envy"
-	"github.com/pkg/errors"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -126,13 +125,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		return p.codeResult(c, p.Output, err.Error())
 	}
 	if p.Output == peval.Output {
-		go func() { // asynchronous mailer to not impede UX
-			if err := newEvaluationSuccessNotify(c, eval); err != nil {
-				c.Logger().Errorf("evaluation: fail to send %s success mail", p.UserName)
-			} else {
-				c.Logger().Infof("evaluation: success sending pass mail to %s", p.UserName)
-			}
-		}()
+		go newEvaluationSuccessNotify(c, eval)
 		user.AddSubscription(eval.ID)
 		_ = tx.UpdateColumns(user, "subscriptions")
 		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
@@ -296,18 +289,17 @@ func (p *pythonHandler) containerPy() (err error) {
 			status <- pyOK
 		}
 	}()
-	select {
-	case s := <-status:
-		switch s {
-		case pyTimeout:
-			_ = cmd.Process.Kill()
-			return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
-		case pyError, pyOK:
-			p.Elapsed = time.Since(tstart)
-			p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
-			return
-		}
+
+	switch <-status {
+	case pyTimeout:
+		_ = cmd.Process.Kill()
+		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
+	case pyError, pyOK:
+		p.Elapsed = time.Since(tstart)
+		p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
+		return
 	}
+
 	_ = cmd.Process.Kill()
 	return fmt.Errorf("server error in container")
 
@@ -324,8 +316,8 @@ func (p *pythonHandler) runPy() (err error) {
 		return
 	}
 	err = os.Mkdir(fmt.Sprintf("tmp/%s", p.userID), os.ModeTemporary)
-	if err != nil && err != os.ErrExist {
-		return
+	if err != nil && os.IsNotExist(err) {
+		return fmt.Errorf("in runPy() mkdir: %s", err)
 	}
 	filename := fmt.Sprintf("tmp/%s/f.py", p.userID)
 	f, err := os.Create(filename)
@@ -354,22 +346,18 @@ func (p *pythonHandler) runPy() (err error) {
 			status <- pyOK
 		}
 	}()
-	for {
-		select {
-		case s := <-status:
-			switch s {
-			case pyTimeout:
-				_ = cmd.Process.Kill()
-				return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
-			case pyError, pyOK:
-				p.Elapsed = time.Since(tstart)
-				p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
-				return
-			default:
-				time.Sleep(time.Millisecond)
-			}
-		}
+
+	switch <-status {
+	case pyTimeout:
+		_ = cmd.Process.Kill()
+		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
+	case pyError, pyOK:
+		p.Elapsed = time.Since(tstart)
+		p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
+		return
 	}
+	_ = cmd.Process.Kill()
+	return nil
 }
 
 func (c *code) sanitizePy() error {
@@ -491,6 +479,7 @@ func boltDBDownload(db *bbolt.DB) func(c buffalo.Context) error {
 	}
 }
 
+// newEvaluationSuccessNotify logs error status to context
 func newEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation) error {
 	var recpts []models.User
 	user := c.Value("current_user").(*models.User)
@@ -498,7 +487,9 @@ func newEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation) erro
 	// mailer checks if user already passed evaluation
 	err := mailers.NewEvaluationSuccessNotify(c, eval, recpts)
 	if err != nil {
-		return errors.WithStack(err)
+		c.Logger().Errorf("evaluation: fail to send %s success mail", user.Name)
+	} else {
+		c.Logger().Infof("evaluation: success sending pass mail to %s", user.Name)
 	}
 	return nil
 }
