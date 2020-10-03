@@ -121,7 +121,7 @@ func SetCurrentTopic(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		//topic := &models.Topic{}
 		topic, err := loadTopic(c, c.Param("tid"))
-		if err != nil {
+		if err != nil || topic.Deleted {
 			c.Flash().Add("danger", T.Translate(c, "topic-not-found"))
 			return c.Error(404, err)
 		}

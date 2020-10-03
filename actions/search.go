@@ -79,13 +79,13 @@ func indexDB() error {
 	return models.DB.Transaction(func(tx *pop.Connection) error {
 
 		topics := new(models.Topics)
-		if err := tx.All(topics); err != nil {
+		if err := tx.Where("deleted IS false").All(topics); err != nil {
 			return errors.WithStack(err)
 		}
 		for _, t := range *topics {
-			if t.Deleted {
-				continue
-			}
+			// if t.Deleted {
+			// 	continue
+			// }
 			usr := new(models.User)
 			if err := tx.Find(usr, t.AuthorID); err != nil {
 				l.Errorf("'tx.Find(usr, %s)' FAILED in bleve.indexDB!", t.AuthorID)
@@ -102,7 +102,7 @@ func indexDB() error {
 			}
 		}
 		replies := new(models.Replies)
-		if err := tx.All(replies); err != nil {
+		if err := tx.Where("deleted IS false").All(replies); err != nil {
 			return errors.WithStack(err)
 		}
 		for _, r := range *replies {
@@ -119,6 +119,10 @@ func indexDB() error {
 				l.Errorf("'tx.Find(usr, %s)' FAILED in bleve.indexDB!", r.AuthorID)
 				continue
 			}
+			if t.Deleted {
+				continue
+			}
+
 			r.Content = normalize(r.Content)
 			r.Author = usr
 			r.Author.Name = normalize(r.Author.Name)
