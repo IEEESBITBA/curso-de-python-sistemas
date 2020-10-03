@@ -41,7 +41,7 @@ func CategoriesIndex(c buffalo.Context) error {
 	for i, t := range *topics {
 		topic, err := loadTopic(c, t.ID.String())
 		if err != nil {
-			c.Logger().Errorf("'loadTopic(c, %s)' FAILED!", t.ID.String())
+			c.Logger().Errorf("'loadTopic(c, %s)' failed: %s", t.ID.String(), err)
 			return errors.WithStack(err)
 		}
 		(*topics)[i] = *topic
@@ -116,7 +116,7 @@ func CategoriesCreateOrEditPost(c buffalo.Context) error {
 	}
 
 	if err != nil {
-		c.Logger().Errorf("Tr")
+		c.Logger().Errorf("creating or editing category %s: %s", cat.Title, err)
 		c.Flash().Add("danger", "Error creating category")
 		return errors.WithStack(err)
 	}

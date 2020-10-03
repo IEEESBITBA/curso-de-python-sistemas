@@ -454,7 +454,7 @@ func (p *pythonHandler) PutTx(tx *bbolt.Tx, c buffalo.Context) {
 	}()
 
 	if err != nil {
-		c.Logger().Errorf("could not save python code to database for user '%s': %s\n", p.UserName, err.Error())
+		c.Logger().Errorf("could not save python code to database for user '%s': %s\n", p.UserName, err)
 	}
 }
 

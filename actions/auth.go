@@ -136,7 +136,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			tx := c.Value("tx").(*pop.Connection)
 			err := tx.Find(u, uid)
 			if err != nil {
-				c.Logger().Error("error in setCurrent user while looking for uuid in tx")
+				c.Logger().Errorf("setCurrentUser with uid %s: %s", uid, err)
 				return next(c)
 			}
 			if u.Role == "banned" {

@@ -137,7 +137,7 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return nil
 		})
 		if err != nil {
-			c.Logger().Errorf("SAFELIST MALUFUNCTION: %s", err)
+			c.Logger().Errorf("CRITICAL safelist malufunction: %s", err)
 			return next(c)
 		}
 		if !exists {
