@@ -195,6 +195,7 @@ If one wanted to add functionality to, say, topics one should modify the `models
 and add column name. Then when implemented in the server back end code one should simply
 use the `ALTER TABLE` command in postgres console.
 
+**Example with `BOOL`**
 ```sql
 ALTER TABLE topics
    ADD archived BOOL NOT NULL
@@ -202,6 +203,12 @@ ALTER TABLE topics
 ```
 where `BOOL` is the datatype. Remember to specify if the field can be null.
 You can check out commit [`6b6809a`](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/commit/6b6809a08e124a4d78fe56c0f6a08312278e183f) or `fc0bdb9` when this change was made for a real life example of what was changed.
+
+**Example with `varchar[]`**
+```sql
+ALTER TABLE topics ADD voters varchar[] 
+    CONSTRAINT voters_d DEFAULT '{}';
+```
 
 If you accidentally contrain the column badly or regret the column creation in any way one can 
 drop the column using

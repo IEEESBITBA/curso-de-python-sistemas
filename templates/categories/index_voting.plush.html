@@ -33,11 +33,15 @@
 <% } %>
 <%= for (topic) in topics{
  let ctxTopic= {cat_title: category.Title, forum_title: forum.Title, tid: topic.ID}
- let voteHref = ""
+ let voteHref = votePath(ctxTopic)
  let voteBtnClass = "btn-outline-primary"
- if (current_user && topic.Voted(current_user.ID)) {
-    voteHref = votePath(ctxTopic)
-    voteBtnClass = "btn-primary"
+ if (current_user) {
+     if (topic.Voted(current_user.ID)) {
+        voteBtnClass = "btn-primary"
+        voteHref = ""
+     }
+ } else {
+    voteHref = ""
  }
  %>
 
