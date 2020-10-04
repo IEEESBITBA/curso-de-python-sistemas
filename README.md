@@ -175,10 +175,10 @@ Now refresh the page and see if it works!
 We can use SQL. Access the database as seen in the previous section and run
 ```sql
 UPDATE topics 
-SET created_at='2020-09-21 17:45:30.447654'
+SET created_at = DATE '2020-09-21 17:45:00'
 WHERE id = '4c8c42c6-9b61-4491-adca-547d576a19cf';
 ```
-where the long number is the topic UUID. It appears in the topic's url so it should be easy to copy. To set how long the post is pinned just add the number of days to the current date. For example, if today is the 28th of September 2020 and I wanted the post to be pinned a month or so then `created_at` could be set to `'2020-10-28 23:00:00.000000'`. This will work since topics are organized by date published and older topics are sorted last.
+where the long number is the topic UUID. It appears in the topic's url so it should be easy to copy. To set how long the post is pinned just add the number of days to the current date. For example, if today is the 28th of September 2020 and I wanted the post to be pinned a month or so then `created_at` could be set to `DATE '2020-10-28'`. This will work since topics are organized by date published and older topics are sorted last.
 
 ## Windows Front-end packages
 1. Install scoop! minimalistic package manager
@@ -216,6 +216,11 @@ drop the column using
 ```sql
 ALTER TABLE table_name 
 DROP COLUMN column_name;
+```
+
+To delete a row use `DELETE`
+```sql
+DELETE FROM users WHERE email = 'noLongerThere@gma.com';
 ```
 
 ## how i did this

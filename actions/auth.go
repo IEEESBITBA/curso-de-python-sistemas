@@ -96,12 +96,12 @@ func AuthDestroy(c buffalo.Context) error {
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Logger().Debug("Authorize called")
-		unverifiedUid := c.Session().Get(cookieUIDName)
-		if unverifiedUid == nil {
+		unverifiedUID := c.Session().Get(cookieUIDName)
+		if unverifiedUID == nil {
 			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
 		}
-		uid := unverifiedUid.(uuid.UUID)
+		uid := unverifiedUID.(uuid.UUID)
 		tx := c.Value("tx").(*pop.Connection)
 		q := tx.Where("id = ?", uid)
 		exists, err := q.Exists("users")
