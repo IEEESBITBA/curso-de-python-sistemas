@@ -221,7 +221,7 @@
 - id: hidden
   translation: "Oculto"
 - id: evaluations
-  translation: "Evaluaciones"
+  translation: "Desafíos"
 - id: close
   translation: "Cerrar"
 - id: edit-success
@@ -253,11 +253,11 @@
 - id: curso-python-not-allowed
   translation: "Tiene que estar registrado al curso para acceder a esta página"
 - id: curso-python-no-evaluations-found
-  translation: "No se encontraron evaluaciones"
+  translation: "No se encontraron desafíos"
 - id: curso-python-evaluations-title
-  translation: "Evaluaciones"
+  translation: "Desafíos"
 - id: curso-python-new-evaluation
-  translation: "Crear evaluación"
+  translation: "Crear Desafío"
 - id: curso-python-evaluation-stdin
   translation: "Input estándar del corrector"
 - id: curso-python-evaluation-title-help
@@ -271,9 +271,9 @@
 - id: curso-python-evaluation-solution
   translation: "Solución Python"
 - id: curso-python-evaluation-add-success
-  translation: "Se agregó la evaluación correctamente"
+  translation: "Se agregó el desafío correctamente"
 - id: curso-python-evaluation-add-fail
-  translation: "Hubo un error agregando la evaluación"
+  translation: "Hubo un error agregando el desafío"
 - id: curso-python-interpreter-only-members
   translation: "Interpretador solo disponible para usuarios registrados"
 - id: curso-python-interpreter-title
@@ -286,11 +286,11 @@
   translation: | # "print(\"Hola mundo\")"
     print("Hola mundo")
 - id: curso-python-evaluation-not-found
-  translation: "No se encontró la evaluación"
+  translation: "No se encontró el desafío"
 - id: curso-python-evaluation-success
-  translation: "Evaluación OK! aprobado!"
+  translation: "Desafío OK! aprobado!"
 - id: curso-python-evaluation-fail
-  translation: "Evaluación desaprobada."
+  translation: "Respuesta equivocada! Intente otra vez?"
 - id: curso-python-evaluation-duplicate
   translation: "No puede ingresar dos códigos iguales!"
 - id: curso-python-code-backup
