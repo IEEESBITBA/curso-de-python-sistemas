@@ -38,7 +38,7 @@ func (e Evaluations) Len() int      { return len(e) }
 func (e Evaluations) Swap(i, j int) { e[i], e[j] = e[j], e[i] }
 func (e Evaluations) Less(i, j int) bool {
 	// Un branchless algorithm para que ande mas rapido
-	return ((e[i].Hidden == e[j].Hidden) && e[i].CreatedAt.After(e[j].CreatedAt)) ||
+	return ((e[i].Hidden == e[j].Hidden) && e[i].CreatedAt.Before(e[j].CreatedAt)) ||
 		((e[i].Hidden != e[j].Hidden) && (e[j].Hidden))
 }
 
