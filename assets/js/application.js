@@ -27,6 +27,12 @@ $(() => {
         }
     });
     render(RENDERERS);
+    // Prevent Multiple submissions when clicking submit button
+    let actionableSelector = 'button[type="submit"] , a[data-method="DELETE"]';
+    $(actionableSelector).on('click', function() {
+        $(actionableSelector).setAttribute('disabled','true')
+
+    })
 });
 
 RENDERERS.push(renderCodeBlock)

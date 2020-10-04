@@ -15,7 +15,7 @@
         <form action="<%= replyEditPath(ctx) %>" method="POST" class="edit">
             <%= csrf() %>
             <div class="form-group">
-                <textarea class="form-control" name="content" id="content"  rows="12"><%= reply.Content %></textarea>
+                <textarea class="form-control" name="content" id="content"  rows="12" required><%= reply.Content %></textarea>
             </div>
             <button type="submit" class="btn btn-primary"><%= t("reply-send") %></button>
         </form>
@@ -25,7 +25,7 @@
         <form action="<%= replyPath(ctx) %>" method="POST">
             <%= csrf() %>
             <div class="form-group">
-                <textarea class="form-control" name="content" id="content"  rows="12"></textarea>
+                <textarea class="form-control" name="content" id="content"  rows="12" required></textarea>
             </div>
             <button type="submit" class="btn btn-primary"><%= t("reply-send") %></button>
         </form>
