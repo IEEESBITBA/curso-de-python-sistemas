@@ -109,7 +109,7 @@
 - id: forum-invalid-title
   translation: "Título de foro debería consistir de caracteres alfanuméricos y '-', '_'"
 - id: topic-delete-popup
-  translation: "Eliminar tema {{.title}} ?"
+  translation: "Eliminar publicación {{.title}} ?"
 - id: topic-last-activity
   translation: "Última actividad: "
 - id: topic-replies
@@ -130,13 +130,13 @@
 - id: category-edit-category
   translation: "Editar categoría"
 - id: category-new-topic
-  translation: "Nuevo tema"
+  translation: "Nueva Publicación"
 - id: category-users
   translation: "Usuarios"
 - id: category-replies
   translation: "Respuestas"
 - id: category-no-topics-found
-  translation: "Sé el primero en postear un tema!"
+  translation: "Sé el primero en postear una publicación!"
 - id: category-invalid-title
   translation: "Título de categoría debería consistir de caracteres alfanuméricos y '-', '_'"
 
@@ -144,7 +144,7 @@
 - id: topic-author-intro
   translation: "Publicado por"
 - id: new-topic-headline
-  translation: "Nuevo tema"
+  translation: "Nueva Publicación"
 - id: edit-topic-headline
   translation: "Editar tema"
 - id: new-topic-content-help
