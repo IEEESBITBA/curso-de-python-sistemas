@@ -7,12 +7,13 @@
 </div>
 
 
-<h2>Foros activos</h2>
-    <%= if (len(forums) == 0) {%>
-        <div>
+
+<%= if (len(forums) == 0) {%>
+        <h2>
             <%= t("no-forums-found") %>
-        </div>
+        </h2>
     <% } else { %>
+        <h2>Foros activos</h2>
 <div class="row row-cols-1 row-cols-md-3">
         <%= for (i, v) in forums {
             let admin = false
@@ -37,8 +38,16 @@
     </div>
         <% } } %>
 </div>
-    <% } %>
+<% } %>
 
+<div class="card mx-auto" style="width:420px;">
+    <iframe width="420" height="315"
+        src="https://www.youtube.com/embed/On1IIYtWx3k">
+    </iframe>
+    <div class="card-body">
+      <p class="card-text">Tutorial de como usar este foro. <a href="https://youtu.be/On1IIYtWx3k">Link al youtube.</a></p>
+    </div>
+</div>
 
 <div class="row justify-content-center">
     <div class="pagination-sm">
