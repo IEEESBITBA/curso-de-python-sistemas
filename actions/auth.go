@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -53,12 +54,12 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	} else { // if we don't find user, create new user!
-		c.Logger().Infof("Creating new user! Email: %s", gu.Email)
-		u.Name = gu.Name
-		u.Email = gu.Email
+		u.Name = strings.Title(strings.ToLower(gu.Name))
+		u.Email = strings.ToLower(gu.Email)
 		u.Provider = gu.Provider
 		u.ProviderID = gu.UserID
 		u.AvatarURL = gu.AvatarURL
+		c.Logger().Infof("Creating new user! Email: %s", gu.Email)
 		err = tx.Save(u)
 		if err != nil {
 			return errors.WithStack(err)
@@ -78,7 +79,6 @@ func AuthCallback(c buffalo.Context) error {
 // AuthDestroy logout process. kills cookies leaving user
 // unable to Authorize without logging in again
 func AuthDestroy(c buffalo.Context) error {
-	//c.Session().Set(app.SessionName,"")
 	c.Cookies().Delete(App().SessionName)
 	c.Session().Clear()
 	err := c.Session().Save()
@@ -86,7 +86,6 @@ func AuthDestroy(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "app-logout"))
-	//c.Cookies().Set(app.SessionName,"",time.Second*3)
 
 	return c.Redirect(302, "/")
 }
