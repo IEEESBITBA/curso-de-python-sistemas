@@ -143,6 +143,7 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return next(c)
 		}
 		if !exists {
+			c.Logger().Warnf("safelist not contain %s", email)
 			c.Flash().Add("warning", T.Translate(c, "safelist-user-not-found"))
 			c.Session().Clear()
 			_ = c.Session().Save()
