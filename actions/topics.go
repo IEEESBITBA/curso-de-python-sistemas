@@ -131,6 +131,7 @@ func SetCurrentTopic(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
+// TopicVote Handles voting event. adds vote to topic
 func TopicVote(c buffalo.Context) error {
 	topic := c.Value("topic").(*models.Topic)
 	user := c.Value("current_user").(*models.User)

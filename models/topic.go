@@ -141,7 +141,7 @@ func (t *Topic) RemoveVoter(id uuid.UUID) {
 	t.Voters = voters
 }
 
-// Subscribed checks if id in Topic.Subscribers
+// Voted checks if id in Topic.Voters
 func (t Topic) Voted(id uuid.UUID) bool {
 	for _, usr := range t.Voters {
 		if usr == id {
