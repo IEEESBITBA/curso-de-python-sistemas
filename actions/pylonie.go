@@ -141,7 +141,7 @@ func DeletePythonUploads(c buffalo.Context) error {
 	if err := c.Bind(&auth); err != nil {
 		return c.Error(500, err)
 	}
-	if auth.Key != ".b3060ee10d6305243c7b" {
+	if auth.Key != authKey {
 		c.Flash().Add("warning", "bad key")
 		return c.Redirect(302, "controlPanelPath()")
 	}

@@ -15,3 +15,22 @@
     </div>
     </fieldset>
 </form>
+
+<form class="form-horizontal card border-info my-4" action="<%= sqlBackupPath() %>" method="GET" enctype="multipart/form-data">
+    <div class="card-header bg-info text-white">
+       <%= bicon("server")%> Descargar Base de datos SQL en formato JSON &middot; Download SQL Database as JSON
+    </div>
+    <%= csrf() %>
+    <!-- Text input title-->
+    <fieldset>
+    <div class="form-group card-body">
+        <label class="col-md-4 control-label" for="authkey"> Ingrese código </label>
+        <div class="col-md-4">
+            <input id="title" name="authkey" type="text" placeholder="Authentikey"
+                   class="form-control input-md" value="">
+            <span class="help-block"> </span>
+        </div>
+    </div>
+    </fieldset>
+</form>
+

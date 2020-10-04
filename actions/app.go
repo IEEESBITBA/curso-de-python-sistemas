@@ -44,6 +44,7 @@ const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. A
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
+			Name:         envy.Get("FORUM_NAME", "curso_python"),
 			Host:         envy.Get("FORUM_HOST", envy.Get("HOST", "")),
 			Env:          ENV,
 			SessionName:  "_curso_session",
@@ -169,14 +170,16 @@ func App() *buffalo.App {
 
 		admin.GET("safelist", SafeListGet).Name("safeList")
 		admin.POST("safelist", SafeListPost)
+
+		admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
 		admin.GET("/cbu", boltDBDownload(models.BDB)).Name("cursoCodeBackup")
-		admin.GET("/cbureader", zipAssetFolder("uploadReader")).Name("cursoCodeBackupReader")
+		admin.GET("/cbureader", zipAssetFolder("server/uploadReader")).Name("cursoCodeBackupReader")
 		admin.GET("/control-panel", ControlPanel).Name("controlPanel")
 		admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
 		// We associate the HTTP 404 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
-		app.ErrorHandlers[404] = err404
-		app.ErrorHandlers[500] = err500
+		// app.ErrorHandlers[404] = err404
+		// app.ErrorHandlers[500] = err500
 
 		go runDBSearchIndex()
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
