@@ -24,7 +24,7 @@ let status = "new"
                 <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
                 <div class="col-md-4">
                     <input id="title" name="title" type="text" placeholder="Pregunta, consulta"
-                           class="form-control input-md" required="" value="<%= title %>">
+                           class="form-control input-md" required value="<%= title %>">
                     <span class="help-block"><%=t("new-topic-title-help") %></span>
                 </div>
             </div>
@@ -42,7 +42,7 @@ let status = "new"
             <div class="form-group">
                 <label class="col-md-8 control-label" for="content"><%= t("content") %></label>
                 <div class="col-md-8" >
-                    <textarea class="form-control" id="content" rows="9" name="content" placeholder="<%= t("new-topic-content-placeholder") %>"><%= content %></textarea>
+                    <textarea class="form-control" id="content" rows="9" name="content" required placeholder="<%= t("new-topic-content-placeholder") %>"><%= content %></textarea>
                     <span class="help-block"><%= t("new-topic-content-help") %></span>
                 </div>
             </div>
