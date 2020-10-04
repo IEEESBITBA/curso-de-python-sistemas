@@ -1,11 +1,8 @@
 package actions
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 )
 
@@ -36,31 +33,4 @@ func SiteStruct(next buffalo.Handler) buffalo.Handler {
 // AuthHome renders page with all provider options
 func AuthHome(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.HTML("auth.html"))
-}
-
-func downloadSQL(c buffalo.Context) error {
-	var auth struct {
-		Key string `form:"authkey"`
-	}
-	if err := c.Bind(&auth); err != nil {
-		return c.Error(500, err)
-	}
-	if auth.Key != authKey {
-		c.Flash().Add("warning", "bad key")
-		return c.Redirect(302, "controlPanelPath()")
-	}
-	w := c.Response()
-	tstart := time.Now()
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.json"`, App().Name))
-	// w.Header().Set("Content-Length", strconv.Itoa(int(tx.Size())))
-	err := models.DBToJSON(w)
-
-	if err != nil {
-		return c.Error(500, err)
-	}
-	w.WriteHeader(200)
-	c.Logger().Infof("sql -> json download time elapsed %s", time.Since(tstart))
-	return nil
-
 }

@@ -171,12 +171,18 @@ func App() *buffalo.App {
 		admin.GET("safelist", SafeListGet).Name("safeList")
 		admin.POST("safelist", SafeListPost)
 
-		admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
 		admin.GET("/cbu", boltDBDownload(models.BDB)).Name("cursoCodeBackup")
 		admin.GET("/cbureader", zipAssetFolder("server/uploadReader")).Name("cursoCodeBackupReader")
-		admin.GET("/control-panel", ControlPanel).Name("controlPanel")
-		admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
-		// We associate the HTTP 404 status to a specific handler.
+		// admin.GET("/control-panel", ControlPanel).Name("controlPanel")
+		// admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
+		// admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
+		controlPanelGroup := admin.Group("/control-panel")
+		controlPanelGroup.GET("", ControlPanel).Name("controlPanel")
+		controlPanelGroup.POST("/exfiltrate", downloadSQL).Name("sqlBackup")
+		controlPanelGroup.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
+		controlPanelGroup.Use(ControlPanelHandler)
+		controlPanelGroup.Middleware.Skip(ControlPanelHandler, ControlPanel)
+		// We associate the HTTP 404,500 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
 		app.ErrorHandlers[404] = err404
 		app.ErrorHandlers[500] = err500

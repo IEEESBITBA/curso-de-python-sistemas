@@ -16,7 +16,7 @@
     </fieldset>
 </form>
 
-<form class="form-horizontal card border-info my-4" action="<%= sqlBackupPath() %>" method="GET" enctype="multipart/form-data">
+<form class="form-horizontal card border-info my-4" action="<%= sqlBackupPath() %>" method="POST" enctype="multipart/form-data">
     <div class="card-header bg-info text-white">
        <%= bicon("server")%> Descargar Base de datos SQL en formato JSON &middot; Download SQL Database as JSON
     </div>

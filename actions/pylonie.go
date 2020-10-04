@@ -125,7 +125,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		return p.codeResult(c, p.Output, err.Error())
 	}
 	if p.Output == peval.Output {
-		go newEvaluationSuccessNotify(c, eval)
+		go func() { _ = newEvaluationSuccessNotify(c, eval) }() // this is the same as go newEvaluationSuccessNotify(c,eval). The closure is to avoid golint from picking up errors
 		user.AddSubscription(eval.ID)
 		_ = tx.UpdateColumns(user, "subscriptions")
 		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
@@ -135,16 +135,16 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 
 // DeletePythonUploads delete all python uploads in bbolt DB
 func DeletePythonUploads(c buffalo.Context) error {
-	var auth struct {
-		Key string `form:"authkey"`
-	}
-	if err := c.Bind(&auth); err != nil {
-		return c.Error(500, err)
-	}
-	if auth.Key != authKey {
-		c.Flash().Add("warning", "bad key")
-		return c.Redirect(302, "controlPanelPath()")
-	}
+	// var auth struct {
+	// 	Key string `form:"authkey"`
+	// }
+	// if err := c.Bind(&auth); err != nil {
+	// 	return c.Error(500, err)
+	// }
+	// if auth.Key != authKey {
+	// 	c.Flash().Add("warning", "bad key")
+	// 	return c.Redirect(302, "controlPanelPath()")
+	// }
 	btx := c.Value("btx").(*bbolt.Tx)
 	if err := btx.DeleteBucket([]byte(pyDBUploadBucketName)); err != nil {
 		return c.Error(500, err)
@@ -492,12 +492,6 @@ func newEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation) erro
 		c.Logger().Infof("evaluation: success sending pass mail to %s", user.Name)
 	}
 	return nil
-}
-
-// ControlPanel renders page for controlling server backend stuff.
-// html contains python deletion at the time of writing this
-func ControlPanel(c buffalo.Context) error {
-	return c.Render(200, r.HTML("curso/control-panel.plush.html"))
 }
 
 // zipAssetFolder Zips up a folder in relative path /assets and
