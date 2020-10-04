@@ -82,6 +82,8 @@ func SafeListPost(c buffalo.Context) error {
 	if err := c.Bind(&form); err != nil {
 		return c.Error(500, err)
 	}
+	// make sure email is in lowercase to avoid dupes and false negatives in safelist matches
+	form.List = strings.ToLower(form.List)
 	users := safeFormToSafeList(form)
 	btx := c.Value("btx").(*bbolt.Tx)
 	err := func() error {
@@ -116,12 +118,12 @@ const safeDomain = "itba.edu.ar"
 func SafeList(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		c.Set("hasBadWord", hasBadWord)
-		u := c.Value("current_user")
-		if u == nil {
+		u, ok := c.Value("current_user").(*models.User)
+		if !ok || u == nil {
 			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
 		}
-		email := u.(*models.User).Email
+		email := strings.ToLower(u.Email)
 		two := strings.Split(email, "@")
 		if two[1] == safeDomain {
 			return next(c)
@@ -146,9 +148,8 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			_ = c.Session().Save()
 			return c.Redirect(302, "/") //, render.Data{"provider":user.Provider})
 		}
-		user := u.(*models.User)
-		if user.Role == "" {
-			user.Role = "safe"
+		if u.Role == "" {
+			u.Role = "safe"
 			c.Set("current_user", u)
 		}
 		return next(c)
