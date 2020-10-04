@@ -12,9 +12,13 @@
         outputTypeElem = document.getElementById('<%= id_out %>');
         $(document).delegate('#<%= id_in %>', 'keyup', function (e) { //inputTypeElem.addEventListener('keyup', handleInputChange);
             var keyCode = e.keyCode || e.which;
-            if (keyCode == 13 || keyCode == 8) { // http://gcctech.org/csc/javascript/javascript_keycodes.htm
+            if (keyCode == 13 || keyCode == 8 || keyCode == 17) { // http://gcctech.org/csc/javascript/javascript_keycodes.htm
                 render(RENDERERS);
             }
+        });
+        // https://api.jquery.com/on/
+        $('button[type=\'submit\']').on('mouseenter', function(event) { // render on mouse entering submit button
+            render(RENDERERS);  
         });
         render(RENDERERS); // loading upon entry if needed
     }
