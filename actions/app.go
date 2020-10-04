@@ -114,6 +114,7 @@ func App() *buffalo.App {
 		interpreter := app.Group("/py")
 		interpreter.POST("/", InterpretPost).Name("Interpret")
 
+		app.GET("/f", manageForum)
 		// Actual forum stuiff
 		forum := app.Group("/f/{forum_title}")
 		forum.Use(SetCurrentForum)
