@@ -170,10 +170,6 @@ func TopicUnvote(c buffalo.Context) error {
 func loadTopic(c buffalo.Context, tid string) (*models.Topic, error) {
 	tx := c.Value("tx").(*pop.Connection)
 	topic := &models.Topic{}
-	if err := c.Bind(topic); err != nil {
-		c.Logger().Errorf("'c.Bind(topic)' fail: %s", err)
-		return nil, errors.WithStack(err)
-	}
 	if err := tx.Find(topic, tid); err != nil {
 		c.Logger().Errorf("'tx.Find(%q, %s)' FAILED!", topic, tid)
 		return nil, c.Error(404, err)

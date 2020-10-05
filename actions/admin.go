@@ -19,7 +19,6 @@ func ControlPanel(c buffalo.Context) error {
 // validate it errors
 func ControlPanelHandler(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		c.Logger().Errorf("GOTCHA")
 		usr, ok := c.Value("current_user").(*models.User)
 		url := c.Request().URL.String()
 		if !ok || usr.Role != "admin" {
