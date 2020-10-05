@@ -15,7 +15,7 @@ import (
 func UsersViewAllGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	users := &models.Users{}
-	if err := tx.All(users); err != nil {
+	if err := tx.Order("role desc").All(users); err != nil {
 		return errors.WithStack(err)
 	}
 	c.Set("users", users)
