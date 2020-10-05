@@ -79,7 +79,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	var ID big.Int
 	ID.SetString(teamID, 10)
 	var lim big.Int
-	lim.SetString("1000", 10)
+	lim.SetString("2000", 10)
 	if p.Input == "" || len(teamID) > 60 || ID.Cmp(&lim) == -1 || !ID.ProbablyPrime(6) {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-input-field-error"))
 	}
