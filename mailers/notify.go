@@ -101,7 +101,7 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	c.Logger().Printf("SEND %v", m)
+	c.Logger().Debugf("SEND %v", m)
 	err = smtp.Send(m)
 	if err != nil {
 		return errors.WithStack(err)

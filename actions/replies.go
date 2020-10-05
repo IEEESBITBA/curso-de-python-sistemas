@@ -49,7 +49,7 @@ func ReplyPost(c buffalo.Context) error {
 		if err := newReplyNotify(c, topic, reply); err != nil {
 			c.Logger().Errorf("Failed sending notification messages for reply %s: %s", reply.ID, err)
 		} else {
-			c.Logger().Infof("Success sending notification messages for reply %s", reply.ID)
+			c.Logger().Debugf("Success sending notification messages for reply %s", reply.ID)
 		}
 	}()
 
@@ -65,6 +65,10 @@ func ReplyPost(c buffalo.Context) error {
 func editReplyGet(c buffalo.Context) error {
 	return c.Render(200, r.HTML("replies/create.plush.html"))
 }
+
+// func replyReplyGet(c buffalo.Context) error {
+// 	return nil
+// }
 
 func editReplyPost(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)

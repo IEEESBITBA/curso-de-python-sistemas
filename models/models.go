@@ -80,15 +80,34 @@ func DBToJSON(w io.Writer) error {
 		Description string `json:"description"`
 		Cats        []Cat
 	}
+	type Eval struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Content     string `json:"content"`
+		Solution    string `json:"solution"`
+		Inputs      string `json:"stdin"`
+		ID          string `json:"ID"`
+	}
+
 	site := make(map[string]interface{})
 	site["forums"] = []Frum{}
 	site["users"] = usrs
+	site["evaluations"] = []Eval{}
 	forums := new(Forums)
 	categories := new(Categories)
 	topics := new(Topics)
 	replies := new(Replies)
+	evaluations := new(Evaluations)
 	if err := DB.All(forums); err != nil {
 		return err
+	}
+	if err := DB.All(evaluations); err != nil {
+		return err
+	}
+	for _, e := range *evaluations {
+
+		eval := Eval{Title: e.Title, Description: e.Description, Content: e.Content, Solution: e.Solution, Inputs: e.Inputs.String, ID: e.ID.String()}
+		site["evaluations"] = append(site["evaluations"].([]Eval), eval)
 	}
 	for _, f := range *forums {
 		frum := Frum{Title: f.Title, Description: f.Description}
