@@ -9,6 +9,7 @@ import (
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/pop/v5"
 	"go.etcd.io/bbolt"
 )
 
@@ -123,6 +124,9 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			c.Flash().Add("danger", T.Translate(c, "app-user-required"))
 			return c.Redirect(302, "/")
 		}
+		if u.Role == "safe" || u.Role == "admin" {
+			return next(c)
+		}
 		email := strings.ToLower(u.Email)
 		two := strings.Split(email, "@")
 		if two[1] == safeDomain {
@@ -150,8 +154,12 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return c.Redirect(302, "/") //, render.Data{"provider":user.Provider})
 		}
 		if u.Role == "" {
+			tx := c.Value("tx").(*pop.Connection)
 			u.Role = "safe"
 			c.Set("current_user", u)
+			if err := tx.UpdateColumns(u, "role"); err != nil {
+				c.Logger().Errorf("adding 'safe' role to user %s", u.Email)
+			}
 		}
 		return next(c)
 	}

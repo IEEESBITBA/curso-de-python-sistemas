@@ -48,7 +48,7 @@ func App() *buffalo.App {
 			Host:         envy.Get("FORUM_HOST", envy.Get("HOST", "")),
 			Env:          ENV,
 			SessionName:  "_curso_session",
-			LogLvl:       logger.InfoLevel,
+			LogLvl:       logger.DebugLevel,
 			SessionStore: defaultCookieStore(),
 		})
 		// Automatically redirect to SSL. Only works if you have a proxy up and running such as NGINX

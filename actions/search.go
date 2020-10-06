@@ -55,7 +55,7 @@ func runDBSearchIndex() {
 		l.Fatalf("at runDBSearchIndex(): bleve New index. removing all contents. please restart: %s", err)
 	}
 
-	tick := time.NewTicker(30 * time.Minute)
+	tick := time.NewTicker(6 * time.Hour)
 	defer tick.Stop()
 
 	run := func() {

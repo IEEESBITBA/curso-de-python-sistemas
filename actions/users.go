@@ -15,10 +15,16 @@ import (
 func UsersViewAllGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	users := &models.Users{}
-	if err := tx.Order("role desc").All(users); err != nil {
+	q := tx.Order("role ASC").PaginateFromParams(c.Params())
+	if c.Param("per_page") == "" { // set default max results per page if not set
+		q.Paginator.PerPage = 20
+	}
+
+	if err := q.All(users); err != nil {
 		return errors.WithStack(err)
 	}
 	c.Set("users", users)
+	c.Set("pagination", q.Paginator)
 	return c.Render(200, r.HTML("users/view-all.plush.html"))
 }
 
@@ -103,7 +109,7 @@ func UserSettingsPost(c buffalo.Context) error {
 	}
 	c.Session().Set("code_theme", user.Theme)
 	userDB.Nick = s
-	if err := tx.Update(userDB); err != nil {
+	if err := tx.UpdateColumns(userDB, "nick"); err != nil {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "user-settings-edit-success"))
@@ -153,11 +159,11 @@ func UsersSettingsRemoveTopicSubscription(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 		usr.RemoveSubscription(topic.ID)
-		if err := tx.Update(usr); err != nil {
+		if err := tx.UpdateColumns(usr, "subscriptions"); err != nil {
 			return errors.WithStack(err)
 		}
 		topic.RemoveSubscriber(usr.ID)
-		if err := tx.Update(topic); err != nil {
+		if err := tx.UpdateColumns(topic, "subscribers"); err != nil {
 			return errors.WithStack(err)
 		}
 	}

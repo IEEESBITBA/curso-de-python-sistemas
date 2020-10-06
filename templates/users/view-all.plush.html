@@ -32,43 +32,46 @@ let color = "white"
 if (user.Role == "admin") {
     color = "paleturquoise"
 }
+if (user.Role == "safe") {
+    color = "azure"
+}
 if (user.Role == "banned") {
     color = "salmon"
 }
 %>
-    <div class="row text-center border-top border-secondary py-1" style="background: <%= color %>;">
-        <div class="col-1">
-            <%= avatar(derefUser(user)) %>
-        </div>
-
-        <div class="col-4">
-            <%= user.Name %>
-            <%= if (user.Nick != "") { %> (<%= user.Nick %>) <% } %>
-        </div>
-        <div class="col-1">
-            <%= userIcon(derefUser(user),{size:"1.5em"}) %>
-        </div>
-        <div class="col-2">
-            <%= if (user.Role != "banned") {%>
-            <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#user-modal-<%= user.ID %>">
-                <span> <%= bicon("hammer",{size:"1em"}) %> <%=t("topic-delete") %></span>
-            </button>
-            <% } %>
-            <%= if (user.Role != "admin") {%>
-            <a type="button" class="btn btn-primary btn-sm m-0" href="<%= adminUserPath({uid: user.ID}) %>">
-                <span> <%= bicon("shield-fill",{size:"1em"}) %> <%=t("topic-delete") %></span>
-            </a>
-            <% } %>
-            <%= if (user.Role != "") {%>
-            <a type="button" class="btn btn-secondary btn-sm m-0" href="<%= normalizeUserPath({uid: user.ID}) %>">
-               <%= if (user.Role!="banned") {%> <%= bicon("shield-slash-fill",{size:"1em"}) %> <% } else { %> <%=icon("emoji-expressionless",1,1) %>  <% } %>
-            </a>
-            <% } %>
-        </div>
-        <div class="col-3">
-            <%= user.Email %>
-        </div>
+<div class="row text-center border-top border-secondary py-1" style="background: <%= color %>;">
+    <div class="col-1">
+        <%= avatar(derefUser(user)) %>
     </div>
+
+    <div class="col-4">
+        <%= user.Name %>
+        <%= if (user.Nick != "") { %> (<%= user.Nick %>) <% } %>
+    </div>
+    <div class="col-1">
+        <%= userIcon(derefUser(user),{size:"1.5em"}) %>
+    </div>
+    <div class="col-2">
+        <%= if (user.Role != "banned") {%>
+        <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#user-modal-<%= user.ID %>">
+            <span> <%= bicon("hammer",{size:"1em"}) %> <%=t("topic-delete") %></span>
+        </button>
+        <% } %>
+        <%= if (user.Role != "admin") {%>
+        <a type="button" class="btn btn-primary btn-sm m-0" href="<%= adminUserPath({uid: user.ID}) %>">
+            <span> <%= bicon("shield-fill",{size:"1em"}) %> <%=t("topic-delete") %></span>
+        </a>
+        <% } %>
+        <%= if (user.Role != "" && user.Role != "safe") {%>
+        <a type="button" class="btn btn-secondary btn-sm m-0" href="<%= normalizeUserPath({uid: user.ID}) %>">
+            <%= if (user.Role!="banned") {%> <%= bicon("shield-slash-fill",{size:"1em"}) %> <% } else { %> <%= bicon("emoji-expressionless",{size:"1em"}) %>  <% } %>
+        </a>
+        <% } %>
+    </div>
+    <div class="col-3">
+        <%= user.Email %>
+    </div>
+</div>
 
 <div class="modal fade" id="user-modal-<%= user.ID %>">
     <div class="modal-dialog modal-dialog-centered">
@@ -96,7 +99,17 @@ if (user.Role == "banned") {
 </div>
 
 <% } %>
-<hr>
+
+<hr class="col-md-12 col-sm-12">
+<div class="row justify-content-center">
+    <div class="pagination-lg">
+        <%= paginator(pagination) %>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <%= partial("pagination-perpage.plush.html", {plural: downcase(t("app-users")), perPage: [10,20,30,50]}) %>
+</div>
+
 <% } else { %>
     <h1> No se encontró nada aquí ;)</h1>
 <% } %>
