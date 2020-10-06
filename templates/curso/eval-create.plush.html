@@ -48,7 +48,7 @@
             <div class="form-group">
                 <%= if (hidden) { %>
                     <label class="col-md-4 control-label" for="hidden"><%= t("visible") %></label>
-                    <input type="checkbox" name="hidden" id="Thidden" value="false" checked >
+                    <input type="checkbox" name="hidden" id="Thidden" value="false">
                 <% } else {%>
                     <label class="col-md-4 control-label" for="hidden"><%= t("hidden") %></label>
                     <input type="checkbox" name="hidden" id="Thidden" value="true" >
@@ -99,31 +99,6 @@
 
     </div>
 </div>
-
-<script>
-    var checked = true
-    $(document).ready(function() {
-       let checktrue =  $("#Thidden")
-       let checkfalse =  $("#Fhidden")
-       checktrue.on("click", function() {
-            checked = checktrue.prop("checked")
-           if (checked) {
-                checktrue.attr("value","true")
-           } else {
-               checktrue.attr("value","false")
-           }
-    });
-    // checkfalse.on("click", function() {
-    //     checkfalse.removeAttr("checked")
-    //     checktrue.prop("checked",true)
-    // });            
-});
-</script>
-
-<!--<label><%= bicon("markdown-fill",{size:"2em"}) %><strong><%= t("new-topic-preview") %></strong></label>
-<div  id="preview">
-
-</div> -->
 
 <div style="margin:2rem;">
     <%= let evaluation = false

@@ -1,10 +1,12 @@
-<%= if (current_user) {
+<%= if ( (current_user && !evaluation.Hidden) || current_user.Role == "admin" ) {
 let ctx = {evalid: evaluation.ID}
 %>
 
 <h5><%= t("curso-python-evaluations-title") %></h5>
 <div class="row" style="margin-bottom: 3rem;">
-    <h2 class="text-muted"><%= raw(evaluation.Title) %></h2>
+    <h2 class="text-muted"><%= if (evaluation.Hidden) { %><%= bicon("eye-slash-fill") %> <% } %>
+        <%= raw(evaluation.Title) %>
+    </h2>
     <div class="col-md-8 mt-5 offset-md-1">
         <%= markdown(evaluation.Content) %>
     </div>
@@ -61,7 +63,7 @@ let header = "# Solución " + evaluation.Title + `(invisible a usuarios comunes)
     </div>
 </div>
 <% } else {  %>
-
-    <%= t("curso-python-not-allowed") %>
+    <h2><%= t("app-not-found") %></h2>
+    
 
 <% } %>
