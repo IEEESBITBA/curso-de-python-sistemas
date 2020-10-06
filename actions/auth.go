@@ -44,6 +44,10 @@ func AuthCallback(c buffalo.Context) error {
 		c.Flash().Add("danger", T.Translate(c, "app-auth-error"))
 		return c.Redirect(302, "/") //c.Error(401, err)
 	}
+	if strings.TrimSpace(gu.Email) == "" || strings.Index(gu.Email, "@") <= 0 {
+		c.Flash().Add("warning", T.Translate(c, "app-user-auth-empty-email", render.Data{"provider": gu.Provider}))
+		return c.Redirect(200, "/")
+	}
 	tx := c.Value("tx").(*pop.Connection)
 	q := tx.Where("provider = ? and provider_id = ?", gu.Provider, gu.UserID)
 	exists, err := q.Exists("users") // look for an entry with matching providers and userID
@@ -57,10 +61,6 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	} else { // if we don't find user, create new user!
-		if gu.Email == "" {
-			c.Flash().Add("warning", T.Translate(c, "app-user-auth-empty-email", render.Data{"provider": gu.Provider}))
-			return c.Redirect(200, "/")
-		}
 		if gu.Name == "" {
 			gu.Name = "usuario"
 		}
@@ -105,7 +105,6 @@ func AuthDestroy(c buffalo.Context) error {
 // and kick unauthorized users back to homepage
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-
 		c.Logger().Debug("Authorize called")
 		unverifiedUID := c.Session().Get(cookieUIDName)
 		if unverifiedUID == nil {
