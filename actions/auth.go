@@ -7,6 +7,7 @@ import (
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -56,6 +57,13 @@ func AuthCallback(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 	} else { // if we don't find user, create new user!
+		if gu.Email == "" {
+			c.Flash().Add("warning", T.Translate(c, "app-user-auth-empty-email", render.Data{"provider": gu.Provider}))
+			return c.Redirect(200, "/")
+		}
+		if gu.Name == "" {
+			gu.Name = "usuario"
+		}
 		u.Name = strings.Title(strings.ToLower(gu.Name))
 		u.Email = strings.ToLower(gu.Email)
 		u.Provider = gu.Provider
@@ -97,6 +105,7 @@ func AuthDestroy(c buffalo.Context) error {
 // and kick unauthorized users back to homepage
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
+
 		c.Logger().Debug("Authorize called")
 		unverifiedUID := c.Session().Get(cookieUIDName)
 		if unverifiedUID == nil {
@@ -129,10 +138,10 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 // If user is not logged in it does nothing.
 func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		c.Logger().Debugf("SetCurrentUser called. Session: %s", c.Session().Session)
+		c.Logger().Debug("SetCurrentUser called.")
 		c.Set("role", "")
 		if uid := c.Session().Get(cookieUIDName); uid != nil {
-			c.Logger().Debug("user id found in SetCurrentUser")
+			c.Logger().Debugf("uid:%s found in SetCurrentUser", uid)
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
 			err := tx.Find(u, uid)
@@ -150,8 +159,8 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			u.Theme = fmt.Sprintf("%s", theme)
 			c.Set("current_user", u)
 			c.Set("role", u.Role)
+			c.Logger().Debugf("SetCurrentUser success auth:%s", u.Email)
 		}
-		c.Logger().Debug("SetCurrentUser finished successfully")
 		return next(c)
 	}
 }

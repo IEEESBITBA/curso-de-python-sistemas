@@ -15,6 +15,16 @@ import (
 func UsersViewAllGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	users := &models.Users{}
+	if c.Param("emailquery") != "" {
+		if err := tx.Where("email = ?", c.Param("emailquery")).All(users); err != nil {
+			c.Logger().Errorf("searching for %s:%s", c.Param("emailquery"), err)
+			return c.Error(500, err)
+		}
+		c.Logger().Infof("emailqueried %s", c.Param("emailquery"))
+		c.Set("users", users)
+		return c.Render(200, r.HTML("users/view-all.plush.html"))
+	}
+
 	q := tx.Order("role ASC").PaginateFromParams(c.Params())
 	if c.Param("per_page") == "" { // set default max results per page if not set
 		q.Paginator.PerPage = 20

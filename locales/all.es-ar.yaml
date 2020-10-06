@@ -17,6 +17,8 @@
   translation: "Se requiere iniciar sesión para ver esa página"
 - id: app-user-auth-error
   translation: "Hubo un error en la verificación del usuario. ¿Pruebe otra vez?"
+- id: app-user-auth-empty-email
+  translation: "Tiene que configurar {{.provider}} para que su mail sea visible antes de registrarse!"
 - id: app-users
   translation: "Usuarios"
 - id: app-user
