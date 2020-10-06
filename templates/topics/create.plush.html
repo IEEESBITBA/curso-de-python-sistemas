@@ -31,8 +31,13 @@ let status = "new"
 
             <!-- Single checkbox (inline) -->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="archive"><%= t("archive") %></label>
-                <input type="checkbox" name="archive" id="archive" value="true" <%= if (archived) { %> checked<% } %>>
+                <%= if (archived) { %>
+                    <label class="col-md-4 control-label" for="archive"><%= t("unarchive") %></label>
+                    <input type="checkbox" name="archive" id="archive" value="false">
+                <% } else { %>
+                    <label class="col-md-4 control-label" for="archive"><%= t("archive") %></label>
+                    <input type="checkbox" name="archive" id="archive" value="true">
+                <% } %>
                 <div class="col-md-4">
                     <span class="help-block"><%= t("new-topic-archive-help") %></span>
                 </div>
