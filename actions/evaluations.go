@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"sort"
-
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
@@ -14,10 +12,10 @@ import (
 func EvaluationIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	evals := &models.Evaluations{}
-	if err := tx.All(evals); err != nil {
+	if err := tx.Order("created_at desc").All(evals); err != nil {
 		return c.Error(404, err)
 	}
-	sort.Sort(evals)
+	// sort.Sort(evals)
 	c.Set("evaluations", evals)
 	return c.Render(200, r.HTML("curso/eval-index.plush.html"))
 }
