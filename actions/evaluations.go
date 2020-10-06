@@ -12,11 +12,12 @@ import (
 func EvaluationIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	evals := &models.Evaluations{}
-	if err := tx.Order("created_at desc").All(evals); err != nil {
+	if err := tx.Order("created_at ASC").All(evals); err != nil {
 		return c.Error(404, err)
 	}
 	// sort.Sort(evals)
 	c.Set("evaluations", evals)
+	c.Logger().Debugf("Finishing EvaluationIndex with c.Data():%v", c.Data())
 	return c.Render(200, r.HTML("curso/eval-index.plush.html"))
 }
 
