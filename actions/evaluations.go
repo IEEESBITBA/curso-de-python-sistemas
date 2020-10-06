@@ -23,8 +23,7 @@ func EvaluationIndex(c buffalo.Context) error {
 
 // CursoEvaluationCreateGet renders evaluation creation page
 func CursoEvaluationCreateGet(c buffalo.Context) error {
-	e := models.Evaluation{}
-	c.Set("evaluation", e)
+	c.Set("evaluation", models.Evaluation{})
 	return c.Render(200, r.HTML("curso/eval-create.plush.html"))
 }
 

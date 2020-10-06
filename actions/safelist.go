@@ -130,6 +130,7 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 		email := strings.ToLower(u.Email)
 		two := strings.Split(email, "@")
 		if two[1] == safeDomain {
+			_ = setUserSafeRole(c, u)
 			return next(c)
 		}
 		var exists bool
@@ -154,15 +155,26 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return c.Redirect(302, "/") //, render.Data{"provider":user.Provider})
 		}
 		if u.Role == "" {
-			tx := c.Value("tx").(*pop.Connection)
-			u.Role = "safe"
-			c.Set("current_user", u)
-			if err := tx.UpdateColumns(u, "role"); err != nil {
-				c.Logger().Errorf("adding 'safe' role to user %s", u.Email)
-			}
+			_ = setUserSafeRole(c, u)
 		}
 		return next(c)
 	}
+}
+
+// setUserSafeRole updates DB with user role as 'safe'
+func setUserSafeRole(c buffalo.Context, u *models.User) error {
+	if u.Role != "" {
+		c.Logger().Warnf("cant set '%s' role to 'safe' for %s", u.Role, u.Email)
+		return nil
+	}
+	tx := c.Value("tx").(*pop.Connection)
+	u.Role = "safe"
+	c.Set("current_user", u)
+	if err := tx.UpdateColumns(u, "role"); err != nil {
+		c.Logger().Errorf("adding 'safe' role to user %s", u.Email)
+		return err
+	}
+	return nil
 }
 
 // Parses form list from the form Post event
