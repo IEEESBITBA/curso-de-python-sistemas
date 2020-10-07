@@ -1,10 +1,13 @@
 package actions
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
@@ -35,14 +38,37 @@ func (s safeUsers) String() (out string) {
 	return
 }
 
-var words []string
+var (
+	words   []string
+	teamIDs map[string]int
+)
 
 func init() {
-	f, err := os.Open("assets/server/badwords.es.en.txt")
+	f, err := os.Open("data/badwords.es.en.txt")
 	must(err)
+	defer f.Close()
 	b, err := ioutil.ReadAll(f)
 	must(err)
 	words = strings.Split(string(b), "\n")
+	f.Close()
+	f, err = os.Open("data/teamids.csv")
+	must(err)
+	r := csv.NewReader(f)
+	r.Comma = ';'
+	records, err := r.ReadAll()
+	must(err)
+	teamIDs = make(map[string]int)
+	for _, r := range records[1:] { // exclude header
+		if len(r) != 2 {
+			must(fmt.Errorf("error reading teamid records %q", r))
+		}
+		id, err := strconv.Atoi(r[0])
+		must(err)
+		if !isEmail(r[1]) {
+			must(fmt.Errorf("mail %q is not valid", r[1]))
+		}
+		teamIDs[r[1]] = id
+	}
 }
 
 // SafeListGet renders page with safelist. only admins can see
@@ -125,6 +151,10 @@ func SafeList(next buffalo.Handler) buffalo.Handler {
 			return c.Redirect(302, "/")
 		}
 		if u.Role == "safe" || u.Role == "admin" {
+			id, ok := teamIDs[u.Email]
+			if ok {
+				c.Set("team_id", id)
+			}
 			return next(c)
 		}
 		email := strings.ToLower(u.Email)

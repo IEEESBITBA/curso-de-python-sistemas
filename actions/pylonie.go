@@ -97,9 +97,6 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	if err = q.First(eval); err != nil {
 		return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-not-found"))
 	}
-	// if user.Subscribed(eval.ID) {
-	// 	return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-already-passed"))
-	// }
 	peval := pythonHandler{}
 	peval.userID = p.userID
 	peval.Source = eval.Solution
