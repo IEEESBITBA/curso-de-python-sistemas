@@ -54,7 +54,7 @@ func init() {
 	f, err = os.Open("data/teamids.csv")
 	must(err)
 	r := csv.NewReader(f)
-	r.Comma = ';'
+	r.Comma = '\t'
 	records, err := r.ReadAll()
 	must(err)
 	teamIDs = make(map[string]int)
