@@ -34,6 +34,7 @@ require (
 	github.com/markbates/grift v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/sirupsen/logrus v1.5.0
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/text v0.3.2

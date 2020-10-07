@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/logger"
 	csrf "github.com/gobuffalo/mw-csrf"
+	"github.com/sirupsen/logrus"
 
 	// forcessl "github.com/gobuffalo/mw-forcessl"
 	i18n "github.com/gobuffalo/mw-i18n"
@@ -42,13 +43,28 @@ const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. A
 // placed last in the route declarations, as it will prevent routes
 // declared after it to never be called.
 func App() *buffalo.App {
+	var loglvl logrus.Level
+	switch envy.Get("FORUM_LOGLVL", "") {
+	case "debug":
+		loglvl = logger.DebugLevel
+	case "info":
+		loglvl = logger.InfoLevel
+	case "error", "err", "erro":
+		loglvl = logger.ErrorLevel
+	case "fatal":
+		loglvl = logger.FatalLevel
+	case "warn", "warning":
+		loglvl = logger.WarnLevel
+	default:
+		loglvl = logger.InfoLevel
+	}
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
 			Name:         envy.Get("FORUM_NAME", "curso_python"),
 			Host:         envy.Get("FORUM_HOST", envy.Get("HOST", "")),
 			Env:          ENV,
 			SessionName:  "_curso_session",
-			LogLvl:       logger.DebugLevel,
+			LogLvl:       loglvl,
 			SessionStore: defaultCookieStore(),
 		})
 		// Automatically redirect to SSL. Only works if you have a proxy up and running such as NGINX
