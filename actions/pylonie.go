@@ -180,8 +180,8 @@ const (
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
-	pyMaxSourceLength    = 5000 // DB storage trim length
-	pyMaxOutputLength    = 2000 // in characters
+	pyMaxSourceLength    = 10000 // DB storage trim length
+	pyMaxOutputLength    = 2000  // in characters
 )
 
 type pyExitStatus int
