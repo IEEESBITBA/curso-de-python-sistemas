@@ -180,8 +180,8 @@ const (
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
-	pyMaxSourceLength    = 10000 // DB storage trim length
-	pyMaxOutputLength    = 2000  // in characters
+	pyMaxSourceLength    = 1200 // DB storage trim length
+	pyMaxOutputLength    = 2000 // in characters
 )
 
 type pyExitStatus int
@@ -358,8 +358,8 @@ func (p *pythonHandler) runPy() (err error) {
 }
 
 func (c *code) sanitizePy() error {
-	if len(c.Source) > 600 {
-		return fmt.Errorf("code snippet too long")
+	if len(c.Source) > pyMaxSourceLength {
+		return fmt.Errorf("code snippet too long (%d/%d)", len(c.Source), pyMaxSourceLength)
 	}
 	semicolonSplit := strings.Split(c.Source, ";")
 	newLineSplit := strings.Split(c.Source, "\n")
