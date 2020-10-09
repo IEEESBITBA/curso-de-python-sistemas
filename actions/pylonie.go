@@ -132,16 +132,6 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 
 // DeletePythonUploads delete all python uploads in bbolt DB
 func DeletePythonUploads(c buffalo.Context) error {
-	// var auth struct {
-	// 	Key string `form:"authkey"`
-	// }
-	// if err := c.Bind(&auth); err != nil {
-	// 	return c.Error(500, err)
-	// }
-	// if auth.Key != authKey {
-	// 	c.Flash().Add("warning", "bad key")
-	// 	return c.Redirect(302, "controlPanelPath()")
-	// }
 	btx := c.Value("btx").(*bbolt.Tx)
 	if err := btx.DeleteBucket([]byte(pyDBUploadBucketName)); err != nil {
 		return c.Error(500, err)

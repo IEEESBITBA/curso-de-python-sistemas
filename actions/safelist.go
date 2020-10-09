@@ -51,7 +51,7 @@ func init() {
 	must(err)
 	words = strings.Split(string(b), "\n")
 	f.Close()
-	f, err = os.Open("data/teamids.csv")
+	f, err = os.Open("data/teamids.tsv")
 	must(err)
 	r := csv.NewReader(f)
 	r.Comma = '\t'
@@ -64,7 +64,7 @@ func init() {
 		}
 		id, err := strconv.Atoi(r[0])
 		must(err)
-		if !isEmail(r[1]) {
+		if !isEmail(strings.TrimSpace(r[1])) {
 			must(fmt.Errorf("mail %q is not valid", r[1]))
 		}
 		teamIDs[r[1]] = id
