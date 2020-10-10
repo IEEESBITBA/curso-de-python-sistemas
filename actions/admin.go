@@ -107,7 +107,7 @@ func ControlPanelHandler(next buffalo.Handler) buffalo.Handler {
 		if err := c.Bind(&auth); err != nil {
 			return c.Error(500, err)
 		}
-		if auth.Key != authKey {
+		if auth.Key != "1337" {
 			c.Flash().Add("warning", "bad key")
 			return c.Redirect(302, "controlPanelPath()")
 		}

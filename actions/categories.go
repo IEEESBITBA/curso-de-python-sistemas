@@ -26,16 +26,21 @@ func CategoriesIndex(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 	c.Set("category", cat)
-
+	forum := c.Value("forum").(*models.Forum)
 	topics := &models.Topics{}
-
-	q := tx.BelongsTo(cat).Where("deleted IS false").Order("created_at desc").PaginateFromParams(c.Params())
+	var ordering string
+	if forum.Defcon == "2" {
+		ordering = "archived, length (voters), created_at desc"
+	} else {
+		ordering = "created_at desc"
+	}
+	q := tx.BelongsTo(cat).Where("deleted IS false").Order(ordering).PaginateFromParams(c.Params())
 	if c.Param("per_page") == "" { // set default max results per page if not set
 		q.Paginator.PerPage = 8
 	}
 
 	if err := q.All(topics); err != nil {
-		c.Logger().Warnf("'tx.BelongsTo(cat).Order(\"updated_at desc\").PaginateFromParams(c.Params())' FAILED!")
+		c.Logger().Warnf("'tx.BelongsTo(cat).Order(%q).PaginateFromParams(c.Params())' FAILED!", ordering)
 		return c.Error(404, err)
 	}
 	for i, t := range *topics {
@@ -46,7 +51,7 @@ func CategoriesIndex(c buffalo.Context) error {
 		}
 		(*topics)[i] = *topic
 	}
-	forum := c.Value("forum").(*models.Forum)
+
 	role := c.Value("role").(string)
 	var renderer render.Renderer
 	if forum.Defcon == "2" {

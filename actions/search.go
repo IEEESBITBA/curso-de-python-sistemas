@@ -27,7 +27,6 @@ var theGreatNormalizer transform.Transformer
 
 func init() {
 	_ = os.Mkdir(indexName, os.ModeDir)
-	_ = os.Chmod(indexName, 0666)
 	theGreatNormalizer = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 }
 
