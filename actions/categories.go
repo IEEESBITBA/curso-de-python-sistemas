@@ -29,14 +29,17 @@ func CategoriesIndex(c buffalo.Context) error {
 	forum := c.Value("forum").(*models.Forum)
 	topics := &models.Topics{}
 	var ordering string
+	var pag int
 	if forum.Defcon == "2" {
+		pag = 100
 		ordering = "archived, created_at desc"
 	} else {
+		pag = 8
 		ordering = "created_at desc"
 	}
 	q := tx.BelongsTo(cat).Where("deleted IS false").Order(ordering).PaginateFromParams(c.Params())
 	if c.Param("per_page") == "" { // set default max results per page if not set
-		q.Paginator.PerPage = 100
+		q.Paginator.PerPage = pag
 	}
 
 	if err := q.All(topics); err != nil {
