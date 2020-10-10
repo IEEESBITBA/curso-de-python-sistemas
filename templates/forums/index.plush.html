@@ -22,7 +22,7 @@
 <div class="row">
     <hr class="col-md-12">
     <div class="col-10">
-        <a href="<%= joinPath(current_path,"c", c.Title) + "?per_page=8" %>"><h2><%= c.Title %></h2></a>
+        <a href="<%= joinPath(current_path,"c", c.Title) %>"><h2><%= c.Title %></h2></a>
         <%= if (current_user.Role == "admin") { %>
         <a href="<%= catEditPath({cat_title:c.Title, forum_title:forum.Title}) %>">
             <%= bicon("pencil-square",{size:"2em"}) %>
