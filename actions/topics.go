@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
@@ -12,9 +13,8 @@ import (
 
 // TopicGet render a topic. basis of the forum
 func TopicGet(c buffalo.Context) error {
-	f := c.Value("forum").(*models.Forum)
 	tid := c.Param("tid")
-	renderData := render.Data{"forum_title": f.Title, "cat_title": c.Param("cat_title"), "tid": tid}
+	renderData := render.Data{"forum_title": c.Param("forum_title"), "cat_title": c.Param("cat_title"), "tid": tid}
 	topic, err := loadTopic(c, tid)
 	if err != nil {
 		return c.Redirect(302, "catPath()", renderData)
@@ -112,9 +112,24 @@ func TopicEditPost(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "topic-edit-success"))
-	// f := c.Value("forum").(*models.Forum)
 	return c.Redirect(302, "topicGetPath()", render.Data{"forum_title": c.Param("forum_title"),
 		"cat_title": c.Param("cat_title"), "tid": c.Param("tid")})
+}
+
+func TopicArchivePost(c buffalo.Context) error {
+	topic := c.Value("topic").(*models.Topic)
+	u := c.Value("current_user").(*models.User)
+	if topic.Author.ID != u.ID && u.Role != "admin" {
+		c.Redirect(403, "/")
+	}
+	tx := c.Value("tx").(*pop.Connection)
+	topic.Archived = !topic.Archived
+	if err := tx.UpdateColumns(topic, "archived"); err != nil {
+		return errors.WithStack(err)
+	}
+	c.Flash().Add("success", T.Translate(c, "archived")+fmt.Sprintf(" %s: %t", topic.Title, topic.Archived))
+	return c.Redirect(302, "catPath()", render.Data{"forum_title": c.Param("forum_title"),
+		"cat_title": c.Param("cat_title")})
 }
 
 // SetCurrentTopic sets 'topic' in context for easy use in html template
