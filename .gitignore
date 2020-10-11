@@ -3,6 +3,8 @@
 *teamids.csv
 *teamids*
 curso*
+*nohup.out
+
 # Curso container filesystem
 container/fs/*
 container/alp-fs-py/*
