@@ -11,6 +11,7 @@ import (
 
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 )
 
 // DB is a connection to your database to be used
@@ -56,29 +57,35 @@ func must(err error) {
 
 // DBToJSON encodes the site's SQL structure to json
 func DBToJSON(w io.Writer) error {
+	site := make(map[string]interface{})
 	usrs := new(Users)
 	if err := DB.All(usrs); err != nil {
 		return err
 	}
+	site["users"] = usrs
+
 	type Repl struct {
 		Content  string `json:"content"`
 		AuthorID string `json:"author_id"`
 	}
 	type Top struct {
-		Title    string `json:"title"`
-		Content  string `json:"content"`
-		AuthorID string `json:"author_id"`
-		Repls    []Repl `json:"replies"`
+		id       uuid.UUID
+		Title    string  `json:"title"`
+		Content  string  `json:"content"`
+		AuthorID string  `json:"author_id"`
+		Repls    []*Repl `json:"replies"`
 	}
 	type Cat struct {
+		id          uuid.UUID
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		Tops        []Top  `json:"topics"`
+		Tops        []*Top `json:"topics"`
 	}
 	type Frum struct {
+		id          uuid.UUID
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		Cats        []Cat
+		Cats        []*Cat
 	}
 	type Eval struct {
 		Title       string `json:"title"`
@@ -89,54 +96,68 @@ func DBToJSON(w io.Writer) error {
 		ID          string `json:"ID"`
 	}
 
-	site := make(map[string]interface{})
-	site["forums"] = []Frum{}
-	site["users"] = usrs
-	site["evaluations"] = []Eval{}
+	frumsSlice := []*Frum{}
+	evalsSlice := []*Eval{}
 	forums := new(Forums)
 	categories := new(Categories)
 	topics := new(Topics)
 	replies := new(Replies)
 	evaluations := new(Evaluations)
-	if err := DB.All(forums); err != nil {
-		return err
-	}
 	if err := DB.All(evaluations); err != nil {
 		return err
 	}
 	for _, e := range *evaluations {
-		eval := Eval{Title: e.Title, Description: e.Description, Content: e.Content, Solution: e.Solution, Inputs: e.Inputs.String, ID: e.ID.String()}
-		site["evaluations"] = append(site["evaluations"].([]Eval), eval)
+		evalsSlice = append(evalsSlice, &Eval{Title: e.Title, Description: e.Description, Content: e.Content, Solution: e.Solution, Inputs: e.Inputs.String, ID: e.ID.String()})
+	}
+	site["evaluations"] = evalsSlice
+	if err := DB.All(forums); err != nil {
+		return err
+	}
+	if err := DB.All(categories); err != nil {
+		return err
+	}
+	if err := DB.All(topics); err != nil {
+		return err
+	}
+	if err := DB.All(replies); err != nil {
+		return err
 	}
 	for _, f := range *forums {
-		frum := Frum{Title: f.Title, Description: f.Description}
-		if err := DB.Where("parent_category = ?", f.ID).All(categories); err != nil {
-			return err
-		}
-		for _, c := range *categories {
-			cat := Cat{Title: c.Title, Description: c.Description.String}
-			if err := DB.BelongsTo(&c).All(topics); err != nil {
-				return err
-			}
-			for _, t := range *topics {
-				topAuthor := new(User)
-				_ = DB.Where("id = ?", t.AuthorID).First(topAuthor) // if not found, keep going
-				top := Top{Title: t.Title, Content: t.Content, AuthorID: t.AuthorID.String()}
-				if err := DB.BelongsTo(&t).All(replies); err != nil {
-					return err
-				}
-				for _, r := range *replies {
-					replAuthor := new(User)
-					_ = DB.Where("id = ?", r.AuthorID).First(replAuthor) // if not found, keep going
-					top.Repls = append(top.Repls, Repl{Content: r.Content, AuthorID: r.AuthorID.String()})
-				}
-				cat.Tops = append(cat.Tops, top)
-			}
-			frum.Cats = append(frum.Cats, cat)
-		}
-		site["forums"] = append(site["forums"].([]Frum), frum)
+		frumsSlice = append(frumsSlice, &Frum{Title: f.Title, Description: f.Description, id: f.ID})
 	}
 
+	for _, f := range frumsSlice {
+		for _, c := range *categories {
+			if c.ParentCategory.UUID == f.id {
+				f.Cats = append(f.Cats, &Cat{Title: c.Title, Description: c.Description.String, id: c.ID})
+				continue
+			}
+		}
+	}
+	for _, f := range frumsSlice {
+		for _, c := range f.Cats {
+			for _, t := range *topics {
+				if c.id == t.CategoryID {
+					c.Tops = append(c.Tops, &Top{Title: t.Title, Content: t.Content, AuthorID: t.AuthorID.String(), id: t.ID})
+					continue
+				}
+			}
+		}
+	}
+	for _, f := range frumsSlice {
+		for _, c := range f.Cats {
+			for _, t := range c.Tops {
+				print(t.Title)
+				for _, r := range *replies {
+					if r.TopicID == t.id {
+						t.Repls = append(t.Repls, &Repl{Content: r.Content, AuthorID: r.AuthorID.String()})
+						continue
+					}
+				}
+			}
+		}
+	}
+	site["forums"] = frumsSlice
 	j := json.NewEncoder(w)
 	j.SetIndent("", "\t")
 	return j.Encode(site)

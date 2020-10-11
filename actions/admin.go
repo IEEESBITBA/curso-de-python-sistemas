@@ -123,14 +123,15 @@ func ControlPanelHandler(next buffalo.Handler) buffalo.Handler {
 }
 
 var indexing bool
+var jobname string
 
 func generateJSONFromSQL(c buffalo.Context) error {
 	if indexing {
-		c.Flash().Add("danger", "currently on a job")
-		return c.Redirect(200, "/")
+		c.Flash().Add("danger", "currently on job "+jobname)
+		return c.Redirect(302, "controlPanelPath()", render.Data{})
 	}
 	tstart := time.Now()
-	jobname := "assets/server/data/sql_" + tstart.Format("Jan_2_15:04:05_2006") + ".json"
+	jobname = "assets/server/data/sql_" + tstart.Format("Jan_2_15:04:05_2006") + ".json"
 	f, err := os.Create(jobname)
 	if err != nil {
 		return c.Error(500, err)
