@@ -1,6 +1,8 @@
 # Secrets
 *secret*
 *teamids.csv
+*teamids*
+curso*
 # Curso container filesystem
 container/fs/*
 container/alp-fs-py/*
