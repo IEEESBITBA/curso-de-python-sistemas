@@ -223,6 +223,15 @@ To delete a row use `DELETE`
 DELETE FROM users WHERE email = 'noLongerThere@gma.com';
 ```
 
+### Oops, I uploaded sensitive content or emails
+Taken from [git official doc.](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/removing-sensitive-data-from-a-repository)
+
+```bash
+git filter-branch --force --index-filter \
+  "git rm --cached --ignore-unmatch curso" \
+  --prune-empty --tag-name-filter cat -- --all
+```
+
 ## how i did this
 Don't bother reading this. These are notes for myself if I ever try building a new buffalo app in the future.
 
