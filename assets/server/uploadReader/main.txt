@@ -3,18 +3,41 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/etcd-io/bbolt"
-	"github.com/gofrs/uuid"
 	"html/template"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/gofrs/uuid"
+	"go.etcd.io/bbolt"
 )
 
 func main() {
-	db, _ := bbolt.Open("uploads.db", 0600, nil)
+	var dbName string
+	var files []string
+	finfos, _ := ioutil.ReadDir(".")
+	for _, info := range finfos {
+		ext := filepath.Ext(info.Name())
+		if info.IsDir() {
+			continue
+		}
+		files = append(files, info.Name())
+		if ext != ".db" {
+			continue
+		}
+		fmt.Printf("\nprocess %s?", info.Name())
+		if Ask4confirm() {
+			dbName = info.Name()
+			break
+		}
+	}
+	if dbName == "" {
+		panic(fmt.Sprintf("no .db file in dir. found %v", files))
+	}
+	db, _ := bbolt.Open(dbName, 0600, nil)
 	var codes []pythonHandler
 	err := db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("pyUploads"))
@@ -22,7 +45,7 @@ func main() {
 			p := pythonHandler{}
 			err := json.Unmarshal(v, &p)
 			p.Time = strings.Split(p.Time, " m=")[0] // gets rid of monotonic clock reading
-			p.timeCode, err = time.Parse(tform, p.Time)
+			p.Timecode, err = time.Parse(tform, p.Time)
 			codes = append(codes, p)
 			return err
 		})
@@ -35,7 +58,7 @@ func main() {
 		return
 	}
 	fj, _ := os.Create("out.json")
-	j, _ := json.MarshalIndent(codes," ","\t")
+	j, _ := json.MarshalIndent(codes, " ", "\t")
 	fj.Write(j)
 	fj.Close()
 	f, err := os.Open("tpl.html")
@@ -55,31 +78,25 @@ func main() {
 	err = t.Execute(f, &struct {
 		Codes []pythonHandler
 	}{Codes: codes})
-	fmt.Print(err)
-
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print("success!")
 }
 
 var tform = "2006-01-02 15:04:05.999999999 -0700 MST"
+
 //var dateString = "2018-10-15 15:42:37.5989253 +1100 AEDT m=+3610.688917401" // as is received by go
 // sort interface
 type ByTime []pythonHandler
 
 func (t ByTime) Len() int           { return len(t) }
 func (t ByTime) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
-func (t ByTime) Less(i, j int) bool { return t[i].timeCode.Before(t[j].timeCode) }
+func (t ByTime) Less(i, j int) bool { return t[i].Timecode.Before(t[j].Timecode) }
 
-type pythonHandler struct {
-	code
-	result
-	Time     string `json:"time"`
-	timeCode time.Time
-	UserName string `json:"user"`
-	userID   string
-	filename string
-}
 type code struct {
-	Source string `json:"code" form:"code"`
-	Input string `json:"input" form:"input"`
+	Source     string    `json:"code" form:"code"`
+	Input      string    `json:"input" form:"input"`
 	Evaluation uuid.UUID `json:"evalid" form:"evalid"`
 }
 
@@ -87,6 +104,35 @@ type result struct {
 	Output  string        `json:"output"`
 	Error   string        `json:"error"`
 	Elapsed time.Duration `json:"elapsed"`
+}
+
+type pythonHandler struct {
+	result
+	code
+	Timecode time.Time
+	Time     string `json:"time"`
+	UserName string `json:"user"`
+	userID   string
+	Filename string `json:"-" form:"-"`
+}
+
+func Ask4confirm() bool {
+	var s string
+
+	fmt.Printf("(y/N): ")
+	_, err := fmt.Scan(&s)
+	if err != nil {
+		return false
+		panic(err)
+	}
+
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+
+	if s == "y" || s == "yes" {
+		return true
+	}
+	return false
 }
 
 const tpl = `<!DOCTYPE html>
