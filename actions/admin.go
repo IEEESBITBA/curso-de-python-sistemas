@@ -12,6 +12,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+func init() {
+	_ = os.MkdirAll("assets/server/data", os.ModeDir)
+}
+
 // UsersViewAllGet renders all users page (admins only)
 func UsersViewAllGet(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
