@@ -102,11 +102,13 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 		return errors.WithStack(err)
 	}
 	c.Logger().Debugf("SEND %v", m)
-	err = smtp.Send(m)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
+	go func() { // run mailer asynchronously so process does not hang
+		if err := smtp.Send(m); err != nil {
+			c.Logger().Errorf("Failed sending notification messages for reply %s: %s", reply.ID, err)
+		} else {
+			c.Logger().Debugf("Success sending notification messages for reply %s", reply.ID)
+		}
+	}()
 	return nil
 }
 

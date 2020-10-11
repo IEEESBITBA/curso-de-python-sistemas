@@ -45,13 +45,9 @@ func ReplyPost(c buffalo.Context) error {
 		return c.Render(422, r.HTML("replies/create"))
 	}
 	// https://myaccount.google.com/lesssecureapps allow mailing
-	go func() { // run mailer asynchronously so process does not hang
-		if err := newReplyNotify(c, topic, reply); err != nil {
-			c.Logger().Errorf("Failed sending notification messages for reply %s: %s", reply.ID, err)
-		} else {
-			c.Logger().Debugf("Success sending notification messages for reply %s", reply.ID)
-		}
-	}()
+	if err := newReplyNotify(c, topic, reply); err != nil {
+		c.Logger().Errorf("newReplyNotify(%s): %s", reply.ID, err)
+	}
 
 	user.AddSubscription(topic.ID)
 	_ = tx.UpdateColumns(user, "subscriptions")
