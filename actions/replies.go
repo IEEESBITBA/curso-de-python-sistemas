@@ -129,9 +129,6 @@ func DeleteReply(c buffalo.Context) error {
 func loadReply(c buffalo.Context, id string) (*models.Reply, error) {
 	tx := c.Value("tx").(*pop.Connection)
 	reply := &models.Reply{}
-	if err := c.Bind(reply); err != nil {
-		return nil, errors.WithStack(err)
-	}
 	if err := tx.Find(reply, id); err != nil {
 		return nil, c.Error(404, err)
 	}
