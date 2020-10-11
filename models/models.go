@@ -147,7 +147,6 @@ func DBToJSON(w io.Writer) error {
 	for _, f := range frumsSlice {
 		for _, c := range f.Cats {
 			for _, t := range c.Tops {
-				print(t.Title)
 				for _, r := range *replies {
 					if r.TopicID == t.id {
 						t.Repls = append(t.Repls, &Repl{Content: r.Content, AuthorID: r.AuthorID.String()})

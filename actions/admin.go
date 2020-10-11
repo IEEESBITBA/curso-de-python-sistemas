@@ -146,6 +146,6 @@ func generateJSONFromSQL(c buffalo.Context) error {
 		indexing = false
 		app.Logger.Infof("%s generation time elapsed %s", jobname, time.Since(tstart))
 	}()
-	c.Flash().Add("info", fmt.Sprintf("sql file is processing. will be available at %s/%s. May take up to several hours", app.Host, jobname))
+	c.Flash().Add("info", fmt.Sprintf("sql file is processing. will be available at %s/%s. May take a few seconds", app.Host, jobname))
 	return c.Redirect(302, "controlPanelPath()", render.Data{})
 }
