@@ -4,7 +4,7 @@
 *teamids*
 curso*
 *nohup.out
-
+assets/server/data/*.json
 # Curso container filesystem
 container/fs/*
 container/alp-fs-py/*
