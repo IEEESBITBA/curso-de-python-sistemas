@@ -2,10 +2,12 @@ package actions
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 )
@@ -116,16 +118,29 @@ func ControlPanelHandler(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
-func downloadSQL(c buffalo.Context) error {
-	w := c.Response()
+var indexing bool
+
+func generateJSONFromSQL(c buffalo.Context) error {
+	if indexing {
+		c.Flash().Add("danger", "currently on a job")
+		return c.Redirect(200, "/")
+	}
 	tstart := time.Now()
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.json"`, App().Name))
-	err := models.DBToJSON(w)
+	jobname := "assets/server/sql_" + tstart.Format("Jan_2_15:04:05_2006") + ".json"
+	f, err := os.Create(jobname)
 	if err != nil {
 		return c.Error(500, err)
 	}
-	w.WriteHeader(200)
-	c.Logger().Infof("sql -> json download time elapsed %s", time.Since(tstart))
-	return nil
+	go func() {
+		defer f.Close()
+		if indexing {
+			return
+		}
+		indexing = true
+		models.DBToJSON(f)
+		indexing = false
+		app.Logger.Infof("sql -> json generation time elapsed %s", time.Since(tstart))
+	}()
+	c.Flash().Add("info", fmt.Sprintf("sql file is processing. will be available at %s/%s", app.Host, jobname))
+	return c.Redirect(302, "controlPanelPath()", render.Data{})
 }

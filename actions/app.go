@@ -195,7 +195,7 @@ func App() *buffalo.App {
 		// admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
 		controlPanelGroup := admin.Group("/control-panel")
 		controlPanelGroup.GET("", ControlPanel).Name("controlPanel")
-		controlPanelGroup.POST("/exfiltrate", downloadSQL).Name("sqlBackup")
+		controlPanelGroup.POST("/exfiltrate", generateJSONFromSQL).Name("sqlBackup")
 		controlPanelGroup.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
 		controlPanelGroup.Use(ControlPanelHandler)
 		controlPanelGroup.Middleware.Skip(ControlPanelHandler, ControlPanel)

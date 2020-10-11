@@ -105,7 +105,6 @@ func DBToJSON(w io.Writer) error {
 		return err
 	}
 	for _, e := range *evaluations {
-
 		eval := Eval{Title: e.Title, Description: e.Description, Content: e.Content, Solution: e.Solution, Inputs: e.Inputs.String, ID: e.ID.String()}
 		site["evaluations"] = append(site["evaluations"].([]Eval), eval)
 	}
