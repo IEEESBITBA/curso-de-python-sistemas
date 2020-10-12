@@ -103,7 +103,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	chrootPath := envy.Get("GONTAINER_FS", "")
 	tests := strings.Split(strings.ReplaceAll(eval.Inputs.String, "\r", ""), "---\n")
 	passed := 0
-	defer p.PutTx(btx, c)
+
 	for _, test := range tests {
 		peval.Input = teamID + "\n" + test
 		p.Input = test
@@ -119,6 +119,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		} else {
 			err = p.containerPy()
 		}
+
 		if err != nil {
 			return p.codeResult(c, p.Output, err.Error())
 		}
@@ -126,6 +127,7 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 			passed++
 		}
 	}
+	defer p.PutTx(btx, c)
 	if float64(passed)/float64(len(tests)) < 0.4 {
 		msg := fmt.Sprintf("%s ID:%s\n(%d/%d) casos bien", T.Translate(c, "curso-python-evaluation-fail"), teamID, passed, len(tests))
 		return p.codeResult(c, "", msg)
@@ -290,7 +292,11 @@ func (p *pythonHandler) containerPy() (err error) {
 		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 	case pyError, pyOK:
 		p.Elapsed = time.Since(tstart)
-		p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
+		replaced := strings.ReplaceAll(string(output), "\""+chrootFilename+"\",", "")
+		if strings.Index(string(output), chrootFilename) > 0 {
+			return fmt.Errorf(replaced)
+		}
+		p.Output = replaced
 		return
 	}
 
