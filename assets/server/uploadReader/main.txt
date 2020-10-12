@@ -103,7 +103,7 @@ type code struct {
 type result struct {
 	Output  string        `json:"output"`
 	Error   string        `json:"error"`
-	Elapsed time.Duration `json:"elapsed"`
+	Elapsed []time.Duration `json:"elapsed"`
 }
 
 type pythonHandler struct {
