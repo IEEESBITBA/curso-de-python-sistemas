@@ -270,6 +270,7 @@ func (p *pythonHandler) containerPy() (err error) {
 	}
 	gontainerArgs := []string{"run", "--chdr", userDir, "--chrt", chrootPath, pyCommand, chrootFilename}
 	cmd := exec.Command("gontainer", gontainerArgs...)
+	defer cmd.Process.Signal(os.Interrupt) // Interrupt only works on linux
 	stdin, _ := cmd.StdinPipe()
 	go func() {
 		_, _ = stdin.Write([]byte(p.Input + "\n"))
@@ -292,7 +293,6 @@ func (p *pythonHandler) containerPy() (err error) {
 
 	switch <-status {
 	case pyTimeout:
-		_ = cmd.Process.Kill()
 		p.Elapsed = append(p.Elapsed, pyTimeoutMS*time.Millisecond)
 		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 	case pyError, pyOK:
@@ -304,8 +304,6 @@ func (p *pythonHandler) containerPy() (err error) {
 		p.Output = replaced
 		return
 	}
-
-	_ = cmd.Process.Kill()
 	return fmt.Errorf("server error in container")
 
 }
