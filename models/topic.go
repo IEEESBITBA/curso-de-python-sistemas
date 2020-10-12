@@ -114,6 +114,9 @@ func (t *Topic) RemoveSubscriber(id uuid.UUID) {
 
 // AddVoter add id to topic.voters
 func (t *Topic) AddVoter(id uuid.UUID) {
+	if id.String() == nullUUID {
+		return
+	}
 	set := make(map[uuid.UUID]struct{})
 	set[id] = struct{}{}
 	for _, sub := range t.Voters {

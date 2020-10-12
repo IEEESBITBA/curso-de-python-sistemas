@@ -14,6 +14,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+const nullUUID = "00000000-0000-0000-0000-000000000000"
+
 // DB is a connection to your database to be used
 // throughout your application.
 var DB *pop.Connection
@@ -70,6 +72,10 @@ func DBToJSON(w io.Writer) error {
 	}
 	type Top struct {
 		id       uuid.UUID
+		Voters   string  `json:"voters"`
+		Votes    int     `json:"votes"`
+		Archived bool    `json:"archived"`
+		Deleted  bool    `json:"deleted"`
 		Title    string  `json:"title"`
 		Content  string  `json:"content"`
 		AuthorID string  `json:"author_id"`
@@ -138,7 +144,8 @@ func DBToJSON(w io.Writer) error {
 		for _, c := range f.Cats {
 			for _, t := range *topics {
 				if c.id == t.CategoryID {
-					c.Tops = append(c.Tops, &Top{Title: t.Title, Content: t.Content, AuthorID: t.AuthorID.String(), id: t.ID})
+					c.Tops = append(c.Tops, &Top{Title: t.Title, Content: t.Content, AuthorID: t.AuthorID.String(),
+						id: t.ID, Deleted: t.Deleted, Archived: t.Archived, Votes: t.Votes(), Voters: t.Voters.Format(";")})
 					continue
 				}
 			}
