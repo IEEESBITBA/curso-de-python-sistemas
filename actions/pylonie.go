@@ -100,34 +100,41 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 	peval := pythonHandler{}
 	peval.userID = p.userID
 	peval.Source = eval.Solution
-	// Evaluator stdin comes in two parts: One line with teamID followed by the evaluator defined stdin
-	peval.Input = teamID + "\n" + eval.Inputs.String
 	chrootPath := envy.Get("GONTAINER_FS", "")
-	if chrootPath == "" {
-		err = peval.runPy()
-	} else {
-		err = peval.containerPy()
-	}
-	if err != nil {
-		if c.Value("role").(string) == "admin" {
-			return p.codeResult(c, peval.Output, "Evaluation errored! "+err.Error())
-		}
-		return p.codeResult(c, "", "Evaluation errored! "+err.Error())
-	}
-
+	tests := strings.Split(strings.ReplaceAll(eval.Inputs.String, "\r", ""), "---\n")
+	passed := 0
 	defer p.PutTx(btx, c)
-	p.Input = eval.Inputs.String
-	err = p.runPy()
-	if err != nil {
-		return p.codeResult(c, p.Output, err.Error())
+	for _, test := range tests {
+		peval.Input = teamID + "\n" + test
+		p.Input = test
+
+		if err = peval.runPy(); err != nil {
+			if c.Value("role").(string) == "admin" {
+				return p.codeResult(c, peval.Output, "Evaluation errored! "+err.Error())
+			}
+			return p.codeResult(c, "", "Evaluation errored! "+err.Error())
+		}
+		if chrootPath == "" {
+			err = p.runPy()
+		} else {
+			err = p.containerPy()
+		}
+		if err != nil {
+			return p.codeResult(c, p.Output, err.Error())
+		}
+		if p.Output == peval.Output {
+			passed++
+		}
 	}
-	if p.Output == peval.Output {
-		go func() { _ = newEvaluationSuccessNotify(c, eval) }() // this is the same as go newEvaluationSuccessNotify(c,eval). The closure is to avoid golint from picking up errors
-		user.AddSubscription(eval.ID)
-		_ = tx.UpdateColumns(user, "subscriptions")
-		return p.codeResult(c, T.Translate(c, "curso-python-evaluation-success")+" ID:"+teamID)
+	if float64(passed)/float64(len(tests)) < 0.4 {
+		msg := fmt.Sprintf("%s ID:%s\n(%d/%d) casos bien", T.Translate(c, "curso-python-evaluation-fail"), teamID, passed, len(tests))
+		return p.codeResult(c, "", msg)
 	}
-	return p.codeResult(c, "", T.Translate(c, "curso-python-evaluation-fail"))
+	go func() { _ = newEvaluationSuccessNotify(c, eval) }() // this is the same as go newEvaluationSuccessNotify(c,eval). The closure is to avoid golint from picking up errors
+	user.AddSubscription(eval.ID)
+	_ = tx.UpdateColumns(user, "subscriptions")
+	msg := fmt.Sprintf("%s ID:%s\n(%d/%d) casos bien", T.Translate(c, "curso-python-evaluation-success"), teamID, passed, len(tests))
+	return p.codeResult(c, msg)
 }
 
 // DeletePythonUploads delete all python uploads in bbolt DB
@@ -302,7 +309,7 @@ func (p *pythonHandler) runPy() (err error) {
 	if err != nil {
 		return
 	}
-	err = os.Mkdir(fmt.Sprintf("tmp/%s", p.userID), os.ModeTemporary)
+	err = os.Mkdir(fmt.Sprintf("tmp/%s", p.userID), os.ModeDir)
 	if err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("in runPy() mkdir: %s", err)
 	}
