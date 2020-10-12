@@ -125,6 +125,8 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		}
 		if p.Output == peval.Output {
 			passed++
+		} else {
+			p.Elapsed[len(p.Elapsed)-1] = 0
 		}
 	}
 	defer p.PutTx(btx, c)
@@ -198,9 +200,9 @@ type code struct {
 }
 
 type result struct {
-	Output  string        `json:"output"`
-	Error   string        `json:"error"`
-	Elapsed time.Duration `json:"elapsed"`
+	Output  string          `json:"output"`
+	Error   string          `json:"error"`
+	Elapsed []time.Duration `json:"elapsed"`
 }
 
 type pythonHandler struct {
@@ -233,6 +235,8 @@ var allowedImports = map[string]bool{
 	"processing": false,
 	"os":         false,
 }
+
+const maxInt64 = 1<<63 - 1
 
 // containerPy This function runs python in a container (only works on linux)
 // thus it is safe from hackers. Can't touch this requires installing
@@ -289,9 +293,10 @@ func (p *pythonHandler) containerPy() (err error) {
 	switch <-status {
 	case pyTimeout:
 		_ = cmd.Process.Kill()
+		p.Elapsed = append(p.Elapsed, pyTimeoutMS*time.Millisecond)
 		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 	case pyError, pyOK:
-		p.Elapsed = time.Since(tstart)
+		p.Elapsed = append(p.Elapsed, time.Since(tstart))
 		replaced := strings.ReplaceAll(string(output), "\""+chrootFilename+"\",", "")
 		if strings.Index(string(output), chrootFilename) > 0 {
 			return fmt.Errorf(replaced)
@@ -347,12 +352,13 @@ func (p *pythonHandler) runPy() (err error) {
 		}
 	}()
 
-	switch <-status {
+	switch stat := <-status; stat {
 	case pyTimeout:
 		_ = cmd.Process.Kill()
+		p.Elapsed = append(p.Elapsed, time.Millisecond*pyTimeoutMS)
 		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 	case pyError, pyOK:
-		p.Elapsed = time.Since(tstart)
+		p.Elapsed = append(p.Elapsed, time.Since(tstart))
 		p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")
 		return
 	}
