@@ -262,22 +262,27 @@ func (p *pythonHandler) containerPy() (err error) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
-
+	defer func() {
+		f.Close()
+	}()
 	_, err = f.Write([]byte(p.code.Source))
 	if err != nil {
 		return err
 	}
-	gontainerArgs := []string{"run", "--chdr", userDir, "--chrt", chrootPath, pyCommand, chrootFilename}
+	timeoutDuration := time.Millisecond * pyTimeoutMS
+	gontainerArgs := []string{"run", "--chdr", userDir, "--chrt", chrootPath,
+		"--timeout", (timeoutDuration + time.Second).String(), pyCommand, chrootFilename}
 	cmd := exec.Command("gontainer", gontainerArgs...)
-	defer cmd.Process.Signal(os.Interrupt) // Interrupt only works on linux
+	defer func() {
+		cmd.Process.Kill()
+	}()
 	stdin, _ := cmd.StdinPipe()
 	go func() {
 		_, _ = stdin.Write([]byte(p.Input + "\n"))
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
-		time.Sleep(pyTimeoutMS * time.Millisecond)
+		time.Sleep(timeoutDuration)
 		status <- pyTimeout
 	}()
 	var tstart time.Time
@@ -293,7 +298,7 @@ func (p *pythonHandler) containerPy() (err error) {
 
 	switch <-status {
 	case pyTimeout:
-		p.Elapsed = append(p.Elapsed, pyTimeoutMS*time.Millisecond)
+		p.Elapsed = append(p.Elapsed, timeoutDuration)
 		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
 	case pyError, pyOK:
 		p.Elapsed = append(p.Elapsed, time.Since(tstart))
