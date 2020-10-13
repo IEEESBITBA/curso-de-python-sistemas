@@ -134,10 +134,13 @@ func (p pythonHandler) interpretEvaluation(c buffalo.Context) error {
 		msg := fmt.Sprintf("%s ID:%s\n(%d/%d) casos bien", T.Translate(c, "curso-python-evaluation-fail"), teamID, passed, len(tests))
 		return p.codeResult(c, "", msg)
 	}
-	go func() { _ = newEvaluationSuccessNotify(c, eval) }() // this is the same as go newEvaluationSuccessNotify(c,eval). The closure is to avoid golint from picking up errors
 	user.AddSubscription(eval.ID)
 	_ = tx.UpdateColumns(user, "subscriptions")
 	msg := fmt.Sprintf("%s ID:%s\n(%d/%d) casos bien", T.Translate(c, "curso-python-evaluation-success"), teamID, passed, len(tests))
+	err = newEvaluationSuccessNotify(c, eval) // this is the same as go newEvaluationSuccessNotify(c,eval). The closure is to avoid golint from picking up errors
+	if err != nil {
+		c.Logger().Errorf("sending evaluation success mail to %s", user.Email)
+	}
 	return p.codeResult(c, msg)
 }
 
