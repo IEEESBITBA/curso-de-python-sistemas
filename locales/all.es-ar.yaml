@@ -65,6 +65,9 @@
     bloque de código
     ```
     Imagenes: ![altNombre](https://imgur.com/imURL)
+
+
+
 # USERS
 - id: user-settings-headline
   translation: "Ajustes de usuario"
@@ -161,6 +164,16 @@
     ```
     bloque de código
     ```
+- id: new-topic-content-template
+  translation: |
+    <ESCRIBA SU CONSULTA AQUÍ>
+
+    ```
+    <COPIE SU CÓDIGO PARA
+    QUE QUEDE ENTRE LAS
+    TRES COMILLAS>
+    ```
+
 - id: new-topic-preview
   translation: "Vista previa"
 # TOPIC BUTTONS AND FLASH
