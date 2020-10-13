@@ -138,24 +138,28 @@ func NewEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation, recp
 	}
 
 	data := map[string]interface{}{
-		"content":     "No responder a este mensaje.",
-		"unsubscribe": filepath.Join(notify.ListArchive),
+		"content":     fmt.Sprintf("Has resuelto **%s** correctamente. No responder a este mensaje.", eval.Title),
+		"unsubscribe": filepath.Join(notify.ListArchive, "u"),
 		"visit":       filepath.Join(notify.ListArchive, evalPath),
 	}
 	//
 	err := m.AddBodies(
 		data,
 		//r.Plain("mail/notify.txt"),
-		r.HTML("mail/notify.plush.html"),
+		r.HTML("mail/notify_eval.plush.html"),
 	)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	c.Logger().Printf("SEND %v", m)
-	err = smtp.Send(m)
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	l := c.Logger()
+	go func() {
+		err = smtp.Send(m)
+		if err != nil {
+			l.Errorf("sending evaluation success mail: %s", err)
+		} else {
+			l.Debugf("mail eval success sent to %s", user.Email)
+		}
+	}()
 	return nil
 }
 
