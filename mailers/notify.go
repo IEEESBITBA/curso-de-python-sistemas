@@ -6,7 +6,6 @@ package mailers
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -68,8 +67,8 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 	m := mail.NewMessage()
 	forumTitle := c.Param("forum_title")
 	catTitle := c.Param("cat_title")
-	topicPath := fmt.Sprintf("f/%s/c/%s/%s", forumTitle, catTitle, topic.ID)
-	unsubscribePath := "u"
+	topicPath := fmt.Sprintf("/f/%s/c/%s/%s", forumTitle, catTitle, topic.ID)
+
 	m.SetHeader("Reply-To", notify.ReplyTo) //http://site.com/f/Curselli/c/Clases-1/ad2f50ae-11bd-4fea-aed2-69d511225edc/
 	m.SetHeader("Message-ID", fmt.Sprintf("<f/%s/c/%s/%s@%s>", forumTitle, catTitle, reply.ID, notify.MessageID))
 	m.SetHeader("In-Reply-To", fmt.Sprintf("<%s@%s>", topicPath, notify.InReplyTo))
@@ -89,10 +88,9 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 
 	data := map[string]interface{}{
 		"content":     reply.Content,
-		"unsubscribe": filepath.Join(notify.ListArchive, unsubscribePath),
-		"visit":       filepath.Join(notify.ListArchive, topicPath),
+		"unsubscribe": notify.ListArchive + "/u",
+		"visit":       notify.ListArchive + topicPath,
 	}
-	//
 	err := m.AddBodies(
 		data,
 		//r.Plain("mail/notify.txt"),
@@ -119,7 +117,7 @@ func NewEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation, recp
 	if user.Subscribed(eval.ID) { // We subscribe the user once the email is successfully sent
 		return nil
 	}
-	evalPath := fmt.Sprintf("curso-python/eval/e/%s", eval.ID)
+	evalPath := fmt.Sprintf("/curso-python/eval/e/%s", eval.ID)
 	m.SetHeader("Reply-To", notify.ReplyTo) //http://site.com/f/Curselli/c/Clases-1/ad2f50ae-11bd-4fea-aed2-69d511225edc/
 	m.SetHeader("Message-ID", fmt.Sprintf("<%s/%s@%s>", evalPath, user.ID, notify.MessageID))
 	m.SetHeader("In-Reply-To", fmt.Sprintf("<%s@%s>", evalPath, notify.InReplyTo))
@@ -139,8 +137,8 @@ func NewEvaluationSuccessNotify(c buffalo.Context, eval *models.Evaluation, recp
 
 	data := map[string]interface{}{
 		"content":     fmt.Sprintf("Has resuelto **%s** correctamente. No responder a este mensaje.", eval.Title),
-		"unsubscribe": filepath.Join(notify.ListArchive, "u"),
-		"visit":       filepath.Join(notify.ListArchive, evalPath),
+		"unsubscribe": notify.ListArchive + "/u",
+		"visit":       notify.ListArchive + evalPath,
 	}
 	//
 	err := m.AddBodies(

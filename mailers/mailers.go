@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/gobuffalo/buffalo/mail"
@@ -60,6 +61,7 @@ func init() {
 	notify.InReplyTo = envy.Get("CURSO_MAIL_NOTIFY_IN_REPLY_TO", "")
 	notify.ListID = envy.Get("CURSO_MAIL_NOTIFY_LIST_ID", "")
 	notify.ListArchive = envy.Get("CURSO_MAIL_NOTIFY_LIST_ARCHIVE", envy.Get("FORUM_HOST", ""))
+	notify.ListArchive = strings.TrimRight(notify.ListArchive, "/")
 	notify.ListUnsubscribe = filepath.Join(notify.ListArchive, "u")
 	notify.SubjectHdr = envy.Get("CURSO_MAIL_NOTIFY_SUBJECT_HDR", "")
 	notify.From = envy.Get("CURSO_MAIL_NOTIFY_FROM", "")
