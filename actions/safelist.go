@@ -209,17 +209,14 @@ func setUserSafeRole(c buffalo.Context, u *models.User) error {
 
 // Parses form list from the form Post event
 func safeFormToSafeList(sf safeForm) (SU safeUsers) {
-	splits := strings.Split(sf.List, "\n")
-	splitComma := strings.Split(sf.List, ",")
-	splitSColon := strings.Split(sf.List, ";")
-	if len(splitComma) > len(splits) {
-		splits = splitComma
+	// we replace bad/non email chars with spaces as preprocess. we also set the stage for strings.Fields()
+	var replacements []string
+	for _, c := range "\"'(),:;<>[\\]\t\n" {
+		replacements = append(replacements, string(c), " ")
 	}
-	if len(splitSColon) > len(splits) && len(splitSColon) > len(splitComma) {
-		splits = splitSColon
-	}
-	for _, email := range splits {
-		email = strings.TrimSpace(email)
+	nonEmailCharReplacer := strings.NewReplacer(replacements...)
+	couldBeEmailsOrEmpty := strings.Fields(nonEmailCharReplacer.Replace(sf.List))
+	for _, email := range couldBeEmailsOrEmpty {
 		if !isEmail(email) {
 			continue
 		}
@@ -232,7 +229,7 @@ func safeFormToSafeList(sf safeForm) (SU safeUsers) {
 }
 
 func isEmail(s string) bool {
-	if strings.ContainsAny(s, "\"(),:;<>[\\] \t\n") {
+	if strings.ContainsAny(s, "\"(),:;<>[\\] \t\n") || strings.Contains(s, "..") || strings.Contains(s, "@@") {
 		return false
 	}
 	dub := strings.Split(s, "@")
