@@ -21,7 +21,7 @@ func SetCurrentForum(next buffalo.Handler) buffalo.Handler {
 		forum := &models.Forum{}
 		title := c.Param("forum_title")
 		if title == "" {
-			return c.Redirect(200, "/f")
+			return c.Redirect(302, "/f")
 		}
 		q := tx.Where("title = ?", title)
 		err := q.First(forum)

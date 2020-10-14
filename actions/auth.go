@@ -46,7 +46,7 @@ func AuthCallback(c buffalo.Context) error {
 	}
 	if strings.TrimSpace(gu.Email) == "" || strings.Index(gu.Email, "@") <= 0 {
 		c.Flash().Add("warning", T.Translate(c, "app-user-auth-empty-email", render.Data{"provider": gu.Provider}))
-		return c.Redirect(200, "/")
+		return c.Redirect(302, "/")
 	}
 	tx := c.Value("tx").(*pop.Connection)
 	q := tx.Where("provider = ? and provider_id = ?", gu.Provider, gu.UserID)
