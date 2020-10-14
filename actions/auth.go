@@ -27,7 +27,8 @@ func init() {
 			"profile", "email"),
 		facebook.New(os.Getenv("FB_KEY_FORUM"), os.Getenv("FB_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/facebook/callback"),
 			"public_profile", "email"),
-		github.New(os.Getenv("GITHUB_KEY_FORUM"), os.Getenv("GITHUB_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/github/callback")),
+		github.New(os.Getenv("GITHUB_KEY_FORUM"), os.Getenv("GITHUB_SECRET_FORUM"), fmt.Sprintf("%s%s", App().Host, "/auth/github/callback"),
+			"user:email"),
 	)
 }
 
