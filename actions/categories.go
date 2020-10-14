@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -19,7 +20,6 @@ func CategoriesIndex(c buffalo.Context) error {
 	c.Logger().Debugf("accessed %s", catTitle)
 	tx := c.Value("tx").(*pop.Connection)
 	cat := &models.Category{}
-
 	err := tx.Where("title = ?", catTitle).First(cat)
 	if err != nil {
 		c.Logger().Warnf("'where title = %s' FAILED!", catTitle)
@@ -27,21 +27,22 @@ func CategoriesIndex(c buffalo.Context) error {
 	}
 	c.Set("category", cat)
 	forum := c.Value("forum").(*models.Forum)
-	topics := &models.Topics{}
+	role := c.Value("role").(string)
 	var ordering string
-	var pag int
+	var perPage, page int
 	if forum.Defcon == "2" {
-		pag = 100
+		page, perPage = setPagination(c.Params(), 100)
+		ordering = "archived, created_at desc"
+	} else if role == "admin" {
+		page, perPage = setPagination(c.Params(), 12)
 		ordering = "archived, created_at desc"
 	} else {
-		pag = 8
+		page, perPage = setPagination(c.Params(), 8)
 		ordering = "created_at desc"
 	}
-	q := tx.BelongsTo(cat).Where("deleted IS false").Order(ordering).PaginateFromParams(c.Params())
-	if c.Param("per_page") == "" { // set default max results per page if not set
-		q.Paginator.PerPage = pag
-	}
+	q := tx.BelongsTo(cat).Where("deleted IS false").Order(ordering).Paginate(page, perPage)
 
+	topics := &models.Topics{}
 	if err := q.All(topics); err != nil {
 		c.Logger().Warnf("'tx.BelongsTo(cat).Order(%q).PaginateFromParams(c.Params())' FAILED!", ordering)
 		return c.Error(404, err)
@@ -55,7 +56,6 @@ func CategoriesIndex(c buffalo.Context) error {
 		(*topics)[i] = *topic
 	}
 
-	role := c.Value("role").(string)
 	var renderer render.Renderer
 	if forum.Defcon == "2" {
 		renderer = r.HTML("categories/index_voting.plush.html")
@@ -73,6 +73,20 @@ func CategoriesIndex(c buffalo.Context) error {
 	c.Set("pagination", q.Paginator)
 	return c.Render(200, renderer)
 	//return c.Render(http.StatusOK, r.HTML("categories/index.plush.html"))
+}
+
+func setPagination(params buffalo.ParamValues, defaultPerPage int) (page, perpage int) {
+	if p, _ := strconv.Atoi(params.Get("page")); p < 1 {
+		page = 1
+	} else {
+		page = p
+	}
+	if pp, _ := strconv.Atoi(params.Get("per_page")); pp < 1 {
+		perpage = defaultPerPage
+	} else {
+		perpage = pp
+	}
+	return
 }
 
 // CategoriesCreateGet default implementation.
