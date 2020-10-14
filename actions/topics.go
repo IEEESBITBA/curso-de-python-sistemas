@@ -128,8 +128,7 @@ func TopicArchivePost(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 	c.Flash().Add("success", T.Translate(c, "archived")+fmt.Sprintf(" %s: %t", topic.Title, topic.Archived))
-	return c.Redirect(302, "catPath()", render.Data{"forum_title": c.Param("forum_title"),
-		"cat_title": c.Param("cat_title")})
+	return c.Redirect(302, c.Request().Referer())
 }
 
 // SetCurrentTopic sets 'topic' in context for easy use in html template
