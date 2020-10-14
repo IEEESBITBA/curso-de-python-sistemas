@@ -38,15 +38,18 @@ func init() {
 // The user is also added to DB if they don't exist here
 func AuthCallback(c buffalo.Context) error {
 	c.Logger().Debug("AuthCallback called")
-
+	redirectURL, err := c.Cookies().Get("auth_referer")
+	if redirectURL == "" || err == nil {
+		redirectURL = "/"
+	}
 	gu, err := gothic.CompleteUserAuth(c.Response(), c.Request())
 	if err != nil {
 		c.Flash().Add("danger", T.Translate(c, "app-auth-error"))
-		return c.Redirect(302, "/") //c.Error(401, err)
+		return c.Redirect(302, redirectURL) //c.Error(401, err)
 	}
 	if strings.TrimSpace(gu.Email) == "" || strings.Index(gu.Email, "@") <= 0 {
 		c.Flash().Add("warning", T.Translate(c, "app-user-auth-empty-email", render.Data{"provider": gu.Provider}))
-		return c.Redirect(302, "/")
+		return c.Redirect(302, redirectURL)
 	}
 	tx := c.Value("tx").(*pop.Connection)
 	q := tx.Where("provider = ? and provider_id = ?", gu.Provider, gu.UserID)
@@ -84,10 +87,7 @@ func AuthCallback(c buffalo.Context) error {
 	c.Flash().Add("success", T.Translate(c, "app-login"))
 	// Do something with the user, maybe register them/sign them in
 	c.Logger().Debug("AuthCallback finished successfully")
-	if s, err := c.Cookies().Get("auth_referer"); s != "" && err == nil {
-		c.Redirect(302, s)
-	}
-	return c.Redirect(302, "/") // redirect to homepage
+	return c.Redirect(302, redirectURL) // redirect to homepage
 }
 
 // AuthDestroy logout process. kills cookies leaving user
