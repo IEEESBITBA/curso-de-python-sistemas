@@ -295,6 +295,8 @@
   translation: "Interpretador solo disponible para usuarios registrados"
 - id: curso-python-interpreter-title
   translation: " "
+- id: curso-python-interpreter-no-id-help
+  translation: "Si no tiene ID, por favor use 8293"
 - id: curso-python-interpreter-run
   translation: " "
 - id: curso-python-interpreter-output-too-long

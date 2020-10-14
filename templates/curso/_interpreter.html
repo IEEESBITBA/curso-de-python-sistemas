@@ -18,7 +18,11 @@ let tab = t("interpreter-tab")
             <div class="col-sm-12">
                 <label for="input">ID del equipo: </label>
                 <input type="text" id="input" name="input" <%= if (team_id) {%>disabled value="<%= team_id %>"<% } %> >
-                <%= if (team_id) { %><input type="hidden" id="input" name="input" value="<%= team_id %>">    <% } %>
+                <%= if (team_id) { %>
+                    <input type="hidden" id="input" name="input" value="<%= team_id %>">
+                <% } else { %>
+                    <span class="help-block"><%=t("curso-python-interpreter-no-id-help") %></span>
+                <% } %>
             </div>
         </div>
         <% }%>
