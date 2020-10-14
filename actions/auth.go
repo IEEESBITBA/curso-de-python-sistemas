@@ -40,7 +40,7 @@ func init() {
 func AuthCallback(c buffalo.Context) error {
 	c.Logger().Debug("AuthCallback called")
 	redirectURL, err := c.Cookies().Get("auth_referer")
-	if redirectURL == "" || err == nil {
+	if redirectURL == "" || err != nil {
 		redirectURL = "/"
 	}
 	gu, err := gothic.CompleteUserAuth(c.Response(), c.Request())
