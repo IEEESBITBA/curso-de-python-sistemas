@@ -2,6 +2,7 @@ package actions
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gobuffalo/buffalo"
 )
@@ -32,5 +33,6 @@ func SiteStruct(next buffalo.Handler) buffalo.Handler {
 
 // AuthHome renders page with all provider options
 func AuthHome(c buffalo.Context) error {
+	c.Cookies().Set("auth_referer", c.Request().Referer(), time.Minute*5)
 	return c.Render(http.StatusOK, r.HTML("auth.html"))
 }

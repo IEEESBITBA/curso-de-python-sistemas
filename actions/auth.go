@@ -80,9 +80,13 @@ func AuthCallback(c buffalo.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
+
 	c.Flash().Add("success", T.Translate(c, "app-login"))
 	// Do something with the user, maybe register them/sign them in
 	c.Logger().Debug("AuthCallback finished successfully")
+	if s, err := c.Cookies().Get("auth_referer"); s != "" && err == nil {
+		c.Redirect(302, s)
+	}
 	return c.Redirect(302, "/") // redirect to homepage
 }
 
@@ -97,7 +101,7 @@ func AuthDestroy(c buffalo.Context) error {
 	}
 	c.Flash().Add("success", T.Translate(c, "app-logout"))
 
-	return c.Redirect(302, "/")
+	return c.Redirect(302, c.Request().Referer())
 }
 
 // Authorize Backbone of the authorization process.
