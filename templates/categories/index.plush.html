@@ -55,6 +55,7 @@
 
     <div class="card-footer text-secondary">
         <div class="float-left"><%= t("topic-replies") %> <%= len(topic.Replies) %></div>
+        <%= if (!archived && current_user.Role == "admin") { %><a href="<%= topicArchivePath(ctxTopic) %>" class="btn btn-sm btn-outline-primary mx-2"><%= bicon("archive-fill") %></a> <% } %>
         <div class="float-right"><%= t("topic-last-activity") %> <%= timeSince(topic.LastUpdate())  %></div>
     </div>
 
