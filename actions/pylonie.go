@@ -234,6 +234,7 @@ var allowedImports = map[string]bool{
 	"math":       true,
 	"numpy":      true,
 	"pandas":     true,
+	"json":       true,
 	"itertools":  false,
 	"processing": false,
 	"os":         false,
