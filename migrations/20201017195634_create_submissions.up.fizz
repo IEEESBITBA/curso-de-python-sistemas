@@ -1,0 +1,22 @@
+create_table("submissions") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("forum_id", "uuid", {})
+	t.Column("is_template", "bool", {})
+	t.Column("user_id", "uuid", {})
+	t.Column("require_email_verify", "bool", {})
+	" Template Fields "
+	t.Column("title", "string", {"null":true})
+	t.Column("description", "string", {"null":true})
+	t.Column("schemas", "text", {"null":true})
+	t.Column("hidden", "bool", {})
+	t.Column("deleted", "bool", {})
+	t.Column("editable", "bool", {})
+	t.Column("anonymous", "bool", {})
+	" Response fields "
+	t.Column("has_attachment","bool",{})
+	t.Column("zip", "blob", {"null":true})
+	t.Column("submission_id", "uuid", {"null":true})
+	t.Column("response", "text", {"null":true})
+	t.Timestamps()
+}
+add_index("submissions", ["is_template"], {"unique": false})
