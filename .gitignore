@@ -6,6 +6,9 @@ curso*
 *nohup.out
 assets/server/data/*.json
 *bin
+# Exclude all data except badwords
+data/*
+!data/badwords*
 # Curso container filesystem
 container/fs/*
 container/alp-fs-py/*

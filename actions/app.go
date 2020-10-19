@@ -142,6 +142,10 @@ func App() *buffalo.App {
 		forum.Middleware.Skip(Authorize, forumIndex)
 		forum.Middleware.Skip(SafeList, forumIndex)
 
+		submissionGroup := forum.Group("/sub")
+		submissionGroup.GET("/", SubmissionsIndex).Name("subIndex")
+		submissionGroup.GET("/create", SubmissionCreateGet).Name("subCreate")
+
 		catGroup := forum.Group("/c/{cat_title}")
 		catGroup.Use(SetCurrentCategory)
 		catGroup.GET("/", CategoriesIndex).Name("cat")
@@ -245,6 +249,7 @@ func err500(status int, err error, c buffalo.Context) error {
 	u, ok := c.Value("current_user").(*models.User)
 	if ok && u != nil && u.Role == "admin" { // show bad errors only to our admins
 		c.Flash().Add("danger", "Internal server error (500): "+err.Error())
+		c.Set("err_data", c.Data())
 	}
 	return c.Render(200, r.HTML("meta/500.plush.html"))
 }

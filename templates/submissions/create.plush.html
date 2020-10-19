@@ -1,0 +1,83 @@
+<%= if (current_user.Role == "admin") {
+ 
+    let title  = submission.Title
+    let description  = submission.Description
+    let hidden = submission.Hidden
+    let editable = submission.Editable
+    let anonymous = submission.Anonymous
+    
+%>
+
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-8 col-sm-10">
+        <h2><%= t("submission-new-submission") %></h2>
+
+        <form class="form-horizontal" action="<%= current_path  %>" method="POST" enctype="multipart/form-data">
+        <%= csrf() %>
+        <fieldset>
+            <!-- Form Name -->
+            <!-- Text input title-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
+                <div class="col-md-4">
+                    <input id="title" name="title" type="text" placeholder="<%=t("submission-new-title-placeholder") %>"
+                           class="form-control input-md" required="" value="<%=  title %>">
+                    <span class="help-block"><%=t("submission-new-title-help") %></span>
+                </div>
+            </div>
+            <!-- Text input Description-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="description"><%= t("description")%></label>
+                <div class="col-md-5">
+                    <input id="description" name="description" type="text" placeholder=""
+                           class="form-control input-md" required value="<%=  description %>">
+                </div>
+            </div>
+            <!-- Multiple Radios (inline) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="access"><%= t("hidden") %></label>
+                <div class="col-md-4">
+                    <label class="radio-inline" for="radios-0">
+                        <input type="radio" name="access" id="radios-0" value="false" <%=if (!hidden) {%>checked<%}%>>
+                        <%= t("false") %>
+                    </label>
+                    <label class="radio-inline" for="radios-1">
+                        <input type="radio" name="access" id="radios-1" value="true"<%=if (hidden) {%>checked<%}%>>
+                        <%= t("true") %>
+                    </label>
+                </div>
+                <span class="help-block">Visibility to normal users</span>
+            </div>
+            <!-- Multiple Radios (inline) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="access"><%= t("submission-editable") %></label>
+                <div class="col-md-4">
+                    <label class="radio-inline" for="radios-0">
+                        <input type="radio" name="access" id="radios-0" value="false" <%=if (!editable) {%>checked<%}%>>
+                        <%= t("false") %>
+                    </label>
+                    <label class="radio-inline" for="radios-1">
+                        <input type="radio" name="access" id="radios-1" value="true"<%=if (editable) {%>checked<%}%>>
+                        <%= t("true") %>
+                    </label>
+                </div>
+                <span class="help-block"><%= t("submission-editable-help") %></span>
+            </div>
+            <!-- SUBMIT Button -->
+            <div class="col-md-4">
+                <button id="submit" class="btn btn-primary"><%= t("submit") %></button>
+            </div>
+        </fieldset>
+ 
+        </form>
+
+    </div>
+</div>
+
+
+
+<% } else {  %>
+
+    <%= t("curso-python-not-allowed") %>
+
+<% } %>

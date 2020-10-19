@@ -1,0 +1,48 @@
+<%= if (current_user) { 
+    %>
+<div class="row mt-3 justify-content-center">
+    <div class="col-md-6 col-sm-6">
+        <h2> <%=t("app-submissions-title") %></h2>
+    </div>
+    <%= if ( current_user.Role == "admin") { %>
+    <div class="col-md-2 col-sm-2 text-right">
+        <a href="<%= subCreatePath({forum_title:forum.Title})  %>" class="btn btn-primary btn-sm m-0">
+            <%= bicon("pencil-fill",{size:"1.5em"}) %> <%=  t("submission-new-submission") %>
+        </a>
+    </div>
+    <% } %>
+</div>
+<div class="row">
+    <div class="col-md-8"><%= t("app-submissions-title") %></div>
+     <div class="col-md-3 text-center"><%= t("description") %></div>
+</div>
+
+<%= if (len(submissions) == 0)  {%>
+<h4><%= t("submission-no-submission-found") %></h4>
+<% } %>
+<%= for (sub) in submissions {submissions
+let ctxSub = {sid: sub.ID,sub_title:sub.Title}
+let userPassed = current_user.Subscribed(sub.ID)
+%>
+<div class="row">
+    <%= if (!sub.Deleted && ( !sub.Hidden || current_user.Role == "admin" ) ) { %>
+    <hr class="col-md-12 col-sm-12" id="<%= sub.ID %>">
+    <div class="col-md-8">
+        <a href="<%= submissionGetPath( ctxSub ) %>" class="text-secondary">
+          <%= if (userPassed) { %> <div class="badge badge-success"><%= bicon("patch-check",{size:"2em",title:"Aprobado"}) %> <%= t("evaluation-passed") %> </div> <% } %>
+          <%= if (sub.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%> <%= raw(sub.Title) %>
+        </a>
+    </div>
+
+    <div class="col-md-3 text-center"><%= sub.Description  %></div>
+    <% } %>
+</div>
+<% } %>
+
+<hr class="col-md-12 col-sm-12">
+
+<% } else { %>
+
+    <%= t("curso-python-not-allowed") %>
+
+<% } %>

@@ -13,10 +13,11 @@ create_table("submissions") {
 	t.Column("editable", "bool", {})
 	t.Column("anonymous", "bool", {})
 	" Response fields "
-	t.Column("has_attachment","bool",{})
-	t.Column("zip", "blob", {"null":true})
 	t.Column("submission_id", "uuid", {"null":true})
 	t.Column("response", "text", {"null":true})
+	t.Column("has_attachment","bool",{})
+	t.Column("zip", "blob", {"null":true})
+
 	t.Timestamps()
 }
 add_index("submissions", ["is_template"], {"unique": false})

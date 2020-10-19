@@ -74,7 +74,7 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     FORUM_HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
     ADDR=127.0.0.1 # Default
-   
+    FORUM_LOGLVL=info # Default
    # SMTP server (as would be set in ~/.bashrc)
    # Set this up if you want replies to trigger notification Email
    export CURSO_SEND_MAIL=true

@@ -66,7 +66,21 @@
     ```
     Imagenes: ![altNombre](https://imgur.com/imURL)
 
-
+# SUBMISSIONS
+- id: app-submissions-title
+  translation: "Formularios"
+- id: submission-new-submission
+  translation: "Nuevo formulario"
+- id: submission-no-submission-found
+  translation: "No se encontraron formularios"
+- id: submission-new-title-help
+  translation: "El título del forulario"
+- id: submission-new-title-placeholder
+  translation: " "
+- id: submission-editable
+  translation: "Respuesta editable"
+- id: submission-editable-help
+  translation: "Si se fija verdadero entonces los usuarios podrán editar sus respuestas al formulario"
 
 # USERS
 - id: user-settings-headline
@@ -231,6 +245,10 @@
   translation: "Enviar"
 - id: topic
   translation: "Tema"
+- id: "true"
+  translation: "Verdadero"
+- id: "false"
+  translation: "Falso"
 - id: user
   translation: "Usuario"
 - id: content
