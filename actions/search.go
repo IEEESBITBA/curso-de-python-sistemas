@@ -170,15 +170,13 @@ func Search(c buffalo.Context) error {
 
 	req.Size = 100
 	req.Highlight = bleve.NewHighlight()
-	q := bleve.NewMatchAllQuery()
-	reqAll := bleve.NewSearchRequest(q)
-	All, _ := bleveIndex.Search(reqAll)
 
 	res, err := bleveIndex.Search(req)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	c.Logger().Infof("With \"%s\" Got results: %v\n From available: %v", c.Param("query"), res, All)
+
+	c.Logger().Infof("search %q: got %d results in %s", c.Param("query"), res.Total, res.Took.String())
 	c.Set("results", res)
 	return c.Render(200, r.HTML("/search/search.plush.html"))
 }

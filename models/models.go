@@ -91,7 +91,7 @@ func DBToJSON(w io.Writer) error {
 		id          uuid.UUID
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		Cats        []*Cat
+		Cats        []*Cat `json:"categories"`
 	}
 	type Eval struct {
 		Title       string `json:"title"`

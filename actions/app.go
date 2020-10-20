@@ -201,8 +201,10 @@ func App() *buffalo.App {
 		controlPanelGroup.GET("", ControlPanel).Name("controlPanel")
 		controlPanelGroup.POST("/exfiltrate", generateJSONFromSQL).Name("sqlBackup")
 		controlPanelGroup.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
+
 		controlPanelGroup.Use(ControlPanelHandler)
 		controlPanelGroup.Middleware.Skip(ControlPanelHandler, ControlPanel)
+
 		// We associate the HTTP 404,500 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.
 		app.ErrorHandlers[404] = err404

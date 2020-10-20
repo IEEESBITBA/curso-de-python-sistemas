@@ -374,7 +374,7 @@
 - id: app-search-title
   translation: "Buscar"
 - id: app-search-match
-  translation: "Resultados"
+  translation: "{{.total}} resultados en {{.took}}"
 - id: reply-from
   translation: "Comentario de"
 - id: evaluation-passed
