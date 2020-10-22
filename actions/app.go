@@ -27,7 +27,6 @@ var app *buffalo.App
 var T *i18n.Translator
 
 //var TT *i18n.
-const hourDiffUTC = 3 // how many hours behind is UTC respect to current time. Argentina == 3h
 
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your

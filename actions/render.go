@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"math"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,8 +18,12 @@ import (
 
 var r *render.Engine
 var assetsBox = packr.New("app:assets", "../public")
+var hourDiffUTC int // how many hours behind is UTC respect to current time. Argentina == 3h
 
 func init() {
+	UTCDiff := strings.TrimRight(strings.Fields(time.Now().String())[2], "0")
+	hourDiffUTC, _ = strconv.Atoi(UTCDiff)
+
 	r = render.New(render.Options{
 		// HTML layout to be used for all HTML requests:
 		HTMLLayout: "application.plush.html",
@@ -93,7 +98,7 @@ func timeSince(created time.Time, ctx plush.HelperContext) string {
 	if true && false {
 		return created.UTC().Format(time.RFC3339)
 	}
-	now := time.Now().UTC().Add(-time.Hour * hourDiffUTC)
+	now := time.Now().UTC().Add(time.Hour * time.Duration(hourDiffUTC))
 	delta := now.Sub(created.UTC())
 	days := int(math.Abs(delta.Hours()) / 24)
 	if days > 30 {
