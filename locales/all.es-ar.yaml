@@ -94,7 +94,7 @@
 - id: submission-submit-warning
   translation: "Una vez enviada la respuesta para \"{{.Title.String}}\" no se puede editar. Está seguro de los datos a enviar?"
 - id: submission-schemas-validation-fail
-  translation: "Error validando schemas:{{.}}"
+  translation: "Error validando schemas: "
 
 
 

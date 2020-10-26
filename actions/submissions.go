@@ -33,7 +33,7 @@ func SubmissionGet(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	R := prepareSubmissionInput(unmarshalYaml(c, sub))
+	R := unmarshalYaml(c, sub)
 	c.Set("form_data", R)
 	c.Set("submission", sub)
 	return c.Render(200, r.HTML("submissions/get.plush.html"))
@@ -68,7 +68,7 @@ func SubmissionCreatePost(c buffalo.Context) error {
 	sub.ForumID, sub.UserID = forum.ID, user.ID
 	c.Set("submission", sub)
 	if err = validateSubmissionForm(unmarshalYaml(c, sub)); err != nil {
-		c.Flash().Add("warning", T.Translate(c, "submission-schemas-validation-fail", err.Error()))
+		c.Flash().Add("warning", T.Translate(c, "submission-schemas-validation-fail")+err.Error())
 		return c.Render(200, r.HTML("submissions/create.plush.html"))
 	}
 	if c.Param("sid") != "" {
@@ -98,10 +98,7 @@ func SubmissionCreatePost(c buffalo.Context) error {
 		c.Flash().Add("success", T.Translate(c, "submission-add-success"))
 		c.Logger().Infof("submission create %s, by %s", sub.Title, u.Email)
 	}
-	// R := prepareSubmissionInput(unmarshalYaml(c, sub))
-	// c.Set("form_data", R)
 	return c.Redirect(302, "subGetPath()", render.Data{"forum_title": forum.Title, "sid": sub.ID.String()})
-	// return c.Render(200, r.HTML("submissions/get.plush.html"))
 }
 
 func SubmissionDelete(c buffalo.Context) error {
@@ -123,21 +120,22 @@ func unmarshalYaml(c buffalo.Context, s *models.Submission) *[]tags.Options {
 	return r
 }
 
-func prepareSubmissionInput(r *[]tags.Options) *[]tags.Options {
-	for i := range *r {
-		for attr, val := range (*r)[i] {
-			s, ok := val.(string)
-			if !ok {
-				continue
-			}
-			switch {
-			case attr == "type" && s == "text":
-				(*r)[i]["rows"] = 1
-			}
-		}
-	}
-	return r
-}
+// func prepareSubmissionInput(r *[]tags.Options) *[]tags.Options {
+// 	for i := range *r {
+// 		for attr, val := range (*r)[i] {
+// 			s, ok := val.(string)
+// 			if !ok {
+// 				continue
+// 			}
+// 			switch {
+// 			case attr == "type" && s == "text":
+// 				(*r)[i]["rows"] = 1
+// 			}
+// 		}
+// 	}
+// 	return r
+// }
+
 func validateSubmissionForm(r *[]tags.Options) error {
 	type void struct{}
 	names := make(map[string]void)
@@ -149,7 +147,7 @@ func validateSubmissionForm(r *[]tags.Options) error {
 		name := input["name"].(string)
 		_, ok := names[name]
 		if ok {
-			return fmt.Errorf("repeated names not allowed. Offending name: %q is repeated for %q", name, input["label"].(string))
+			return fmt.Errorf("names should be unique. Offending name: %q is repeated for %q", name, input["label"].(string))
 		}
 		names[name] = null
 	}
