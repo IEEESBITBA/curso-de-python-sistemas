@@ -81,7 +81,43 @@
   translation: "Respuesta editable"
 - id: submission-editable-help
   translation: "Si se fija verdadero entonces los usuarios podrán editar sus respuestas al formulario"
+- id: submission-add-fail
+  translation: "No se pudo agregar el formulario"
+- id: submission-add-success
+  translation: "Formulario creado"
+- id: submission-anonymous
+  translation: "Respuesta anónima"
+- id: submission-anonymous-help
+  translation: "No se guarda el mail con la respuesta"
+- id: submission-passed
+  translation: "Respuesta registrada"
 
+
+
+- id: submission-schemas-placeholder
+  translation: |
+    # YAML schema for inputs https://yaml.org/spec/1.2/spec.html
+    # [req] means required
+    - name: nombre               # [req] unique name/id attribute
+      type: text                 # [req] textarea/file 
+      label: "Nombre y Apellido" # [req] Title of form input
+      required: true
+    - name: archivo_py
+      type: file
+      accept: "" # MIME Type. Empty for any file. Image example: 'image/png,image/jpeg'
+      label: "Trabajo final (archivo .py)"
+    - name: trabajo
+      label: "Trabajo elegido"
+      type: dropdown
+      options:
+        - "COVID"
+        - "Marketing"
+        - "GUI Tkinter"
+    - name: codigo
+      label: "Codigo Python"
+      type: textarea
+      rows: 16
+      
 # USERS
 - id: user-settings-headline
   translation: "Ajustes de usuario"
@@ -379,3 +415,5 @@
   translation: "Comentario de"
 - id: evaluation-passed
   translation: "Aprobado"
+
+

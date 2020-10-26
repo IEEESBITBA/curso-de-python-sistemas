@@ -1,11 +1,10 @@
 <%= if (current_user.Role == "admin") {
- 
-    let title  = submission.Title
-    let description  = submission.Description
+    let title  = submission.Title.String
+    let description  = submission.Description.String
     let hidden = submission.Hidden
     let editable = submission.Editable
     let anonymous = submission.Anonymous
-    
+    let schemas = submission.Schemas.String
 %>
 
 <div class="row mt-3 justify-content-center">
@@ -21,7 +20,7 @@
                 <label class="col-md-4 control-label" for="title"><%= t("title") %></label>
                 <div class="col-md-4">
                     <input id="title" name="title" type="text" placeholder="<%=t("submission-new-title-placeholder") %>"
-                           class="form-control input-md" required="" value="<%=  title %>">
+                           class="form-control input-md" required value="<%=  title %>">
                     <span class="help-block"><%=t("submission-new-title-help") %></span>
                 </div>
             </div>
@@ -33,35 +32,63 @@
                            class="form-control input-md" required value="<%=  description %>">
                 </div>
             </div>
-            <!-- Multiple Radios (inline) -->
+            <%= partial("md.plush.html",{id_in: "description" ,id_out: "preview", title: t("new-topic-preview")}) %>
+            
+            <!-- Multiple Radios (inline) (HIDDEN) -->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="access"><%= t("hidden") %></label>
+                <label class="col-md-4 control-label" for="hidden"><%= t("hidden") %></label>
                 <div class="col-md-4">
-                    <label class="radio-inline" for="radios-0">
-                        <input type="radio" name="access" id="radios-0" value="false" <%=if (!hidden) {%>checked<%}%>>
+                    <label class="radio-inline" for="hidden-false">
+                        <input type="radio" name="hidden" id="hidden-false" value="false" <%=if (!hidden) {%>checked<%}%>>
                         <%= t("false") %>
                     </label>
-                    <label class="radio-inline" for="radios-1">
-                        <input type="radio" name="access" id="radios-1" value="true"<%=if (hidden) {%>checked<%}%>>
+                    <label class="radio-inline" for="hidden-true">
+                        <input type="radio" name="hidden" id="hidden-true" value="true"<%=if (hidden) {%>checked<%}%>>
                         <%= t("true") %>
                     </label>
                 </div>
                 <span class="help-block">Visibility to normal users</span>
             </div>
-            <!-- Multiple Radios (inline) -->
+            <!-- Multiple Radios (inline) (ACCESS) -->
             <div class="form-group">
                 <label class="col-md-4 control-label" for="access"><%= t("submission-editable") %></label>
                 <div class="col-md-4">
-                    <label class="radio-inline" for="radios-0">
-                        <input type="radio" name="access" id="radios-0" value="false" <%=if (!editable) {%>checked<%}%>>
+                    <label class="radio-inline" for="access-false">
+                        <input type="radio" name="access" id="access-false" value="false" <%=if (!editable) {%>checked<%}%>>
                         <%= t("false") %>
                     </label>
-                    <label class="radio-inline" for="radios-1">
-                        <input type="radio" name="access" id="radios-1" value="true"<%=if (editable) {%>checked<%}%>>
+                    <label class="radio-inline" for="access-true">
+                        <input type="radio" name="access" id="access-true" value="true"<%=if (editable) {%>checked<%}%>>
                         <%= t("true") %>
                     </label>
                 </div>
                 <span class="help-block"><%= t("submission-editable-help") %></span>
+            </div>
+            <!-- Multiple Radios (inline) (ANONYMOUS) -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="anonymous"><%= t("submission-anonymous") %></label>
+                <div class="col-md-4">
+                    <label class="radio-inline" for="anonymous-false">
+                        <input type="radio" name="anonymous" id="anonymous-false" value="false" <%=if (!anonymous) {%>checked<%}%>>
+                        <%= t("false") %>
+                    </label>
+                    <label class="radio-inline" for="anonymous-true">
+                        <input type="radio" name="anonymous" id="anonymous-true" value="true"<%=if (anonymous) {%>checked<%}%>>
+                        <%= t("true") %>
+                    </label>
+                </div>
+                <span class="help-block"><%= t("submission-anonymous-help") %></span>
+            </div>
+
+            
+            <!-- Textarea  SCHEMAS -->
+            <div class="form-group" >
+                <label class="col-12 control-label" for="sol"><%= t("submission-schemas") %></label>
+                <div class="col-12" id="wrap" >
+                    <textarea itemprop="description" rows="16" class="lined col-sm-12"  id="sol" name="schemas"
+                              autocorrect="off" autocomplete="off" autocapitalize="off" placeholder="<%= t("submission-schemas-placeholder") %>" spellcheck="false" required><%= schemas %></textarea>
+                    <span class="help-block"><%= t("submission-schemas-help") %></span>
+                </div>
             </div>
             <!-- SUBMIT Button -->
             <div class="col-md-4">

@@ -144,6 +144,12 @@ func App() *buffalo.App {
 		submissionGroup := forum.Group("/sub")
 		submissionGroup.GET("/", SubmissionsIndex).Name("subIndex")
 		submissionGroup.GET("/create", SubmissionCreateGet).Name("subCreate")
+		submissionGroup.POST("/create", SubmissionCreatePost)
+		submissionGroup.GET("/{sid}", SubmissionGet).Name("subGet")
+		submissionGroup.DELETE("/{sid}", SubmissionDelete).Name("subDelete")
+		submissionGroup.GET("/{sid}/edit", SubmissionCreateGet).Name("subEdit")
+		submissionGroup.POST("/{sid}/edit", SubmissionCreatePost)
+		submissionGroup.POST("/{sid}/submit", SubmissionSubmitPost).Name("subSubmission")
 
 		catGroup := forum.Group("/c/{cat_title}")
 		catGroup.Use(SetCurrentCategory)

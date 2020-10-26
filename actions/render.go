@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"math"
@@ -39,6 +40,10 @@ func init() {
 			// below and import "github.com/gobuffalo/helpers/forms"
 			// forms.FormKey:     forms.Form,
 			// forms.FormForKey:  forms.FormFor,
+			"tojson": func(v interface{}) string {
+				js, _ := json.Marshal(v)
+				return string(js)
+			},
 			"score":       func(f float64) string { return fmt.Sprintf("%.2f%%", f*100) }, // for bleve search button
 			"unpackTopic": bleveTopicFromID,
 			"bicon":       bootstrapIcon,

@@ -25,10 +25,13 @@ require (
 	github.com/gobuffalo/plush/v4 v4.0.0
 	github.com/gobuffalo/pop/v5 v5.2.4
 	github.com/gobuffalo/suite v2.8.2+incompatible
+	github.com/gobuffalo/tags/v3 v3.1.0
 	github.com/gobuffalo/validate/v3 v3.3.0
+	github.com/goccy/go-yaml v1.8.2
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gorilla/sessions v1.2.0
 	github.com/jmhodges/levigo v1.0.0 // indirect
+	github.com/kylelemons/go-gypsy v1.0.0
 	github.com/markbates/errx v1.1.0
 	github.com/markbates/goth v1.64.2
 	github.com/markbates/grift v1.5.0

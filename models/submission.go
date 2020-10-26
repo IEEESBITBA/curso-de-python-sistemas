@@ -20,13 +20,13 @@ type Submission struct {
 	UserID             uuid.UUID `json:"user_id" db:"user_id"`
 	RequireEmailVerify bool      `json:"require_email_verify" db:"require_email_verify"`
 	// Template fields (isTemplate == true)
-	Title       nulls.String `json:"title" db:"title"`
-	Description nulls.String `json:"description" db:"description"`
-	Schemas     nulls.String `json:"schemas" db:"schemas"`
-	Hidden      bool         `json:"hidden" db:"hidden"`
+	Title       nulls.String `form:"title" json:"title" db:"title"`
+	Description nulls.String `form:"description" json:"description" db:"description"`
+	Schemas     nulls.String `form:"schemas" json:"schemas" db:"schemas"`
+	Hidden      bool         `form:"hidden" json:"hidden" db:"hidden"`
 	Deleted     bool         `json:"deleted" db:"deleted"`
-	Editable    bool         `json:"editable" db:"editable"`
-	Anonymous   bool         `json:"anonymous" db:"anonymous"`
+	Editable    bool         `form:"editable" json:"editable" db:"editable"`
+	Anonymous   bool         `form:"anonymous" json:"anonymous" db:"anonymous"`
 	// Response fields (isTemplate == false)
 	SubmissionID  uuid.NullUUID   `json:"submission_id" db:"submission_id"`
 	Response      nulls.String    `json:"response" db:"response"`
@@ -53,10 +53,9 @@ func (s Submissions) String() string {
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Submission) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	v := []validate.Validator{
-		&validators.UUIDIsPresent{Field: s.ForumID, Name: "ForumID"},
-		&validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"},
-	}
+	v := []validate.Validator{&validators.UUIDIsPresent{Field: s.ForumID, Name: "ForumID"}}
+	v = append(v, &validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"})
+
 	if s.IsTemplate {
 		v = append(v, &validators.StringIsPresent{Field: s.Schemas.String, Name: "Schemas"},
 			&validators.StringIsPresent{Field: s.Description.String, Name: "Description"},

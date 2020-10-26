@@ -1,6 +1,15 @@
-# curso: a saloon homage
-
+Foro del Curso de Python
+========================
 [![Go Report Card](https://goreportcard.com/badge/github.com/IEEESBITBA/Curso-de-Python-Sistemas)](https://goreportcard.com/report/github.com/IEEESBITBA/Curso-de-Python-Sistemas)
+
+Un servidor para enseñar Python provisto por la IEEE
+
+## Autores
+[Patricio Whittingslow](https:github.com/soypat). Voluntario de la rama IEEE-ITBA. Alumno de ingeniería Mecánica.
+
+
+### curso: a saloon homage
+
 
 A place to chat and communicate. Basically, a forum.
 ---
@@ -111,7 +120,8 @@ Buffalo ships with the `dev` command that will watch your application and automa
 Keep in mind buffalo logs are default ANSI encoded for pretty colors. This can be turned off in logger config if you prefer simple logs. 
 To view ANSI logs you can get Sublime editor and install [AnsiEscape](https://github.com/aziz/SublimeANSI) plugin.
 
-### Database setup
+# Database Management
+## Database setup
 
 One needs a database to run `curso`.
 Here is an example, running postgres inside a docker container:
@@ -135,7 +145,7 @@ with this you are ready to run `buffalo pop migrate` and start up your applicati
 
 After commit fc0bdb9 `buffalo pop migrate` creates a default 'Curso' forum with a category so users can start trying it out right away.
 
-### Create your databases the hard way
+## Create your databases the hard way
 
 If you did not create a database with `POSTGRES_DB` and `POSTGRES_USER` environment variables set then you must create the database beforehand. Remember the default docker `POSTGRES_USER` and `POSTGRES_DB` is `postgres` (for both) so you should change your `database.yml` file to match that. 
 
@@ -147,7 +157,7 @@ $> buffalo pop create -a
 
 You can now run `buffalo pop migrate` to initialize the forum and the content of its database.
 
-### Access the database
+## Access the database
 So you probably have the server up and running but probably have no forum to post 
 in and are unable to create forums! What a conundrum. To create a forum you need to be
 an admin. To do this you first must login to the site. After that access the site through
@@ -171,7 +181,7 @@ Remember the trailing semicolon to execute the query.
 `UPDATE 1` should print to console showing the query was successful.
 Now refresh the page and see if it works!
 
-### Pinning a topic
+## Pinning a topic
 We can use SQL. Access the database as seen in the previous section and run
 ```sql
 UPDATE topics 
@@ -180,15 +190,29 @@ WHERE id = '4c8c42c6-9b61-4491-adca-547d576a19cf';
 ```
 where the long number is the topic UUID. It appears in the topic's url so it should be easy to copy. To set how long the post is pinned just add the number of days to the current date. For example, if today is the 28th of September 2020 and I wanted the post to be pinned a month or so then `created_at` could be set to `DATE '2020-10-28'`. This will work since topics are organized by date published and older topics are sorted last.
 
-## Windows Front-end packages
-1. Install scoop! minimalistic package manager
-2. `scoop install nodejs`
-3. `scoop install yarn`
-4. `npm` gotta have python and c++ build tools for `node-sass`, don't ask me why, windows sucks. Run following in powershell in admin mode
+## Backing up database
+To save all SQL entries on the database run following command in sudo
 ```
-npm install -g node-gyp
-npm install --global --production windows-build-tools
+echo PG_PASSWORD | docker exec -i forum-postgres pg_dump curso -U pato -W > sqldump
 ```
+where `PG_PASSWORD` is your database password. This will write the sql dump to a file on the computer called `sqldump`. This file contains ALL the information. Last lines of the file should be the following if ran correctly:
+
+```
+--
+-- PostgreSQL database dump complete
+--
+```
+
+## Migrating database to new SQL DB
+Have `sqldump` handy (from previous guide on how to back up databases). The following command (as sudo) copies `sqldump` on your computer to a docker container:
+```
+docker cp ./sqldump forum-postgres:/home
+```
+the `sqldump` will be in `/home` folder on your container. Now access the database with bash `docker exec -it forum-postgres bash`, and run:
+```
+cat /home/sqldump | psql curso -U pato
+```
+Command above will pipe the old sql database in `sqldump` to postgres and update accordingly. It is recommended that the database be brand new and not have any tables.
 
 ## Altering tables in production
 If one wanted to add functionality to, say, topics one should modify the `models/table.go` file
@@ -204,7 +228,7 @@ ALTER TABLE topics
 where `BOOL` is the datatype. Remember to specify if the field can be null.
 You can check out commit [`6b6809a`](https://github.com/IEEESBITBA/Curso-de-Python-Sistemas/commit/6b6809a08e124a4d78fe56c0f6a08312278e183f) or `fc0bdb9` when this change was made for a real life example of what was changed.
 
-**Example with `varchar[]`**
+**Example with Slices.UUID represented as `varchar[]`**
 ```sql
 ALTER TABLE topics ADD voters varchar[] 
     CONSTRAINT voters_d DEFAULT '{}';
@@ -223,14 +247,27 @@ To delete a row use `DELETE`
 DELETE FROM users WHERE email = 'noLongerThere@gma.com';
 ```
 
+# Windows Front-end packages
+1. Install scoop! minimalistic package manager
+2. `scoop install nodejs`
+3. `scoop install yarn`
+4. `npm` gotta have python and c++ build tools for `node-sass`, don't ask me why, windows sucks. Run following in powershell in admin mode
+```
+npm install -g node-gyp
+npm install --global --production windows-build-tools
+```
+
+
+
 ### Oops, I uploaded sensitive content or emails
 Taken from [git official doc.](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/removing-sensitive-data-from-a-repository)
 
 ```bash
 git filter-branch --force --index-filter \
-  "git rm --cached --ignore-unmatch curso" \
+  "git rm --cached --ignore-unmatch passwords_and_sensitive_data.csv" \
   --prune-empty --tag-name-filter cat -- --all
 ```
+
 
 ## how i did this
 Don't bother reading this. These are notes for myself if I ever try building a new buffalo app in the future.
@@ -255,6 +292,7 @@ create_table("users") {
     t.Column("subscriptions", "varchar[]", {"null": true})
     t.Timestamps()
 }
+" This is a comment "
 add_index("users", ["provider", "provider_id", "role"], {"unique":true})
 ```
 `buffalo pop migrate`
