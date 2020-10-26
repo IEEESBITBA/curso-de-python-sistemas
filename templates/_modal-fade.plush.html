@@ -1,0 +1,56 @@
+<%= if (modal_action == "submit") { %>
+<button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
+    <span><%= button_label %></span>
+</button>
+<div class="modal fade" id="topic-modal-<%= modal_ID %>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><%= modal_title %></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal  -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-left">
+                        <button action="submit"  class="btn btn-primary">
+                            <%= bicon("upload",{size:"2em"}) %> 
+                        </button>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><%= t("close") %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% } else if (modal_action == "delete") { %> 
+
+<div class="modal fade" id="topic-modal-<%= modal_ID %>">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><%= modal_title %></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal  -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-left">
+                        <a href="<%= modal_href %>" class="btn btn-danger">
+                            <%= bicon("trash-fill",{size:"2em"}) %> 
+                        </a>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><%= t("close") %></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>

@@ -2,7 +2,6 @@ package actions
 
 import (
 	"fmt"
-	"html/template"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -67,6 +66,11 @@ func SubmissionCreatePost(c buffalo.Context) error {
 	forum := c.Value("forum").(*models.Forum)
 	sub.IsTemplate = true
 	sub.ForumID, sub.UserID = forum.ID, user.ID
+	c.Set("submission", sub)
+	if err = validateSubmissionForm(unmarshalYaml(c, sub)); err != nil {
+		c.Flash().Add("warning", T.Translate(c, "submission-schemas-validation-fail", err.Error()))
+		return c.Render(200, r.HTML("submissions/create.plush.html"))
+	}
 	if c.Param("sid") != "" {
 		editing = true
 		sub.ID, _ = uuid.FromString(c.Param("sid"))
@@ -79,7 +83,7 @@ func SubmissionCreatePost(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(500, err)
 	}
-	c.Set("submission", sub)
+
 	if verrs.HasAny() {
 		c.Logger().Errorf("Error adding submission: %v", verrs.Errors)
 		c.Flash().Add("danger", T.Translate(c, "submission-add-fail"))
@@ -119,23 +123,6 @@ func unmarshalYaml(c buffalo.Context, s *models.Submission) *[]tags.Options {
 	return r
 }
 
-const defaultInputLayout template.HTML = `<div class="col-md-12">
-<%= f.InputTag({name:"Title", value: talk.Title }) %>
-</div>`
-
-func renderInput(r tags.Options) template.HTML {
-	//var inputAttr string
-	err := validateSubmissionInput(r)
-	if err != nil {
-		return template.HTML(`<h5 style="color:salmon;">` + err.Error() + `</h5>`)
-	}
-	switch r["type"] {
-	case "text":
-
-	}
-	return ``
-}
-
 func prepareSubmissionInput(r *[]tags.Options) *[]tags.Options {
 	for i := range *r {
 		for attr, val := range (*r)[i] {
@@ -144,24 +131,48 @@ func prepareSubmissionInput(r *[]tags.Options) *[]tags.Options {
 				continue
 			}
 			switch {
-			case attr == "type", s == "text":
+			case attr == "type" && s == "text":
 				(*r)[i]["rows"] = 1
 			}
 		}
 	}
 	return r
 }
-
+func validateSubmissionForm(r *[]tags.Options) error {
+	type void struct{}
+	names := make(map[string]void)
+	var null void
+	for _, input := range *r {
+		if err := validateSubmissionInput(input); err != nil {
+			return err
+		}
+		name := input["name"].(string)
+		_, ok := names[name]
+		if ok {
+			return fmt.Errorf("repeated names not allowed. Offending name: %q is repeated for %q", name, input["label"].(string))
+		}
+		names[name] = null
+	}
+	return nil
+}
 func validateSubmissionInput(r tags.Options) error {
 	theType, okType := r["type"]
-	_, okLabel := r["label"]
-	_, okName := r["name"]
+	theLabel, okLabel := r["label"]
+	theName, okName := r["name"]
 	if !okType || !okLabel || !okName {
 		return fmt.Errorf(
-			"Did not find some required attribute(s) in schema."+
-				"type:%t, label:%t, name:%t", okType, okLabel, okName)
+			"Did not find some required attribute(s) in schema.\n"+
+				"Passed: {type:%t, label:%t, name:%t}", okType, okLabel, okName)
 	}
-	switch theType {
+	castType, okType := theType.(string)
+	_, okLabel = theLabel.(string)
+	_, okName = theName.(string)
+	if !okType || !okLabel || !okName {
+		return fmt.Errorf(
+			"Some attribute(s) is not a string. Check YAML spec on types.\n"+
+				"Passed: {type:%t, label:%t, name:%t}", okType, okLabel, okName)
+	}
+	switch castType {
 	case "dropdown":
 		_, okOpts := r["options"]
 		if !okOpts {

@@ -91,6 +91,10 @@
   translation: "No se guarda el mail con la respuesta"
 - id: submission-passed
   translation: "Respuesta registrada"
+- id: submission-submit-warning
+  translation: "Una vez enviada la respuesta para \"{{.Title.String}}\" no se puede editar. Está seguro de los datos a enviar?"
+- id: submission-schemas-validation-fail
+  translation: "Error validando schemas:{{.}}"
 
 
 
@@ -110,6 +114,7 @@
       label: "Trabajo elegido"
       type: dropdown
       options:
+        - "" # Vacia para que required tome efecto
         - "COVID"
         - "Marketing"
         - "GUI Tkinter"
@@ -117,6 +122,7 @@
       label: "Codigo Python"
       type: textarea
       rows: 16
+      required:true
       
 # USERS
 - id: user-settings-headline

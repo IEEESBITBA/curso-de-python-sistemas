@@ -1,5 +1,6 @@
 <%= if ( (current_user && (!submission.Hidden && !submission.Deleted)) || current_user.Role == "admin" ) {
     let ctx = {sid: submission.ID, forum_title:forum.Title}
+    let editing = false
     %>
     
     <h5><%= t("submission-title") %></h5>
@@ -27,17 +28,40 @@
     <%=  for (input) in form_data  {%>
         <%=  if (input["type"]=="text" ) {%>
         <div class="col-md-6">
-            <%= f.TextArea(input) %>
+            <%= f.InputTag(input) %>
         </div>
         <% } else if (input["type"]=="textarea") { %>
-        <div class="col-md-6">
+        <div class="form-group col-md-6">
             <%= f.TextArea(input) %>
+            <span class="help-block"><%= input["help"] %></span>
+        </div>
+        <% } else if (input["type"]=="dropdown" || input["type"]=="select") {%>
+        <div class="form-group col-md-6">
+            <%= f.SelectTag(input) %>
+            <span class="help-block"><%= input["help"] %></span>
+        </div>
+        <% } else if (input["type"]=="file") {%>
+        <div class="form-group col-md-6">
+            <label class="col-md-4 control-label" for="<%= input["name"] %>"> <%= input["label"] %></label>
+            <div class="col-md-4">
+                <input  name="<%= input["name"] %>" class="input-file" type="file" accept="<%= input["accept"] %>" <%= if (editing) { %> value="0" <% } %>>
+            </div>
+            <span class="help-block"><%= input["help"] %></span>
         </div>
         <% } %>
-      
-<% } %> 
+<% } %>
+<%= if (form_data && len(form_data)>0) { %>
+    <%= partial("modal-fade",{modal_action:"submit",
+    modal_ID:submission.ID, 
+    modal_href:subSubmissionPath(ctx),
+    modal_title:t("submission-submit-warning",submission),
+    button_label:t("submit") }) %>
+    
+<% } %>
+
 <%}%>
 <%= if (current_user.Role == "admin") {%>
+
     <div class="modal fade" id="topic-modal-<%= submission.ID %>">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
