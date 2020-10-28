@@ -1,7 +1,10 @@
 package actions
 
 import (
+	"archive/zip"
+	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -106,7 +109,119 @@ func SubmissionDelete(c buffalo.Context) error {
 }
 
 func SubmissionSubmitPost(c buffalo.Context) error {
-	return c.Error(500, fmt.Errorf("Not implemented!"))
+	tx := c.Value("tx").(*pop.Connection)
+	template := new(models.Submission)
+
+	if err := tx.Where("id = ?", c.Param("sid")).First(template); err != nil {
+		return c.Error(500, err)
+	}
+	ctxData := render.Data{"sid": c.Param("sid"), "forum_title": c.Param("forum_title")}
+	inputs := unmarshalYaml(c, template)
+	zipbuf := new(bytes.Buffer)
+	zipWriter := zip.NewWriter(zipbuf)
+	fileCount := 0
+	for _, input := range *inputs {
+		if input["type"].(string) == "file" {
+			label := input["label"].(string)
+			maxSize := int64(input["max_size"].(uint64)) * 1e6
+			in, k, err := c.Request().FormFile(input["name"].(string))
+			if err != nil {
+				return c.Error(500, err)
+			}
+			if k.Size > maxSize {
+				c.Flash().Add("warning", T.Translate(c, "submission-file-too-big", input))
+				return c.Redirect(302, "subGetPath()", ctxData)
+			}
+			fileCount++
+			defer in.Close()
+			var folder string
+			if f, ok := input["folder"]; ok {
+				folder = f.(string) + "/"
+			}
+			zipFile, err := zipWriter.Create(folder + label + k.Filename)
+			if err != nil {
+				c.Flash().Add("danger", T.Translate(c, "submission-file-submit-fail", input))
+				return c.Redirect(302, "subGetPath()", ctxData)
+			}
+			if _, err = io.Copy(zipFile, in); err != nil {
+				c.Flash().Add("danger", T.Translate(c, "submission-file-submit-fail", input))
+				return c.Redirect(302, "subGetPath()", ctxData)
+			}
+			in.Close()
+		}
+	}
+	if err := zipWriter.Close(); err != nil {
+		c.Flash().Add("danger", T.Translate(c, "submission-file-submit-error"))
+		return c.Redirect(302, "subGetPath()", ctxData)
+	}
+	b, err := yaml.Marshal(c.Request().Form)
+	if err != nil {
+		c.Logger().Errorf("marshal yaml error:%s", err)
+		return c.Error(500, err)
+	}
+	user := c.Value("current_user").(*models.User)
+	sub := template.Template(user)
+	sub.Response.String, sub.Response.Valid = string(b), true
+	if fileCount > 0 {
+		sub.Zip.ByteSlice, sub.Zip.Valid = zipbuf.Bytes(), true
+		sub.HasAttachment = true
+	}
+	if verrs, err := tx.ValidateAndCreate(sub); err != nil {
+		c.Logger().Errorf("Got validation errors for %s submit on %s:%v", user.Email, template.Title.String, verrs)
+		return c.Error(500, err)
+	}
+	user.AddSubscription(template.ID)
+	_ = tx.UpdateColumns(user, "subscriptions")
+	c.Flash().Add("success", T.Translate(c, "submission-response-recieved"))
+	return c.Redirect(302, "subIndexPath()", render.Data{"forum_title": c.Param("forum_title")})
+}
+
+func SubmissionResponseIndex(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	page, perPage := setPagination(c.Params(), 20)
+	q := tx.Where("is_template = ?", false).Where("submission_id = ?", c.Param("sid")).Paginate(page, perPage)
+	subs := new(models.Submissions)
+	if err := q.All(subs); err != nil {
+		return c.Error(500, err)
+	}
+	for i := range *subs {
+		if (*subs)[i].Anonymous {
+			continue
+		}
+		user := new(models.User)
+		if err := tx.Where("id = ?", (*subs)[i].UserID).First(user); err == nil {
+			(*subs)[i].User = user
+		} else {
+			(*subs)[i].User = new(models.User)
+		}
+		c.Logger().Printf("%v", (*subs)[i].Zip)
+	}
+
+	c.Set("pagination", q.Paginator)
+	c.Set("submissions", subs)
+	return c.Render(200, r.HTML("submissions/sub-index.plush.html"))
+}
+
+func SubmissionResponseZipDownload(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	sub := new(models.Submission)
+	if err := tx.Where("id = ?", c.Param("sid")).First(sub); err != nil {
+		return c.Error(500, err)
+	}
+	if !sub.HasAttachment {
+		c.Flash().Add("danger", "No attachment to download")
+		return c.Redirect(302, "subIndexPath()", render.Data{"forum_title": c.Param("forum_title")})
+	}
+	w := c.Response()
+	name := T.Translate(c, "app-submission-upload") + "-" + sub.ID.String()[0:8]
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.zip"`, name))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(sub.Zip.ByteSlice)))
+
+	if _, err := w.Write(sub.Zip.ByteSlice); err != nil {
+		return c.Error(500, err)
+	}
+	return c.Redirect(200, "subResponseIndexPath()", render.Data{"forum_title": c.Param("forum_title"), "sid": c.Param("sid")})
 }
 
 // SUBMISSIONS RENDERING
@@ -119,22 +234,6 @@ func unmarshalYaml(c buffalo.Context, s *models.Submission) *[]tags.Options {
 	}
 	return r
 }
-
-// func prepareSubmissionInput(r *[]tags.Options) *[]tags.Options {
-// 	for i := range *r {
-// 		for attr, val := range (*r)[i] {
-// 			s, ok := val.(string)
-// 			if !ok {
-// 				continue
-// 			}
-// 			switch {
-// 			case attr == "type" && s == "text":
-// 				(*r)[i]["rows"] = 1
-// 			}
-// 		}
-// 	}
-// 	return r
-// }
 
 func validateSubmissionForm(r *[]tags.Options) error {
 	type void struct{}
@@ -153,6 +252,8 @@ func validateSubmissionForm(r *[]tags.Options) error {
 	}
 	return nil
 }
+
+// checking could be separated into functions :(
 func validateSubmissionInput(r tags.Options) error {
 	theType, okType := r["type"]
 	theLabel, okLabel := r["label"]
@@ -164,19 +265,26 @@ func validateSubmissionInput(r tags.Options) error {
 	}
 	castType, okType := theType.(string)
 	_, okLabel = theLabel.(string)
-	_, okName = theName.(string)
+	castName, okName := theName.(string)
 	if !okType || !okLabel || !okName {
 		return fmt.Errorf(
-			"Some attribute(s) is not a string. Check YAML spec on types.\n"+
-				"Passed: {type:%t, label:%t, name:%t}", okType, okLabel, okName)
+			"Some attribute(s) is not a string for %q. Check YAML spec on types.\n"+
+				"Passed: {type:%t, label:%t, name:%t}", castName, okType, okLabel, okName)
 	}
 	switch castType {
 	case "dropdown":
 		_, okOpts := r["options"]
 		if !okOpts {
 			return fmt.Errorf(
-				"Did not find some required attribute(s) in dropdown schema."+
-					"options:%t", okOpts)
+				"Did not find some required attribute(s) for %q in dropdown schema."+
+					"Passed: {options:%t}", castName, okOpts)
+		}
+	case "file":
+		_, okSize := r["max_size"]
+		if !okSize {
+			return fmt.Errorf(
+				"Did not find some required attribute(s) for %q in file schema."+
+					"Passed: {max_size:%t}", castName, okSize)
 		}
 	}
 	return nil

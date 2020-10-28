@@ -1,4 +1,5 @@
-<%= if ( (current_user && (!submission.Hidden && !submission.Deleted)) || current_user.Role == "admin" ) {
+<% let submitted = current_user.Subscribed(submission.ID) %>
+<%= if ( (current_user && (!submission.Hidden && !submission.Deleted) && !(submitted && !submission.Editable)) || role == "admin" ) {
     let ctx = {sid: submission.ID, forum_title:forum.Title}
     let editing = false
     %>
@@ -20,11 +21,17 @@
             <a href="<%= subEditPath(ctx) %>" class="btn btn-secondary btn-sm ">
                 <span><%= bicon("input-cursor-text",{size:"1em"}) %>  <%=t("topic-edit") %> </span>
             </a>
+            <a href="<%= subResponseIndexPath(ctx) %>" class="btn btn-info btn-sm ">
+                <span><%= bicon("upload",{size:"1em"}) %>  <%=t("submission-responses") %> </span>
+            </a>
         </div>
         <% } %>
     </div>
 
 <%= form({action: subSubmissionPath({forum_title:forum.Title,sid: submission.ID}), method: "POST"}) { %>
+    <%= if (!submission.Anonymous) {%>
+        <input hidden type="text" name="db_email" value="<%= current_user.Email %>">
+    <% } %>
     <%=  for (input) in form_data  {%>
         <%=  if (input["type"]=="text" ) {%>
         <div class="col-md-6">
@@ -42,10 +49,7 @@
         </div>
         <% } else if (input["type"]=="file") {%>
         <div class="form-group col-md-6">
-            <label class="col-md-4 control-label" for="<%= input["name"] %>"> <%= input["label"] %></label>
-            <div class="col-md-4">
-                <input  name="<%= input["name"] %>" class="input-file" type="file" accept="<%= input["accept"] %>" <%= if (editing) { %> value="0" <% } %>>
-            </div>
+            <%= f.FileTag(input) %>
             <span class="help-block"><%= input["help"] %></span>
         </div>
         <% } %>

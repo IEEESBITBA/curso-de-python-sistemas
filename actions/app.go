@@ -150,6 +150,8 @@ func App() *buffalo.App {
 		submissionGroup.GET("/{sid}/edit", SubmissionCreateGet).Name("subEdit")
 		submissionGroup.POST("/{sid}/edit", SubmissionCreatePost)
 		submissionGroup.POST("/{sid}/submit", SubmissionSubmitPost).Name("subSubmission")
+		submissionGroup.GET("/{sid}/responses", SubmissionResponseIndex).Name("subResponseIndex")
+		submissionGroup.GET("/{sid}/download", SubmissionResponseZipDownload).Name("subZipDownload")
 
 		catGroup := forum.Group("/c/{cat_title}")
 		catGroup.Use(SetCurrentCategory)

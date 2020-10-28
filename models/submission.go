@@ -34,12 +34,29 @@ type Submission struct {
 	Zip           nulls.ByteSlice `json:"zip" db:"zip"`
 	CreatedAt     time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time       `json:"updated_at" db:"updated_at"`
+	// Non-DB fields
+	User *User `json:"-" db:"-"`
 }
 
 // String is not required by pop and may be deleted
 func (s Submission) String() string {
 	js, _ := json.Marshal(s)
 	return string(js)
+}
+
+// Template creates a submission populated with template data
+// The resulting submission is a user response and not a template!
+func (s *Submission) Template(user *User) *Submission {
+	t := new(Submission)
+	t.Editable = s.Editable
+	t.ForumID = s.ForumID
+	t.SubmissionID.UUID, t.SubmissionID.Valid = s.ID, true
+	t.IsTemplate = false
+	t.Anonymous = s.Anonymous
+	if !s.Anonymous {
+		t.UserID = user.ID
+	}
+	return t
 }
 
 // Submissions is not required by pop and may be deleted

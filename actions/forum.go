@@ -151,7 +151,8 @@ func manageForum(c buffalo.Context) error {
 	return c.Render(200, r.HTML("forums/manage.plush.html"))
 }
 
-// getFormFile get a file from a form. key is given by form filesubmission input name
+// getFormFile get a file from a form.
+// key is given by form filesubmission input name
 func getFormFile(c buffalo.Context, key string) (*[]byte, error) {
 	var b []byte
 	in, _, err := c.Request().FormFile(key)

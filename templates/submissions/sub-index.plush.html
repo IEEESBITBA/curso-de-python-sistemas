@@ -1,0 +1,73 @@
+<%= if (role == "admin") {%>
+
+<h1><%= t("app-search-title") %></h1>
+
+<div class="row">
+    <%= form({action: "/s", method: "GET"}) { %>
+    <div class="col">
+        <%= f.InputTag({name: "query", id:"search", value: params["query"]}) %>
+
+    </div>
+    
+    <div class="col-md-1">
+        <button class="btn btn-primary"><%= t("app-search-title") %></button>
+    </div>
+    <% } %>
+</div>
+<style>
+    mark {
+        font-weight: bolder;
+    }
+    li > pre {
+        color: #717171;
+    }
+</style>
+<%= if (submissions && len(submissions)>0) { %>
+
+<div class="row justify-content-end">
+    <div class="col-md-7">
+        <%= paginator(pagination) %>
+    </div>
+    <div class="col-md-5 text-right">
+        <%= partial("pagination-perpage.plush.html", {plural: downcase(t("submission-responses")), perPage: [10,20,50]}) %>
+    </div>
+</div>
+
+<ol>
+    <%= for (sub) in submissions {
+        let user = sub.User
+        let reply = false
+        let download_path = "#"
+        if (sub.HasAttachment) {
+            download_path = subZipDownloadPath({sid:sub.ID,forum_title:forum.Title})
+        }
+    %>
+    <div class="card mb-1 rounded-0" id="<%= sub.ID %>">
+        <div class="card-header bg-secondary text-white rounded-0">
+            <div class="row">
+            <div class="col-6 col-lg-8">
+             <%= if (sub.Anonymous) { %><%= bicon("person-x-fill",{size:"1em",title:t("reply")}) %><% } %> 
+            </div>
+            <div class="col-6 col-lg-4">
+            <span class="float-right">
+                <%= if (sub.HasAttachment) { %>
+                 <a class="btn btn-primary" href="<%= download_path %>"> <%= bicon("file-earmark-zip",{size:"1.5em"})%></a>
+                <% } %>
+                <span><%= displayName(sub.User) %></span> (<%=  %>)
+            </span>
+            </div>
+            </div>
+        </div>
+        
+        <div class="card-footer text-secondary">
+            <div class="float-left"><%= debug(sub.Response.String) %></div>
+            <div class="float-right"><span><%= sub.User.Email %></div>
+        </div>
+    </div>
+    <% } %>
+</ol>
+<% } %>
+
+<% } else {%>
+Forbidden
+<% } %>

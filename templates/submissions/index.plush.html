@@ -22,14 +22,18 @@
 <% } %>
 <%= for (sub) in submissions {submissions
 let ctxSub = {sid: sub.ID,forum_title:forum.Title}
+let sub_path = subGetPath( ctxSub )
 let userPassed = current_user.Subscribed(sub.ID)
+if (userPassed && !sub.Editable && role != "admin") {
+    sub_path = "#"
+}
 %>
 <div class="row">
     <%= if (!sub.Deleted && ( !sub.Hidden || current_user.Role == "admin" ) ) { %>
     <hr class="col-md-12 col-sm-12" id="<%= sub.ID %>">
     <div class="col-md-8">
-        <a href="<%= subGetPath( ctxSub ) %>" class="text-secondary">
-          <%= if (userPassed) { %> <div class="badge badge-success"><%= bicon("patch-check",{size:"2em",title:"Aprobado"}) %> <%= t("submission-passed") %> </div> <% } %>
+        <a href="<%= sub_path %>" class="text-secondary">
+          <%= if (userPassed) { %> <div class="badge badge-success"><%= bicon("patch-check",{size:"2em",title:"Completado"}) %> <%= t("submission-passed") %> </div> <% } %>
           <%= if (sub.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%> <%= raw(sub.Title.String) %>
         </a>
     </div>

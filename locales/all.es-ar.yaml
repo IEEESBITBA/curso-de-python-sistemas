@@ -67,6 +67,8 @@
     Imagenes: ![altNombre](https://imgur.com/imURL)
 
 # SUBMISSIONS
+- id: app-submission-upload
+  translation: "Respuesta"
 - id: app-submissions-title
   translation: "Formularios"
 - id: submission-new-submission
@@ -95,9 +97,18 @@
   translation: "Una vez enviada la respuesta para \"{{.Title.String}}\" no se puede editar. Está seguro de los datos a enviar?"
 - id: submission-schemas-validation-fail
   translation: "Error validando schemas: "
-
-
-
+- id: submission-file-too-big
+  translation: "El archivo \"{{.label}}\" es demasiado grande. Tamaño máximo {{.max_size}}MB"
+- id: submission-file-submit-fail
+  translation: "Hubo un error guardando el archivo \"{{.label}}\". "
+- id: submission-file-submit-error
+  translation: "Hubo un error guardando los archivos."
+- id: submission-response-recieved
+  translation: "Se registró su respuesta!"
+- id: submission-responses
+  translation: "Respuestas"
+- id: submission-response
+  translation: "Respuesta"
 - id: submission-schemas-placeholder
   translation: |
     # YAML schema for inputs https://yaml.org/spec/1.2/spec.html
