@@ -71,6 +71,8 @@
   translation: "Respuesta"
 - id: app-submissions-title
   translation: "Formularios"
+- id: app-submission-title
+  translation: "Formulario"
 - id: submission-new-submission
   translation: "Nuevo formulario"
 - id: submission-no-submission-found

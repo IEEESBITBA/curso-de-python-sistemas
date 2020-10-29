@@ -4,7 +4,7 @@
     let editing = false
     %>
     
-    <h5><%= t("submission-title") %></h5>
+    <h5><a class="btn btn-md btn-secondary text-mute" href="<%= subIndexPath({forum_title:forum.Title}) %>"><%= bicon("arrow-left-circle")%> <%= t("app-submissions-title") %></a></h5>
     <div class="row" style="margin-bottom: 3rem;">
         <h2 class="text-muted"><%= if (submission.Hidden) { %><%= bicon("eye-slash-fill") %> <% } %>
             <%= raw(submission.Title.String) %>
