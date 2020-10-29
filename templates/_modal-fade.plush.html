@@ -1,5 +1,5 @@
 <%= if (modal_action == "submit") { %>
-<button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
+<button type="button" class="btn btn-primary btn-md m-3" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
     <span><%= button_label %></span>
 </button>
 <div class="modal fade" id="topic-modal-<%= modal_ID %>">
@@ -28,7 +28,7 @@
 </div>
 
 <% } else if (modal_action == "delete") { %> 
-    <button type="button" class="btn btn-danger btn-md" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
+    <button type="button" class="btn btn-danger btn-md m-3" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
         <span><%= button_label %></span>
     </button>
 <div class="modal fade" id="topic-modal-<%= modal_ID %>">
@@ -56,7 +56,7 @@
     </div>
 </div>
 <% } else if (modal_action == "disabled"){ %>
-    <button type="button" class="btn btn-outline-danger btn-md" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
+    <button type="button" class="btn btn-outline-danger btn-md m-3" data-toggle="modal" data-target="#topic-modal-<%= modal_ID %>">
         <span><%= button_label %></span>
     </button>
     <div class="help-block mb-4" style="color:red;"><span><%= form_error.Error() %></span></div>

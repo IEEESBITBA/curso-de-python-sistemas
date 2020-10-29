@@ -26,12 +26,13 @@
             </div>
             <!-- Text input Description-->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="description"><%= t("description")%></label>
-                <div class="col-md-5">
-                    <input id="description" name="description" type="text" placeholder=""
-                           class="form-control input-md" required value="<%=  description %>">
+                <label class="col-md-8 control-label" for="description"><%= t("content") %></label>
+                <div class="col-md-8" >
+                    <textarea class="form-control input-md" id="description" rows="9" name="description" required placeholder=""><%=  description %></textarea>
+                    <span class="help-block"></span>
                 </div>
             </div>
+            
             <%= partial("md.plush.html",{id_in: "description" ,id_out: "preview", title: t("new-topic-preview")}) %>
             
             <!-- Multiple Radios (inline) (HIDDEN) -->

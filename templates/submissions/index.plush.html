@@ -31,14 +31,14 @@ if (userPassed && !sub.Editable && role != "admin") {
 <div class="row">
     <%= if (!sub.Deleted && ( !sub.Hidden || current_user.Role == "admin" ) ) { %>
     <hr class="col-md-12 col-sm-12" id="<%= sub.ID %>">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <a href="<%= sub_path %>" class="text-secondary">
           <%= if (userPassed) { %> <div class="badge badge-success"><%= bicon("patch-check",{size:"2em",title:"Completado"}) %> <%= t("submission-passed") %> </div> <% } %>
           <%= if (sub.Hidden) { %> <%= bicon("eye-slash-fill",{size:"1.2em"}) %> <% }%> <%= raw(sub.Title.String) %>
         </a>
     </div>
 
-    <div class="col-md-3 text-center"><%= sub.Description  %></div>
+    <div class="col-md-6 text-center"><%= markdown(truncate(sub.Description.String, {"size": 100}))  %></div>
     <% } %>
 </div>
 <% } %>
