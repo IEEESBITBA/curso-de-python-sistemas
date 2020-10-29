@@ -383,6 +383,8 @@
   translation: "Respuesta equivocada! Intente otra vez?"
 - id: curso-python-evaluation-duplicate
   translation: "No puede ingresar dos códigos iguales!"
+- id: evaluation-pass-required
+  translation: "No puede realizar esa acción porque aún no aprobó \"{{.Title}}\""
 - id: curso-python-code-backup
   translation: "DB"
 - id: curso-python-input-field-error

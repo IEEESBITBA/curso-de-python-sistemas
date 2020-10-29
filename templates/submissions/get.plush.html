@@ -32,27 +32,20 @@
     <%= if (!submission.Anonymous) {%>
         <input hidden type="text" name="db_email" value="<%= current_user.Email %>">
     <% } %>
+    
     <%=  for (input) in form_data  {%>
+    <div class="form-group col-md-7">
         <%=  if (input["type"]=="text" ) {%>
-        <div class="col-md-6">
             <%= f.InputTag(input) %>
-        </div>
         <% } else if (input["type"]=="textarea") { %>
-        <div class="form-group col-md-6">
             <%= f.TextArea(input) %>
-            <span class="help-block"><%= input["help"] %></span>
-        </div>
         <% } else if (input["type"]=="dropdown" || input["type"]=="select") {%>
-        <div class="form-group col-md-6">
             <%= f.SelectTag(input) %>
-            <span class="help-block"><%= input["help"] %></span>
-        </div>
         <% } else if (input["type"]=="file") {%>
-        <div class="form-group col-md-6">
             <%= f.FileTag(input) %>
-            <span class="help-block"><%= input["help"] %></span>
-        </div>
         <% } %>
+        <div class="help-block mb-4"><span><%= input["help"] %></span></div>
+    </div>
 <% } %>
 <%= if (form_data && len(form_data)>0) { %>
     <%= partial("modal-fade",{modal_action:"submit",

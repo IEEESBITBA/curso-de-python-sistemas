@@ -31,7 +31,6 @@ require (
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gorilla/sessions v1.2.0
 	github.com/jmhodges/levigo v1.0.0 // indirect
-	github.com/kylelemons/go-gypsy v1.0.0
 	github.com/markbates/errx v1.1.0
 	github.com/markbates/goth v1.64.2
 	github.com/markbates/grift v1.5.0

@@ -120,12 +120,26 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 	zipbuf := new(bytes.Buffer)
 	zipWriter := zip.NewWriter(zipbuf)
 	fileCount := 0
+	user := c.Value("current_user").(*models.User)
 	for _, input := range *inputs {
+		if input["type"].(string) == "require_final_evaluations" {
+			if passed, err := evaluationsPassed(c, user); !passed {
+				if err != nil {
+					c.Logger().Errorf("got error checking if work is passed:%s", err)
+					return c.Error(500, err)
+				}
+				c.Logger().Infof("user %s not passed. bounce back", user.Email)
+				return c.Redirect(302, c.Request().Referer())
+			}
+		}
 		if input["type"].(string) == "file" {
 			label := input["label"].(string)
 			maxSize := int64(input["max_size"].(uint64)) * 1e6
 			in, k, err := c.Request().FormFile(input["name"].(string))
 			if err != nil {
+				if req, ok := input["required"]; ok && req.(bool) || !ok { // if not required, skip it
+					continue
+				}
 				return c.Error(500, err)
 			}
 			if k.Size > maxSize {
@@ -159,7 +173,7 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 		c.Logger().Errorf("marshal yaml error:%s", err)
 		return c.Error(500, err)
 	}
-	user := c.Value("current_user").(*models.User)
+
 	sub := template.Template(user)
 	sub.Response.String, sub.Response.Valid = string(b), true
 	if fileCount > 0 {

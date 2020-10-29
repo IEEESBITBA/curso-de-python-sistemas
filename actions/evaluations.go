@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"strings"
+
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
@@ -114,4 +116,67 @@ func CursoEvaluationGet(c buffalo.Context) error {
 	}
 	c.Set("evaluation", eval)
 	return c.Render(200, r.HTML("curso/eval-get.plush.html"))
+}
+
+func PassedEvaluationHandler(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		tx := c.Value("tx").(*pop.Connection)
+		evals := &models.Evaluations{}
+		if err := tx.Where("deleted = ?", false).All(evals); err != nil {
+			return c.Error(500, err)
+		}
+		user := c.Value("current_user").(*models.User)
+		c.Set("evaluations", evals)
+		for _, e := range *evals {
+			if strings.Contains(strings.ToLower(normalize(e.Title)), "desafio final") && !user.Subscribed(e.ID) {
+				c.Flash().Add("warning", T.Translate(c, "evaluation-pass-required", e))
+				c.Logger().Infof("user %s not passed. bounce back", user.Email)
+				return c.Redirect(302, c.Request().Referer())
+			}
+		}
+		c.Logger().Infof("user %s passed. allowing to continue", user.Email)
+		return next(c)
+	}
+}
+
+// evaluationsPassed checks if user passed all final evaluations
+// does not check deleted evaluations but does check hidden evaluations
+func evaluationsPassed(c buffalo.Context, user *models.User) (bool, error) {
+	tx := c.Value("tx").(*pop.Connection)
+	evals := &models.Evaluations{}
+	if err := tx.Where("deleted = ?", false).All(evals); err != nil {
+		return false, err
+	}
+	for _, e := range *evals {
+		if strings.Contains(strings.ToLower(normalize(e.Title)), "desafio final") && !user.Subscribed(e.ID) {
+			e.Title = deleteXMLTags(e.Title)
+			c.Flash().Add("warning", T.Translate(c, "evaluation-pass-required", e))
+			return false, nil
+		}
+	}
+	return true, nil
+}
+func deleteXMLTags(s string) string {
+	var b strings.Builder
+	done := false
+	idx := 0
+	for !done { // idx0 y idx1 en coordenadas relativas a idx
+		idx0 := strings.Index(s[idx:], "<")
+		idx1 := strings.Index(s[idx:], ">")
+		if idx0 < 0 || idx1 < 0 {
+			if idx == 0 {
+				return s
+			}
+			b.WriteString(s[idx:])
+			break
+		}
+		if idx0 > idx1 {
+			idx = idx1
+			continue
+		}
+		ess := s[idx : idx+idx0]
+		b.WriteString(ess)
+		idx += idx1 + 1
+	}
+	return b.String()
 }
