@@ -35,10 +35,11 @@ func SubmissionGet(c buffalo.Context) error {
 	if err := q.First(sub); err != nil {
 		return c.Error(404, err)
 	}
-
+	user := c.Value("current_user").(*models.User)
 	R := unmarshalYaml(c, sub)
 	c.Set("form_data", R)
 	c.Set("submission", sub)
+	c.Set("form_error", userSubmissionGreenlight(c, user, sub))
 	return c.Render(200, r.HTML("submissions/get.plush.html"))
 }
 
@@ -121,17 +122,12 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 	zipWriter := zip.NewWriter(zipbuf)
 	fileCount := 0
 	user := c.Value("current_user").(*models.User)
+	// prechecks for user submission
+	if err := userSubmissionGreenlight(c, user, template); err != nil {
+		c.Logger().Infof("user %s not greenlit or error:%s", user.Email, err)
+		return c.Redirect(302, c.Request().Referer())
+	}
 	for _, input := range *inputs {
-		if input["type"].(string) == "require_final_evaluations" {
-			if passed, err := evaluationsPassed(c, user); !passed {
-				if err != nil {
-					c.Logger().Errorf("got error checking if work is passed:%s", err)
-					return c.Error(500, err)
-				}
-				c.Logger().Infof("user %s not passed. bounce back", user.Email)
-				return c.Redirect(302, c.Request().Referer())
-			}
-		}
 		if input["type"].(string) == "file" {
 			label := input["label"].(string)
 			maxSize := int64(input["max_size"].(uint64)) * 1e6
@@ -236,6 +232,17 @@ func SubmissionResponseZipDownload(c buffalo.Context) error {
 		return c.Error(500, err)
 	}
 	return c.Redirect(200, "subResponseIndexPath()", render.Data{"forum_title": c.Param("forum_title"), "sid": c.Param("sid")})
+}
+
+// Check if user should be able to submit a form
+func userSubmissionGreenlight(c buffalo.Context, user *models.User, sub *models.Submission) (okErr error) {
+	R := unmarshalYaml(c, sub)
+	for _, input := range *R {
+		if input["type"].(string) == "require_final_evaluations" {
+			okErr = evaluationsPassed(c, user)
+		}
+	}
+	return okErr
 }
 
 // SUBMISSIONS RENDERING

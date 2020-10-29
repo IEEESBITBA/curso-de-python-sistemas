@@ -47,7 +47,13 @@
         <div class="help-block mb-4"><span><%= input["help"] %></span></div>
     </div>
 <% } %>
-<%= if (form_data && len(form_data)>0) { %>
+<%= if (form_error) { %>
+    <%= partial("modal-fade",{modal_action:"disabled",
+    modal_ID:submission.ID, 
+    modal_href:"#",
+    modal_title:form_error.Error(),
+    button_label:t("submit") }) %>
+<% } else if (form_data && len(form_data)>0) { %>
     <%= partial("modal-fade",{modal_action:"submit",
     modal_ID:submission.ID, 
     modal_href:subSubmissionPath(ctx),

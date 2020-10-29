@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
@@ -141,20 +142,20 @@ func PassedEvaluationHandler(next buffalo.Handler) buffalo.Handler {
 
 // evaluationsPassed checks if user passed all final evaluations
 // does not check deleted evaluations but does check hidden evaluations
-func evaluationsPassed(c buffalo.Context, user *models.User) (bool, error) {
+func evaluationsPassed(c buffalo.Context, user *models.User) error {
 	tx := c.Value("tx").(*pop.Connection)
 	evals := &models.Evaluations{}
 	if err := tx.Where("deleted = ?", false).All(evals); err != nil {
-		return false, err
+		return fmt.Errorf("Error checking evaluations")
 	}
 	for _, e := range *evals {
 		if strings.Contains(strings.ToLower(normalize(e.Title)), "desafio final") && !user.Subscribed(e.ID) {
 			e.Title = deleteXMLTags(e.Title)
-			c.Flash().Add("warning", T.Translate(c, "evaluation-pass-required", e))
-			return false, nil
+
+			return fmt.Errorf(T.Translate(c, "evaluation-pass-required", e))
 		}
 	}
-	return true, nil
+	return nil
 }
 func deleteXMLTags(s string) string {
 	var b strings.Builder
