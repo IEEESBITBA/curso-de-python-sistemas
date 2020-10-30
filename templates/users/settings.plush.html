@@ -1,6 +1,7 @@
 <%= if (current_user) { %>
 <h2><%= t("user-settings-headline") %></h2>
-<h3><%= current_user.Name %></h3>
+<h3><%= current_user.Name %>  </h3>
+<h5 class="text-muted"><%= current_user.Email %></h5>
 <form class="form-horizontal" action="<%= current_path %>" method="POST" enctype="multipart/form-data">
     <input name="authenticity_token" type="hidden" value="<%= authenticity_token %>">
     <fieldset>

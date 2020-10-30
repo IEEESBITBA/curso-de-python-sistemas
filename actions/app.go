@@ -116,6 +116,36 @@ func App() *buffalo.App {
 		app.Middleware.Skip(SafeList, manageForum)
 		app.Middleware.Skip(Authorize, manageForum)
 
+		// ADMIN and CONTROL PANEL
+		admin := app.Group("/admin")
+		admin.Use(SiteStruct)
+		admin.Use(AdminAuth, SafeList)
+		admin.GET("/f", manageForum)
+		admin.GET("newforum", CreateEditForum)
+		admin.POST("newforum/post", createForumPost)
+
+		admin.GET("users", UsersViewAllGet).Name("allUsers")
+		admin.GET("users/{uid}/ban", BanUserGet).Name("banUser")
+		admin.GET("users/{uid}/admin", AdminUserGet).Name("adminUser")
+		admin.GET("users/{uid}/normalize", NormalizeUserGet).Name("normalizeUser")
+
+		admin.GET("safelist", SafeListGet).Name("safeList")
+		admin.POST("safelist", SafeListPost)
+
+		admin.GET("/cbu", boltDBDownload(models.BDB)).Name("cursoCodeBackup")
+		admin.GET("/cbureader", zipAssetFolder("server/uploadReader")).Name("cursoCodeBackupReader")
+		adminForum := admin.Group("/f/{forum_title}")
+		adminForum.Use(SetCurrentForum)
+		// admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
+		// admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
+		controlPanelGroup := admin.Group("/control-panel")
+		controlPanelGroup.GET("", ControlPanel).Name("controlPanel")
+		controlPanelGroup.POST("/exfiltrate", generateJSONFromSQL).Name("sqlBackup")
+		controlPanelGroup.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
+
+		controlPanelGroup.Use(ControlPanelHandler)
+		controlPanelGroup.Middleware.Skip(ControlPanelHandler, ControlPanel)
+
 		// All things curso de python
 		curso := app.Group("/curso-python")
 		curso.GET("/eval", EvaluationIndex).Name("evaluation")
@@ -141,18 +171,23 @@ func App() *buffalo.App {
 		forum.Middleware.Skip(Authorize, forumIndex)
 		forum.Middleware.Skip(SafeList, forumIndex)
 
+		// SUBMISSIONS
 		submissionGroup := forum.Group("/sub")
 		submissionGroup.GET("/", SubmissionsIndex).Name("subIndex")
-		submissionGroup.GET("/create", SubmissionCreateGet).Name("subCreate")
-		submissionGroup.POST("/create", SubmissionCreatePost)
-		submissionGroup.GET("/{sid}", SubmissionGet).Name("subGet")
-		submissionGroup.DELETE("/{sid}", SubmissionDelete).Name("subDelete")
-		submissionGroup.GET("/{sid}/edit", SubmissionCreateGet).Name("subEdit")
-		submissionGroup.POST("/{sid}/edit", SubmissionCreatePost)
-		submissionGroup.POST("/{sid}/submit", SubmissionSubmitPost).Name("subSubmission")
-		submissionGroup.GET("/{sid}/responses", SubmissionResponseIndex).Name("subResponseIndex")
-		submissionGroup.GET("/{sid}/download", SubmissionResponseZipDownload).Name("subZipDownload")
 
+		submissionGroup.GET("/{sid}", SubmissionGet).Name("subGet")
+		submissionGroup.POST("/{sid}/submit", SubmissionSubmitPost).Name("subSubmission")
+
+		adminForum.GET("/create", SubmissionCreateGet).Name("subCreate")
+		adminForum.POST("/create", SubmissionCreatePost)
+		adminForum.DELETE("/{sid}", SubmissionDelete).Name("subDelete")
+		adminForum.GET("/{sid}/edit", SubmissionCreateGet).Name("subEdit")
+		adminForum.POST("/{sid}/edit", SubmissionCreatePost)
+		adminForum.GET("/{sid}/responses", SubmissionResponseIndex).Name("subResponseIndex")
+		adminForum.GET("/{sid}/download", SubmissionResponseZipDownload).Name("subZipDownload")
+		adminForum.GET("/{sid}/downloadAll", SubmissionDownloadAllResponses).Name("subDownloadAll")
+
+		// CATEGORIES
 		catGroup := forum.Group("/c/{cat_title}")
 		catGroup.Use(SetCurrentCategory)
 		catGroup.GET("/", CategoriesIndex).Name("cat")
@@ -183,34 +218,6 @@ func App() *buffalo.App {
 		replyGroup.GET("/edit", editReplyGet).Name("replyEdit")
 		replyGroup.POST("/edit", editReplyPost)
 		replyGroup.DELETE("/edit", DeleteReply)
-
-		admin := app.Group("/admin")
-		admin.Use(SiteStruct)
-		admin.Use(AdminAuth, SafeList)
-		admin.GET("/f", manageForum)
-		admin.GET("newforum", CreateEditForum)
-		admin.POST("newforum/post", createForumPost)
-
-		admin.GET("users", UsersViewAllGet).Name("allUsers")
-		admin.GET("users/{uid}/ban", BanUserGet).Name("banUser")
-		admin.GET("users/{uid}/admin", AdminUserGet).Name("adminUser")
-		admin.GET("users/{uid}/normalize", NormalizeUserGet).Name("normalizeUser")
-
-		admin.GET("safelist", SafeListGet).Name("safeList")
-		admin.POST("safelist", SafeListPost)
-
-		admin.GET("/cbu", boltDBDownload(models.BDB)).Name("cursoCodeBackup")
-		admin.GET("/cbureader", zipAssetFolder("server/uploadReader")).Name("cursoCodeBackupReader")
-		// admin.GET("/control-panel", ControlPanel).Name("controlPanel")
-		// admin.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
-		// admin.GET("/exfiltrate", downloadSQL).Name("sqlBackup")
-		controlPanelGroup := admin.Group("/control-panel")
-		controlPanelGroup.GET("", ControlPanel).Name("controlPanel")
-		controlPanelGroup.POST("/exfiltrate", generateJSONFromSQL).Name("sqlBackup")
-		controlPanelGroup.POST("/cbuDelete", DeletePythonUploads).Name("cursoCodeDelete")
-
-		controlPanelGroup.Use(ControlPanelHandler)
-		controlPanelGroup.Middleware.Skip(ControlPanelHandler, ControlPanel)
 
 		// We associate the HTTP 404,500 status to a specific handler.
 		// All the other status code will still use the default handler provided by Buffalo.

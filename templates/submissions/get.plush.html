@@ -15,15 +15,18 @@
     
         <%= if (current_user.Role == "admin") { %>
         <div class="col-md-2 mt-3 offset-md-8 text-right">
-            <button type="button" class="btn btn-danger btn-sm m-0" data-toggle="modal" data-target="#topic-modal-<%= submission.ID %>">
-                <span><%= bicon("trash-fill",{size:"1em"}) %>  <%=t("topic-delete") %> </span>
-            </button>
+            <%= partial("modal-fade",{modal_action:"delete",
+            modal_ID:"formErrorSubmit", 
+            modal_href: subDeletePath(ctx),
+            action:"DELETE",
+            modal_title: t("topic-delete-msg", {title: submission.Title.String}),
+            button_label:bicon("trash-fill",{size:"1em"})}) %>
             <a href="<%= subEditPath(ctx) %>" class="btn btn-secondary btn-sm ">
                 <span><%= bicon("input-cursor-text",{size:"1em"}) %>  <%=t("topic-edit") %> </span>
             </a>
             <a href="<%= subResponseIndexPath(ctx) %>" class="btn btn-info btn-sm ">
                 <span><%= bicon("upload",{size:"1em"}) %>  <%=t("submission-responses") %> </span>
-            </a>
+            </a> 
         </div>
         <% } %>
     </div>
@@ -49,13 +52,13 @@
 <% } %>
 <%= if (form_error) { %>
     <%= partial("modal-fade",{modal_action:"disabled",
-    modal_ID:submission.ID, 
+    modal_ID:"formErrorSubmit", 
     modal_href:"#",
     modal_title:form_error.Error(),
     button_label:t("submit") }) %>
 <% } else if (form_data && len(form_data)>0) { %>
     <%= partial("modal-fade",{modal_action:"submit",
-    modal_ID:submission.ID, 
+    modal_ID:"formSubmit", 
     modal_href:subSubmissionPath(ctx),
     modal_title:t("submission-submit-warning",submission),
     button_label:t("submit") }) %>

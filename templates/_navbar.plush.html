@@ -41,7 +41,7 @@
         <ul class="navbar-nav mr-2">
         <li class="nav-item dropdown" >
             <a class="nav-link dropdown-toggle"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <%= userIcon(current_user,{size:"1em"}) %> <%= displayName(current_user) %>
+                <%= userIcon(current_user,{size:"1em"}) %> <span title="<%= current_user.Email %>"><%= displayName(current_user) %></span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item nav-link" href="<%=user_settings_path%>"><%= bicon("gear-fill",{size:"1em"}) %> <%= t("app-settings") %> </a>
@@ -53,7 +53,7 @@
         <% } else { %>
         <ul class="navbar-nav mr-2">
             <li class="nav-item">
-                <a href="<%= auth_path %>" class="nav-link"><%= t("app-request-login") %></a>
+                <a href="<%= auth_path %>" class="btn rounded-pill btn-outline-success"><%= t("app-request-login") %></a>
             </li>
         </ul>
         <% } %>

@@ -1,27 +1,11 @@
-<%= if (role == "admin") {%>
+<%= if (role == "admin") { %>
 
 <h1><%= t("app-search-title") %></h1>
 
-<div class="row">
-    <%= form({action: "/s", method: "GET"}) { %>
-    <div class="col">
-        <%= f.InputTag({name: "query", id:"search", value: params["query"]}) %>
+<%= if (role == "admin") {%>
+    <a class="btn btn-primary" href="<%= subDownloadAllPath({forum_title:forum.Title,sid:template_id})%>"><%= bicon("cloud-download")%> <%= t("submissions-download-all-responses") %></a>
+<%} %>
 
-    </div>
-    
-    <div class="col-md-1">
-        <button class="btn btn-primary"><%= t("app-search-title") %></button>
-    </div>
-    <% } %>
-</div>
-<style>
-    mark {
-        font-weight: bolder;
-    }
-    li > pre {
-        color: #717171;
-    }
-</style>
 <%= if (submissions && len(submissions)>0) { %>
 
 <div class="row justify-content-end">

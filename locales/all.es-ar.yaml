@@ -111,6 +111,8 @@
   translation: "Respuestas"
 - id: submission-response
   translation: "Respuesta"
+- id: submissions-download-all-responses
+  translation: "Descargar todas las respuestas"
 - id: submission-schemas-placeholder
   translation: |
     # YAML schema for inputs https://yaml.org/spec/1.2/spec.html

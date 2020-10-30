@@ -5,6 +5,9 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/IEEESBITBA/Curso-de-Python-Sistemas/models"
 	"github.com/gobuffalo/buffalo"
@@ -106,7 +109,17 @@ func SubmissionCreatePost(c buffalo.Context) error {
 }
 
 func SubmissionDelete(c buffalo.Context) error {
-	return c.Error(500, fmt.Errorf("Not implemented!"))
+	tx := c.Value("tx").(*pop.Connection)
+	template := new(models.Submission)
+	if err := tx.Where("id = ?", c.Param("sid")).First(template); err != nil {
+		return c.Error(500, err)
+	}
+	template.Deleted = true
+	if err := tx.UpdateColumns(template, "deleted"); err != nil {
+		return c.Error(500, err)
+	}
+	c.Flash().Add("success", "Delete submission success")
+	return c.Redirect(302, "subIndexPath()", render.Data{"forum_title": c.Param("forum_title"), "sid": c.Param("sid")})
 }
 
 func SubmissionSubmitPost(c buffalo.Context) error {
@@ -129,26 +142,27 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 	}
 	for _, input := range *inputs {
 		if input["type"].(string) == "file" {
-			label := input["label"].(string)
+			name := input["name"].(string)
 			maxSize := int64(input["max_size"].(uint64)) * 1e6
-			in, k, err := c.Request().FormFile(input["name"].(string))
+			in, k, err := c.Request().FormFile(name)
 			if err != nil {
 				if req, ok := input["required"]; ok && req.(bool) || !ok { // if not required, skip it
 					continue
 				}
 				return c.Error(500, err)
 			}
+			defer in.Close()
 			if k.Size > maxSize {
 				c.Flash().Add("warning", T.Translate(c, "submission-file-too-big", input))
 				return c.Redirect(302, "subGetPath()", ctxData)
 			}
 			fileCount++
-			defer in.Close()
+
 			var folder string
 			if f, ok := input["folder"]; ok {
 				folder = f.(string) + "/"
 			}
-			zipFile, err := zipWriter.Create(folder + label + k.Filename)
+			zipFile, err := zipWriter.Create(folder + name + "#" + k.Filename)
 			if err != nil {
 				c.Flash().Add("danger", T.Translate(c, "submission-file-submit-fail", input))
 				return c.Redirect(302, "subGetPath()", ctxData)
@@ -157,6 +171,7 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 				c.Flash().Add("danger", T.Translate(c, "submission-file-submit-fail", input))
 				return c.Redirect(302, "subGetPath()", ctxData)
 			}
+			c.Request().Form.Set(name, k.Filename)
 			in.Close()
 		}
 	}
@@ -164,6 +179,7 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 		c.Flash().Add("danger", T.Translate(c, "submission-file-submit-error"))
 		return c.Redirect(302, "subGetPath()", ctxData)
 	}
+	c.Request().Form.Add("date", time.Now().Format("15:04:05 (MST) 02/01/06"))
 	b, err := yaml.Marshal(c.Request().Form)
 	if err != nil {
 		c.Logger().Errorf("marshal yaml error:%s", err)
@@ -186,10 +202,77 @@ func SubmissionSubmitPost(c buffalo.Context) error {
 	return c.Redirect(302, "subIndexPath()", render.Data{"forum_title": c.Param("forum_title")})
 }
 
+func SubmissionDownloadAllResponses(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	subs := new(models.Submissions)
+	tstart := time.Now()
+	template := new(models.Submission)
+	if err := tx.Where("id = ?", c.Param("sid")).First(template); err != nil {
+		return c.Error(500, err)
+	}
+	if err := tx.Where("submission_id = ?", c.Param("sid")).Where("is_template = ?", false).All(subs); err != nil {
+		c.Logger().Errorf("error getting all non template submissions for %s", c.Param("sid"))
+		return c.Error(500, err)
+	}
+	c.Logger().Infof("loaded all responses in %s", time.Since(tstart))
+	outBuffer := new(bytes.Buffer)
+	zipWriter := zip.NewWriter(outBuffer)
+	defer zipWriter.Close()
+	var ymlResponses strings.Builder
+	ymlResponses.Grow(len(*subs) * (len((*subs)[0].Response.String) + 5))
+	ymlResponses.WriteString(
+		fmt.Sprintf("# Responses for %s- Use python's yaml.load_all() function to read.\n# First entry is form template!\n---\n%s",
+			template.Title.String, template.Schemas.String))
+	var totalWritten int64
+	for _, sub := range *subs {
+		ymlResponses.WriteString(fmt.Sprintf("\n---\nsub_db_id: %q\n", sub.ID))
+		ymlResponses.WriteString(sub.Response.String)
+		if !sub.HasAttachment {
+			continue
+		}
+		r, err := zip.NewReader(bytes.NewReader(sub.Zip.ByteSlice), int64(len(sub.Zip.ByteSlice)))
+		if err != nil {
+			return c.Error(500, err)
+		}
+		for _, f := range r.File {
+			var n int64
+			freader, err := f.Open()
+			if err != nil {
+				return c.Error(500, err)
+			}
+			_, fname := filepath.Split(f.Name)
+			w, err := zipWriter.Create(filepath.Join(sub.ID.String(), fname))
+			if err != nil {
+				return c.Error(500, err)
+			}
+			if n, err = io.Copy(w, freader); err != nil {
+				return c.Error(500, err)
+			}
+			freader.Close()
+			totalWritten += n
+			c.Logger().Debugf("file %s found. %d written", f.Name, n)
+		}
+	}
+	w, err := zipWriter.Create("manifest.yml")
+	if err != nil {
+		return c.Error(500, err)
+	}
+	n, err := w.Write([]byte(ymlResponses.String()))
+	if err != nil {
+		return c.Error(500, err)
+	}
+	zipWriter.Close()
+	totalWritten += int64(n)
+	c.Logger().Infof("finished creating responses zip, %0.3fMB written in %s", float64(totalWritten)/1e6, time.Since(tstart))
+	return c.Render(200, r.Download(c,
+		fmt.Sprintf("%s-responses.zip", template.ID.String()[0:8]),
+		outBuffer))
+}
+
 func SubmissionResponseIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	page, perPage := setPagination(c.Params(), 20)
-	q := tx.Where("is_template = ?", false).Where("submission_id = ?", c.Param("sid")).Paginate(page, perPage)
+	q := tx.Where("submission_id = ?", c.Param("sid")).Where("is_template = ?", false).Paginate(page, perPage)
 	subs := new(models.Submissions)
 	if err := q.All(subs); err != nil {
 		return c.Error(500, err)
@@ -204,9 +287,8 @@ func SubmissionResponseIndex(c buffalo.Context) error {
 		} else {
 			(*subs)[i].User = new(models.User)
 		}
-		c.Logger().Printf("%v", (*subs)[i].Zip)
 	}
-
+	c.Set("template_id", c.Param("sid"))
 	c.Set("pagination", q.Paginator)
 	c.Set("submissions", subs)
 	return c.Render(200, r.HTML("submissions/sub-index.plush.html"))
