@@ -16,7 +16,7 @@
         <%= if (current_user.Role == "admin") { %>
         <div class="col-md-2 mt-3 offset-md-8 text-right">
             <%= partial("modal-fade",{modal_action:"delete",
-            modal_ID:"formErrorSubmit", 
+            modal_ID:"delete-submission", 
             modal_href: subDeletePath(ctx),
             action:"DELETE",
             modal_title: t("topic-delete-msg", {title: submission.Title.String}),
