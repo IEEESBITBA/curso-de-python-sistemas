@@ -1,2 +1,13 @@
 User-agent: *
-Disallow: /
+Disallow: */admin/*
+Disallow: */eval/*
+Disallow: */sub/*
+Disallow: */u/*
+Disallow: */edit*
+Disallow: */delete*
+Disallow: */submit*
+Disallow: */create*
+Disallow: */download*
+Disallow: */reply*
+Disallow: *vote*
+Crawl-delay: 4

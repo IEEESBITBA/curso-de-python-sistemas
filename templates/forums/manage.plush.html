@@ -25,11 +25,11 @@
     <div class="card mb-3 mx-1" style="max-width: 540px;">
         <div class="row no-gutters">
             <div class="col-2 col-md-3">
-                <a href="<%= forumPath({forum_title:v.Title}) %>"><%= v.LogoImage({class:"card-img img-thumbnail m-2"}) %></a>
+                <a aria-label="<%= v.Title %>" href="<%= forumPath({forum_title:v.Title}) %>"><%= v.LogoImage({class:"card-img img-thumbnail m-2"}) %></a>
             </div>
             <div class="col-10 col-md-9">
                 <div class="card-body">
-                    <h5 class="card-title"><%= v.Title %></h5>
+                    <h3 class="card-title"><%= v.Title %></h3>
                     <p class="card-text"><%= v.Description %></p>
                     <a href="<%= forumPath({forum_title:v.Title}) %>"><button class="btn btn-secondary"><%= t("forum-visit") %></button></a>
                 </div>
@@ -42,7 +42,7 @@
 
 <div class="row row-cols-1 row-cols-md-2">
     <div class="card mx-auto" style="width:420px;">
-        <iframe width="420" height="315"
+        <iframe title="Como usar el foro" width="420" height="315"
             src="https://www.youtube.com/embed/On1IIYtWx3k">
         </iframe>
         <div class="card-body">
@@ -50,7 +50,7 @@
         </div>
     </div>
     <div class="card mx-auto" style="width:420px;">
-        <iframe width="420" height="315"
+        <iframe title="Primer clase en vivo práctica" width="420" height="315"
             src="https://www.youtube.com/embed/fBxP413Nxk4">
         </iframe>
         <div class="card-body">

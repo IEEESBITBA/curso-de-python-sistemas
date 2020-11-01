@@ -3,8 +3,10 @@
   translation: "Bienvenidos"
 - id: app-home
   translation: "Inicio"
-- id: app-home
+- id: forum-home
   translation: "Inicio foro"
+- id: app-meta-description
+  translation: "Foro para aprender python gratis de la IEEE ITBA"
 - id: app-back-to-top
   translation: "Volver arriba"
 - id: app-footer-title
