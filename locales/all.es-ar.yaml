@@ -1,6 +1,10 @@
 # For more information on using i18n see: https://github.com/nicksnyder/go-i18n
 - id: welcome_greeting
   translation: "Bienvenidos"
+- id: app-home
+  translation: "Inicio"
+- id: app-home
+  translation: "Inicio foro"
 - id: app-back-to-top
   translation: "Volver arriba"
 - id: app-footer-title

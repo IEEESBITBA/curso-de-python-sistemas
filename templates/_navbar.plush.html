@@ -1,9 +1,9 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light mb-2 px-lg-5">
     <%= if (inForum) { %>
-        <a class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
+        <a aria-label="<%= t("forum-home") %>" class="navbar-brand" href="<%= forumPath({forum_title:forum.Title}) %>">
             <%= forum.LogoImage({class:"img-circle",style:"width:50px;"}) %>
         <% } else { %>
-            <a class="navbar-brand" href="/">
+            <a aria-label="<%= t("app-home") %>" class="navbar-brand" href="/">
             <%= bicon("house-fill",{size:"2em"}) %>
     <% } %> </a>
     <button class="navbar-toggler navbar-dark bg-info" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

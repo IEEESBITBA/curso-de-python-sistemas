@@ -179,7 +179,7 @@ func codeTheme(theme string) template.HTML {
 	if !present {
 		url = defaultThemeURL
 	}
-	return template.HTML(fmt.Sprintf(`<link rel="stylesheet" href="%s">`, url))
+	return template.HTML(fmt.Sprintf(`<link defer rel="stylesheet" href="%s">`, url))
 }
 
 func codeThemeOptions(u *models.User) template.HTML {

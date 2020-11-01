@@ -79,6 +79,8 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     # Optional
     # Nothing below this line is required to make the server work
     # --------------
+    # Warning! gontainer requires root privilges just like any other application which performs a chroot
+    # It is suggested test development depend on the system's python (set GONTAINER_FS="" or don't set it)
     GONTAINER_FS=/home/myuser/alpinefs # Path to linux filesystem with python3 installation
     FORUM_HOST=https://my.site.com  # If hosting on non-local address this is required for proper callback function
     PORT=3000 #Default
@@ -258,16 +260,56 @@ npm install --global --production windows-build-tools
 ```
 
 
+# Various other helper sections
 
-### Oops, I uploaded sensitive content or emails
+## Oops, I uploaded sensitive content or emails
 Taken from [git official doc.](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/removing-sensitive-data-from-a-repository)
 
 ```bash
 git filter-branch --force --index-filter \
   "git rm --cached --ignore-unmatch passwords_and_sensitive_data.csv" \
   --prune-empty --tag-name-filter cat -- --all
+# write file to gitignore to avoid adding it again in future
+echo "passwords_and_sensitive_data.csv" >> .gitignore
+# repeat above steps for all unwanted files
+git add .gitignore
+git commit -m "passwords_and_sensitive_data.csv to .gitignore"
+# once sure you've removed all files push to branch
+git push origin --force --all
+# In order to remove the sensitive file from your tagged releases, you'll also need to force-push against your Git tags:
+git push origin --force --tags
 ```
 
+## How to block WAN connections (security)
+
+Drop requests to postgresql that are not from local IPs.
+
+```shell script
+iptables -A INPUT -p tcp --dport 5432 -s 192.168.0.0/24 -j ACCEPT
+iptables -A INPUT -p tcp --dport 5432 -s 127.0.0.0/8 -j ACCEPT
+iptables -A INPUT -p tcp --dport 5432 -j DROP
+```
+
+## Pull server logs from script
+Download server logs and append to file. Also rewrites server-side logs to be blank
+so be careful how you store downloaded logs.
+```bash
+#! /bin/bash
+
+export FOLDER=Curso-de-Python-Sistemas
+export USER=ur_user
+export SERVER-IP=192.168.0.4
+export SV_PATH="/home/${USER}/${FOLDER}"
+export LOG_PATH="${SV_PATH}/nohup.out"
+export GET_CMD="cat ${LOG_PATH} &>> ./curso.log"
+export FORWARD_CMD="echo \" -- LOG START --\" > ${LOG_PATH}"
+
+ssh -i ~/.ssh/curso-whittileaks.pem ${USER}@$SERVER-IP \
+ cat ${LOG_PATH} &>> ./curso.log
+
+ssh -i ~/.ssh/curso-whittileaks.pem ${USER}@$SERVER-IP ${FORWARD_CMD}
+echo "done"
+```
 
 ## how i did this
 Don't bother reading this. These are notes for myself if I ever try building a new buffalo app in the future.

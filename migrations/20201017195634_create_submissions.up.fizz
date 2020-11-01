@@ -6,7 +6,7 @@ create_table("submissions") {
 	t.Column("require_email_verify", "bool", {})
 	" Template Fields "
 	t.Column("title", "string", {"null":true})
-	t.Column("description", "string", {"null":true})
+	t.Column("description", "text", {"null":true})
 	t.Column("schemas", "text", {"null":true})
 	t.Column("hidden", "bool", {})
 	t.Column("deleted", "bool", {})

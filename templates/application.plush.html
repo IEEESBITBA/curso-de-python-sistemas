@@ -4,27 +4,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>Foros ITBA</title>
-    <link rel="icon"  href="<%= assetPath("images/logo-curso32x32.png") %>">
+    <link defer rel="icon"  src="<%= assetPath("images/logo-curso32x32.png") %>">
     <%= stylesheetTag("application.css") %>
     <!-- security against cross site reference attacks -->
     <meta name="csrf-param" content="authenticity_token"/>
     <meta name="csrf-token" content="<%= authenticity_token %>"/>
-    <!-- CSS only -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <!-- CSS BOOTSTRAP 4 CONFIGURED WITH BUFFALO - NOT NEEDED -->
+    
     <!-- JQUERY -->
-    <script src="https://code.jquery.com/jquery.js"></script>
-    <link rel="stylesheet" href="https://www.jqueryscript.net/css/jquerysctipttop.css">
+    <script  src="https://code.jquery.com/jquery.js"></script>
+    <link defer rel="stylesheet" src="https://www.jqueryscript.net/css/jquerysctipttop.css">
     <!-- JQUERY LINED TEXTAREA -->
-    <link rel="stylesheet" href="<%= assetPath("css/jquery-linedtextarea.css") %>">
+    <link defer rel="stylesheet" src="<%= assetPath("css/jquery-linedtextarea.css") %>">
     <!--MATH JAX-->
-    <script id="MathJax-script" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script defer id="MathJax-script" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- HIGHLIGHT.JS - an empty string defaults codeTheme -->
     <%= if (current_user) { %>
         <%= codeTheme(current_user.Theme) %>
     <% } else { %>
         <%= codeTheme("") %>
     <% } %>
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js"></script>
+    <script defer src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js"></script>
     <script>
         // RENDERS contains all functions that need to be executed in their order
         // for html to look tip top quality
@@ -52,13 +52,13 @@
 <footer class="container">
     <div class="row text-center sponsors py-5">
         <a href="https://www.ieee.org/" class="col-sm my-auto">
-            <img height="56px" class="img-sponsor" src="<%=  assetPath("images/ieee-logo.png")  %>">
+            <img alt="logo ieee" height="56px" class="img-sponsor" src="<%=  assetPath("images/ieee-logo.png")  %>">
         </a>
         <a href="<%=t("app-footer-link-url") %>" class="col-sm">
-            <img class="img-sponsor"  src="<%= assetPath("images/IEEE-Icon.png") %>">
+            <img alt="logo ieee-itba" class="img-sponsor"  src="<%= assetPath("images/IEEE-Icon.png") %>">
         </a>
         <a href="https://itba.edu.ar" class="col-sm my-auto">
-            <img class="img-itba" src="//i0.wp.com/www.itba.edu.ar/wp-content/uploads/2020/03/Marca-ITBA-Color-ALTA.png">
+            <img alt="logo itba" class="img-itba" src="//i0.wp.com/www.itba.edu.ar/wp-content/uploads/2020/03/Marca-ITBA-Color-ALTA.png">
         </a>
     </div>
     <div class="row">

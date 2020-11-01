@@ -46,9 +46,9 @@ func (f Forum) LogoImage(opt render.Data) template.HTML {
 		style = s.(string)
 	}
 	if string(f.Logo[0:5]) == "<svg " || string(f.Logo[0:6]) == "\n<svg " {
-		return template.HTML(string(f.Logo[0:5]) + fmt.Sprintf(" class=\"%s\" style=\"%s\" ", class, style) + string(f.Logo[5:]))
+		return template.HTML(string(f.Logo[0:5]) + fmt.Sprintf(" alt=%q class=%q style=%q ", f.Title, class, style) + string(f.Logo[5:]))
 	}
-	return template.HTML(fmt.Sprintf("<img class=\"%s\" style=\"%s\" src=\"data:image/png;base64,%s\">", class, style, base64.StdEncoding.EncodeToString(f.Logo)))
+	return template.HTML(fmt.Sprintf("<img alt=%q class=%q style=%q src=\"data:image/png;base64,%s\">", f.Title, class, style, base64.StdEncoding.EncodeToString(f.Logo)))
 }
 
 // Forums is not required by pop and may be deleted
