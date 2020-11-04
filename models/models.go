@@ -65,7 +65,11 @@ func DBToJSON(w io.Writer) error {
 		return err
 	}
 	site["users"] = usrs
-
+	subs := new(Submissions)
+	if err := DB.All(subs); err != nil {
+		return err
+	}
+	site["submissions"] = subs
 	type Repl struct {
 		Content  string `json:"content"`
 		AuthorID string `json:"author_id"`

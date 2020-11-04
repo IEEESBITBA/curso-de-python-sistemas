@@ -131,7 +131,7 @@ func generateJSONFromSQL(c buffalo.Context) error {
 		return c.Redirect(302, "controlPanelPath()", render.Data{})
 	}
 	tstart := time.Now()
-	jobname = "assets/server/data/sql_" + tstart.Format("Jan_2_15:04:05_2006") + ".json"
+	jobname = "assets/server/data/sql_" + tstart.Format("2-Jan-06_15h04m(MST)") + ".json"
 	f, err := os.Create(jobname)
 	if err != nil {
 		return c.Error(500, err)
@@ -142,7 +142,7 @@ func generateJSONFromSQL(c buffalo.Context) error {
 			return
 		}
 		indexing = true
-		models.DBToJSON(f)
+		_ = models.DBToJSON(f)
 		indexing = false
 		app.Logger.Infof("%s generation time elapsed %s", jobname, time.Since(tstart))
 	}()

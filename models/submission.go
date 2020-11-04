@@ -20,18 +20,18 @@ type Submission struct {
 	UserID             uuid.UUID `json:"user_id" db:"user_id"`
 	RequireEmailVerify bool      `json:"require_email_verify" db:"require_email_verify"`
 	// Template fields (isTemplate == true)
-	Title       nulls.String `form:"title" json:"title" db:"title"`
-	Description nulls.String `form:"description" json:"description" db:"description"`
-	Schemas     nulls.String `form:"schemas" json:"schemas" db:"schemas"`
+	Title       nulls.String `form:"title" json:"title,omitempty" db:"title"`
+	Description nulls.String `form:"description" json:"description,omitempty" db:"description"`
+	Schemas     nulls.String `form:"schemas" json:"schemas,omitempty" db:"schemas"`
 	Hidden      bool         `form:"hidden" json:"hidden" db:"hidden"`
 	Deleted     bool         `json:"deleted" db:"deleted"`
 	Editable    bool         `form:"editable" json:"editable" db:"editable"`
 	Anonymous   bool         `form:"anonymous" json:"anonymous" db:"anonymous"`
 	// Response fields (isTemplate == false)
-	SubmissionID  uuid.NullUUID   `json:"submission_id" db:"submission_id"`
-	Response      nulls.String    `json:"response" db:"response"`
+	SubmissionID  uuid.NullUUID   `json:"submission_id,omitempty" db:"submission_id"`
+	Response      nulls.String    `json:"response,omitempty" db:"response"`
 	HasAttachment bool            `json:"has_attachment" db:"has_attachment"`
-	Zip           nulls.ByteSlice `json:"zip" db:"zip"`
+	Zip           nulls.ByteSlice `json:"-" db:"zip"`
 	CreatedAt     time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time       `json:"updated_at" db:"updated_at"`
 	// Non-DB fields

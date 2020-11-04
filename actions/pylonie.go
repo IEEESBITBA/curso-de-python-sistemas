@@ -222,8 +222,8 @@ type pythonHandler struct {
 var reForbid = map[*regexp.Regexp]string{
 	regexp.MustCompile(`exec|eval|globals|locals|write|breakpoint|getattr|memoryview|vars|super`): "forbidden function key '%s'",
 	//regexp.MustCompile(`input\s*\(`):                           "no %s) to parse!",
-	regexp.MustCompile("tofile|savetxt|fromfile|fromtxt|load\\s*\\("): "forbidden numpy function key '%s'",
-	regexp.MustCompile("dump"):                                        "forbidden json function key '%s'",
+	regexp.MustCompile(`tofile|savetxt|fromfile|fromtxt|load\s*\(`): "forbidden numpy function key '%s'",
+	regexp.MustCompile("dump"):                                      "forbidden json function key '%s'",
 	regexp.MustCompile("to_csv|to_json|to_html|to_clipboard|to_excel|to_hdf|to_feather|to_parquet|to_msgpack|to_stata|to_pickle|to_sql|to_gbq"): "forbidden pandas function key '%s'",
 	regexp.MustCompile(`__\w+__`): "forbidden dunder function key '%s'",
 }
@@ -240,8 +240,6 @@ var allowedImports = map[string]bool{
 	"processing": false,
 	"os":         false,
 }
-
-const maxInt64 = 1<<63 - 1
 
 // containerPy This function runs python in a container (only works on linux)
 // thus it is safe from hackers. Can't touch this requires installing
@@ -279,7 +277,7 @@ func (p *pythonHandler) containerPy() (err error) {
 		"--timeout", (timeoutDuration + time.Second).String(), pyCommand, chrootFilename}
 	cmd := exec.Command("gontainer", gontainerArgs...)
 	defer func() {
-		cmd.Process.Kill()
+		_ = cmd.Process.Kill()
 	}()
 	stdin, _ := cmd.StdinPipe()
 	go func() {

@@ -33,10 +33,10 @@ $(() => {
         $(actionableSelector).on('click', function() {
             $(actionableSelector).setAttribute('disabled','true')
         })
+        $(actionableSelector).on('mouseover', function() {
+            render(RENDERERS)
+        })
     });
-    $(actionableSelector).on('mouseover', function() {
-        render(RENDERERS)
-    })
 });
 
 RENDERERS.push(renderCodeBlock)

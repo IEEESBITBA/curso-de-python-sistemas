@@ -120,7 +120,7 @@ func TopicArchivePost(c buffalo.Context) error {
 	topic := c.Value("topic").(*models.Topic)
 	u := c.Value("current_user").(*models.User)
 	if topic.Author.ID != u.ID && u.Role != "admin" {
-		c.Redirect(403, "/")
+		return c.Redirect(403, "/")
 	}
 	tx := c.Value("tx").(*pop.Connection)
 	topic.Archived = !topic.Archived
