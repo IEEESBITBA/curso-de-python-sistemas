@@ -97,14 +97,15 @@ func NewReplyNotify(c buffalo.Context, topic *models.Topic, reply *models.Reply,
 		r.HTML("mail/notify.plush.html"),
 	)
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "NewReplyNotify mailer: addBodies")
 	}
 	c.Logger().Debugf("SEND %v", m)
 	go func() { // run mailer asynchronously so process does not hang
+		l := c.Logger()
 		if err := smtp.Send(m); err != nil {
-			c.Logger().Errorf("Failed sending notification messages for reply %s: %s", reply.ID, err)
+			l.Errorf("NewReplyNotify mailer: %s", err)
 		} else {
-			c.Logger().Debugf("Success sending notification messages for reply %s", reply.ID)
+			l.Debugf("Success sending notification messages for reply %s", reply.ID)
 		}
 	}()
 	return nil

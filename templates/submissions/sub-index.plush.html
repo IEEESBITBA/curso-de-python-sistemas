@@ -2,7 +2,7 @@
 
 <h1><%= t("app-search-title") %></h1>
 
-<%= if (role == "admin") {%>
+<%= if (role == "admin" && len(submissions)>0) {%>
     <a class="btn btn-primary" href="<%= subDownloadAllPath({forum_title:forum.Title,sid:template_id})%>"><%= bicon("cloud-download")%> <%= t("submissions-download-all-responses") %></a>
 <%} %>
 

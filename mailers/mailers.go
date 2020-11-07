@@ -109,7 +109,7 @@ func newRelaySender(host, port, user, password string) (*relaySender, error) {
 func (rs relaySender) Send(m mail.Message) error {
 	conn, err := net.Dial("tcp", rs.addr)
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "relaySender.Send() during tcp Dial")
 	}
 	defer conn.Close()
 
@@ -119,14 +119,14 @@ func (rs relaySender) Send(m mail.Message) error {
 		r := new(bytes.Buffer)
 		_, err := io.Copy(r, att.Reader)
 		if err != nil {
-			return errors.WithStack(err)
+			return errors.WithMessage(err, "relaySender.Send() during attachments")
 		}
 		att.Reader = r
 	}
 	m.Context = nil
 	err = gob.NewEncoder(o).Encode(m)
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "relaySender.Send() during gob encoding")
 	}
 
 	var hdr [8]byte
@@ -134,12 +134,12 @@ func (rs relaySender) Send(m mail.Message) error {
 	binary.BigEndian.PutUint64(hdr[:], uint64(n))
 	_, err = conn.Write(hdr[:])
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "relaySender.Send() writing header to tcp connection")
 	}
 
 	_, err = conn.Write(o.Bytes())
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "relaySender.Send() writing mail body to tcp connection")
 	}
 	return nil
 }
