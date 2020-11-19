@@ -176,17 +176,28 @@ func (p *pythonHandler) codeResult(c buffalo.Context, output ...string) error {
 	return nil
 }
 
+var (
+	// Set in init()
+	pyTimeoutDuration time.Duration
+)
+
 // configuration values
 const (
 	pyCommand = "python3"
 	// [Milliseconds] after running python code for this time the process is killed
-	pyTimeoutMS = 500
+
 	// DB:
 	// this Bucket name must coincide with one defined in init() in models/bbolt.go
 	pyDBUploadBucketName = "pyUploads"
 	pyMaxSourceLength    = 1200 // DB storage trim length
 	pyMaxOutputLength    = 2000 // in characters
 )
+
+func init() {
+	var err error
+	pyTimeoutDuration, err = time.ParseDuration(envy.Get("PY_TIMEOUT", "500ms"))
+	must(err)
+}
 
 type pyExitStatus int
 
@@ -272,9 +283,8 @@ func (p *pythonHandler) containerPy() (err error) {
 	if err != nil {
 		return err
 	}
-	timeoutDuration := time.Millisecond * pyTimeoutMS
 	gontainerArgs := []string{"run", "--chdr", userDir, "--chrt", chrootPath,
-		"--timeout", (timeoutDuration + time.Second).String(), pyCommand, chrootFilename}
+		"--timeout", (pyTimeoutDuration + time.Second).String(), pyCommand, chrootFilename}
 	cmd := exec.Command("gontainer", gontainerArgs...)
 	defer func() {
 		_ = cmd.Process.Kill()
@@ -285,7 +295,7 @@ func (p *pythonHandler) containerPy() (err error) {
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
-		time.Sleep(timeoutDuration)
+		time.Sleep(pyTimeoutDuration)
 		status <- pyTimeout
 	}()
 	var tstart time.Time
@@ -301,8 +311,8 @@ func (p *pythonHandler) containerPy() (err error) {
 
 	switch <-status {
 	case pyTimeout:
-		p.Elapsed = append(p.Elapsed, timeoutDuration)
-		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
+		p.Elapsed = append(p.Elapsed, pyTimeoutDuration)
+		return fmt.Errorf("process timed out (%s)", pyTimeoutDuration)
 	case pyError, pyOK:
 		p.Elapsed = append(p.Elapsed, time.Since(tstart))
 		replaced := strings.ReplaceAll(string(output), "\""+chrootFilename+"\",", "")
@@ -344,7 +354,7 @@ func (p *pythonHandler) runPy() (err error) {
 	}()
 	status := make(chan pyExitStatus, 1)
 	go func() {
-		time.Sleep(pyTimeoutMS * time.Millisecond)
+		time.Sleep(pyTimeoutDuration)
 		status <- pyTimeout
 	}()
 	var tstart time.Time
@@ -361,8 +371,8 @@ func (p *pythonHandler) runPy() (err error) {
 	switch stat := <-status; stat {
 	case pyTimeout:
 		_ = cmd.Process.Kill()
-		p.Elapsed = append(p.Elapsed, time.Millisecond*pyTimeoutMS)
-		return fmt.Errorf("process timed out (%dms)", pyTimeoutMS)
+		p.Elapsed = append(p.Elapsed, pyTimeoutDuration)
+		return fmt.Errorf("process timed out (%s)", pyTimeoutDuration)
 	case pyError, pyOK:
 		p.Elapsed = append(p.Elapsed, time.Since(tstart))
 		p.Output = strings.ReplaceAll(string(output), "\""+filename+"\",", "")

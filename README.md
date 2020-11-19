@@ -86,6 +86,7 @@ a linux filesystem to get running. Alpine Linux is recommended.)
     PORT=3000 #Default
     ADDR=127.0.0.1 # Default
     FORUM_LOGLVL=info # Default
+    PY_TIMEOUT=500ms # duration format. decides max cpu time for python interpreter (default 500ms)
    # SMTP server (as would be set in ~/.bashrc)
    # Set this up if you want replies to trigger notification Email
    export CURSO_SEND_MAIL=true
