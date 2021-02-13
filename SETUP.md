@@ -12,12 +12,11 @@ This guide is designed to get a **production ready** server up and running.
 * We'll be cloning the repo to get the `assets` folder in the same directory as the binary.
 * We'll download the binary. Alternatively you can build it but you'll need to follow steps 1-6 in [README](./README.md)
 * We'll install Docker and create a container for our database (Postgres)
-* We'll install Nginx. Nginx will serve as a reverse-proxy server. It'll handle requests and serve our site according to SSL protocol (https://)
-* We'll use letsencrypt to configure Nginx to serve SSL protocol
 * We'll install [`soypat/gontainer`](https://github.com/soypat/gontainer) to run python code securely
     * We'll setup a container to securely run Python using an Alpine linux distro
 * We'll configure environment variables so the server operates according to our needs
-
+* We'll install Nginx. Nginx will serve as a reverse-proxy. It'll handle requests and serve our site according to SSL protocol (https://)
+* We'll use letsencrypt to configure Nginx to serve SSL protocol
 
 ## Installing the server
 
