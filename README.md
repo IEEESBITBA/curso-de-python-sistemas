@@ -40,6 +40,8 @@ The app can be run from a binary (.exe on windows) without any need of installat
 
 Look at step 7 for environment configuration. 
 
+See [SETUP.md](./SETUP.md) for a in depth, step-by-step explanation on how to setup a server.
+
 # Steps to run the server and develop it
 
 1. First step is to install `go` from [golang.org](https://golang.org).
@@ -48,7 +50,7 @@ Look at step 7 for environment configuration.
 
 3. Install front-end package managers and build tools. If you are
 running a linux machine you'll only need `yarnpkg`. If you are running
-windows things might get hairy (see windows front end intallation at
+windows things might get hairy (see `windows front end` installation at
 the end of this document)
 	```bash
 	sudo apt install yarnpkg
