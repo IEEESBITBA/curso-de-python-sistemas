@@ -414,5 +414,33 @@ Log into [google domains](https://domains.google.com) using incognito (for some 
     ```
 4. You will be able to access your server through http://curso.yourdomain.org after 2 days max although sometimes it takes just 20 minutes. remember to have your server running and Nginx `.conf` file modified.
 
+### Adding startup tasks
+This is a short addendum I thought to add in after writing the bulk of it. If you wish that a **command or script be run when your machine boots up**, it will be explained here.
+
+Taken from [this](https://smallbusiness.chron.com/configure-config-sys-52922.html) link. The consistent and industry standard way of doing it is by adding the script to your `/etc/init.d` directory:
+
+1. Create your script. I think easiest way is using nano as super user.
+    ```bash
+    sudo nano /etc/init.d/startup.sh
+    ```
+    | Make sure the file is empty! If the file already exists and contains commands close the window and redo step 1 with a different file name! |
+    |---|
+2. Add the [interpreter shebang line](https://en.wikipedia.org/wiki/Shebang_(Unix)#Examples) (we'll use bash) and below the commands you wish to run. i.e *restarting docker container:*
+    ```bash
+    #!/bin/bash
+    docker restart forum
+    ```
+3. Save and close the file. You can check if it contains what you want with a command:
+    ```bash
+    sudo cat /etc/init.d/startup.sh
+    ```
+4. Make the script executable:
+    ```bash
+    sudo chmod +x /etc/init.d/startup.sh
+    ```
+That's it! it should run every startup! You can append commands to this script as you wish using your favorite text editor. If you want to have more control, there [are ways of making the most out of the bash scripting language](https://gist.github.com/soypat/68db78bb827fadf51ba035db0de18398).
+
+
+
 ## Thanks for reading
 Hopefully you got through this without having to google too much. You can submit an issue if you find anything worth adding. 😄️
