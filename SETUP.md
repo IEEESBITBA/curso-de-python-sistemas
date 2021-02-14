@@ -166,7 +166,7 @@ If you wish to automatically set them everytime you start up your linux machine,
 ```bash
 sudo nano /etc/environment
 ```
-**how to save file on nano**: 
+### Saving file on nano 
 1. Once done editing <kbd>Ctrl</kbd>+<kbd>X</kbd> begins exit
 2. <kbd>Y</kbd> tells nano you want to save your changes
 3. <kbd>Enter</kbd> tells nano you want to save with same name. It then exits. Your progress is saved!
@@ -347,7 +347,7 @@ Create a file with your website name ending in `.conf` using nano at `/etc/nginx
 sudo nano /etc/nginx/conf.d/mysite.ieee.com.conf
 ```
 
-| Remember how to use Nano? There's a small explanation at the end of `setting up environment variables` section. |
+| Remember how to use Nano? (see [section on this](#saving-file-on-nano)) |
 |---|
 
 Copy the following contents to the file and replace the `server_name` line with your own domain
@@ -430,7 +430,7 @@ Taken from [this](https://smallbusiness.chron.com/configure-config-sys-52922.htm
     #!/bin/bash
     docker restart forum
     ```
-3. Save and close the file. You can check if it contains what you want with a command:
+3. Save and close the file (see [section on this](#saving-file-on-nano)). You can check if it contains what you want with a command:
     ```bash
     sudo cat /etc/init.d/startup.sh
     ```
